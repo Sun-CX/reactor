@@ -1,6 +1,7 @@
 # Build and Release Folders
 bin-debug/
 bin-release/
+cmake-build-debug/
 [Oo]bj/
 [Bb]in/
 
