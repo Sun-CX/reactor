@@ -43,10 +43,10 @@ MutexGuard::~MutexGuard() {
     mutex.unlock();
 }
 
-Mutex::AntiMutexGuard::AntiMutexGuard(Mutex &mut) : mut(mut) {
-    mut.pid = 0;
+Mutex::ConditionWaitGuard::ConditionWaitGuard(Mutex &mut) : mut(mut) {
+    this->mut.pid = 0;
 }
 
-Mutex::AntiMutexGuard::~AntiMutexGuard() {
+Mutex::ConditionWaitGuard::~ConditionWaitGuard() {
     mut.pid = CurrentThread::get_pid();
 }

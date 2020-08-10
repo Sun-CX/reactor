@@ -1,19 +1,11 @@
 # Build and Release Folders
-bin-debug/
-bin-release/
 cmake-build-debug/
-[Oo]bj/
-[Bb]in/
+.idea/
+.settings/
 
 # Other files and folders
-.settings/
-.idea/
 
 # Executables
-*.swf
-*.air
-*.ipa
-*.apk
 
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important

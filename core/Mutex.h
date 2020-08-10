@@ -18,13 +18,13 @@ private:
     pthread_mutex_t mutex;
     pid_t pid;              // 持有锁的线程 ID，为 0 表示没有线程持有锁
 
-    class AntiMutexGuard final : public NonCopyable {
+    class ConditionWaitGuard final : public NonCopyable {
     private:
         Mutex &mut;
     public:
-        explicit AntiMutexGuard(Mutex &mut);
+        explicit ConditionWaitGuard(Mutex &mut);
 
-        virtual ~AntiMutexGuard();
+        virtual ~ConditionWaitGuard();
     };
 
 public:
