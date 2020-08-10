@@ -21,3 +21,6 @@ target_link_libraries(mutex-test reactor-core)
 
 add_executable(countdownlatch-test CountDownLatch-Test.cpp)
 target_link_libraries(countdownlatch-test reactor-core)
+
+add_executable(singleton-test Singleton-test.cpp)
+target_link_libraries(singleton-test reactor-core)
