@@ -19,5 +19,8 @@ target_link_libraries(timestamp-test reactor-core)
 add_executable(mutex-test Mutex-Test.cpp)
 target_link_libraries(mutex-test reactor-core)
 
-add_executable(countdownlatch-test CountDownLatch-Test.cpp)
-target_link_libraries(countdownlatch-test reactor-core)
+add_executable(countdownlatch-test-1 CountDownLatch-Test1.cpp)
+target_link_libraries(countdownlatch-test-1 reactor-core)
+
+add_executable(countdownlatch-test-2 CountDownLatch-Test2.cpp)
+target_link_libraries(countdownlatch-test-2 reactor-core)

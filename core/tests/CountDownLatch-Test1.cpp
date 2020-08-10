@@ -59,9 +59,8 @@ int main(int argc, const char *argv[]) {
 //    sleep(3);
     printf("pid: %d, tid: %d, %s running...\n", getpid(), CurrentThread::get_pid(), CurrentThread::get_name().c_str());
     t.run();
+    printf("main thread allow rush...\n");
     t.join_all();
 
-//    vector<int> v;
-//    printf("vector default size:%zu, capacity: %zu\n", v.size(), v.capacity());
     return 0;
 }

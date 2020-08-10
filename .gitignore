@@ -2,6 +2,7 @@
 bin-debug/
 bin-release/
 cmake-build-debug/
+.idea/
 [Oo]bj/
 [Bb]in/
 
