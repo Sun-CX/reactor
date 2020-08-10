@@ -24,3 +24,6 @@ target_link_libraries(countdownlatch-test-1 reactor-core)
 
 add_executable(countdownlatch-test-2 CountDownLatch-Test2.cpp)
 target_link_libraries(countdownlatch-test-2 reactor-core)
+
+add_executable(blockingqueue-test BlockingQueue-Test.cpp)
+target_link_libraries(blockingqueue-test reactor-core)
