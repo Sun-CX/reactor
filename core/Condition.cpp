@@ -13,7 +13,7 @@ Condition::~Condition() {
 }
 
 void Condition::wait() {
-    Mutex::AntiMutexGuard guard(mutex);
+    Mutex::ConditionWaitGuard guard(mutex);
     assert(pthread_cond_wait(&cond, mutex.get_mutex()) == 0);
 }
 
@@ -23,7 +23,7 @@ bool Condition::timed_wait(double seconds) {
     //TODO: seconds is double, not int
     ts.tv_sec += seconds;
 
-    Mutex::AntiMutexGuard guard(mutex);
+    Mutex::ConditionWaitGuard guard(mutex);
     return ETIMEDOUT == pthread_cond_timedwait(&cond, mutex.get_mutex(), &ts);
 }
 
