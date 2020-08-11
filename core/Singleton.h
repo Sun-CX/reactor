@@ -7,9 +7,9 @@
 
 #include <pthread.h>
 #include <memory>
-#include <cassert>
 #include <functional>
 #include "NonCopyable.h"
+#include "Exception.h"
 
 using std::shared_ptr;
 using std::function;
@@ -30,7 +30,8 @@ public:
     Singleton() = delete;
 
     static shared_ptr<T> instance() {
-        assert(pthread_once(&once, Singleton::init) == 0);
+        auto status = pthread_once(&once, Singleton::init);
+        if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
         return ptr;
     }
 };
