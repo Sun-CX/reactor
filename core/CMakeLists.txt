@@ -7,7 +7,7 @@ add_subdirectory(tests)
 
 set(LIBRARY_SOURCE Thread.cpp CurrentThread.cpp Exception.cpp Timestamp.cpp
         Mutex.cpp Condition.cpp CountDownLatch.cpp Singleton.h
-        BlockingQueue.h
+        BlockingQueue.h BoundedBlockingQueue.h CircularBuffer.h
 
         CircuitBuffer.h)
 
