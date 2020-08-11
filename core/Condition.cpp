@@ -21,14 +21,16 @@ void Condition::wait() {
     if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 
-bool Condition::timed_wait(double seconds) {
+bool Condition::timed_wait(long seconds, long microseconds) {
     timespec ts;
     auto status = clock_gettime(CLOCK_REALTIME, &ts);
     if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
-    //TODO: seconds is double, not int
     ts.tv_sec += seconds;
-
+    ts.tv_nsec += microseconds * 1000;
     Mutex::ConditionWaitGuard guard(mutex);
+    /**
+     * 如果到达超时时间条件仍未出现，将返回 ETIMEDOUT 错误
+     */
     return ETIMEDOUT == pthread_cond_timedwait(&cond, mutex.get_mutex(), &ts);
 }
 
