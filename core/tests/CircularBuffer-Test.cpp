@@ -10,7 +10,7 @@ int main(int argc, const char *argv[]) {
 
     buffer.push_back(4);
     cout << buffer;
-//    printf("current size: %zu\n", buffer.size());
+    printf("current capacity: %zu\n", buffer.get_capacity());
     buffer.push_back(8);
     cout << buffer;
 //    printf("current size: %zu\n", buffer.size());

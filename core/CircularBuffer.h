@@ -7,7 +7,6 @@
 
 #include <cstddef>
 #include <iostream>
-#include "Exception.h"
 
 using std::ostream;
 using std::endl;
@@ -30,17 +29,16 @@ public:
 
     void push_back(const T &x) {
 //        if (full()) ERROR_EXIT("full.");
-
         arr[rear] = x;
         if (full()) front = (front + 1) % capacity;
         rear = (rear + 1) % capacity;
     }
 
-    T pop_front() {
-        if (empty()) ERROR_EXIT("empty.");
-        T val(move(arr[front]));
+    bool pop_front(T &x) {
+        if (empty()) return false;
+        x = arr[front];
         front = (front + 1) % capacity;
-        return val;
+        return true;
     }
 
     bool empty() const {
@@ -55,6 +53,12 @@ public:
         return (rear + capacity - front) % capacity;
     }
 
+    //TODO: return capacity or capacity - 1?
+    size_t get_capacity() const {
+        return capacity - 1;
+    }
+
+    //TODO: debug only
     friend ostream &operator<<(ostream &os, const CircularBuffer &buffer) {
         os << "capacity: " << buffer.capacity << endl;
         for (int i = buffer.front; i != buffer.rear; i = (i + 1) % buffer.capacity) {
