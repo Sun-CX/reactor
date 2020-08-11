@@ -19,15 +19,17 @@ target_link_libraries(timestamp-test reactor-core)
 add_executable(mutex-test Mutex-Test.cpp)
 target_link_libraries(mutex-test reactor-core)
 
-add_executable(singleton-test Singleton-test.cpp)
-target_link_libraries(singleton-test reactor-core)
-
 add_executable(countdownlatch-test-1 CountDownLatch-Test1.cpp)
 target_link_libraries(countdownlatch-test-1 reactor-core)
 
 add_executable(countdownlatch-test-2 CountDownLatch-Test2.cpp)
 target_link_libraries(countdownlatch-test-2 reactor-core)
 
+add_executable(singleton-test Singleton-Test.cpp)
+target_link_libraries(singleton-test reactor-core)
+
 add_executable(blockingqueue-test BlockingQueue-Test.cpp)
 target_link_libraries(blockingqueue-test reactor-core)
+
+add_executable(assert-test Assert-Test.cpp)
 

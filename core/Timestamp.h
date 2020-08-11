@@ -9,8 +9,8 @@
 #include <string>
 #include <cstring>
 #include <cinttypes>
-#include <cassert>
 #include <ctime>
+#include "Exception.h"
 
 using std::string;
 

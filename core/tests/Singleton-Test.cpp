@@ -6,33 +6,29 @@
 #include <string>
 #include <memory>
 #include <thread>
-#include <functional>
 #include "../Singleton.h"
 
-class Student
-{
-public:
-    Student() = default;
-    ~Student() = default;
+using std::shared_ptr;
+
+class Student {
 private:
     std::string name;
 };
 
-void get_instance()
-{
+void get_instance() {
     std::shared_ptr<Student> student = Singleton<Student>::instance();
     std::cout << student.get() << std::endl;
 }
 
-int main(int argc, char *argv[])
-{
-    std::shared_ptr<Student> student = Singleton<Student>::instance();
-    std::cout << student.get() << std::endl;
+int main(int argc, const char *argv[]) {
+
+    printf("equal? %d\n", make_singleton<Student>() == make_singleton<Student>());
+
+    shared_ptr<Student> student = Singleton<Student>::instance();
     std::cout << student.get() << std::endl;
 
-    std::thread another_thread(std::bind(get_instance));
+    std::thread another_thread([] { return get_instance(); });
 
     another_thread.join();
-
     return 0;
 }

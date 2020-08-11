@@ -46,7 +46,7 @@ bool Timestamp::operator!=(const Timestamp &rhs) const {
 }
 
 double time_diff(const Timestamp &high, const Timestamp &low) {
-    assert(low <= high);
+    if (unlikely(low > high)) ERROR_EXIT("low > high...");
     int64_t diff = high.microsecond_since_epoch - low.microsecond_since_epoch;
     return static_cast<double>(diff) / Timestamp::microseconds_per_second;
 }
@@ -58,7 +58,8 @@ Timestamp add_time(const Timestamp timestamp, double seconds_offset) {
 
 Timestamp Timestamp::now() {
     timespec ts;
-    assert(clock_gettime(CLOCK_REALTIME, &ts) == 0);
+    auto status = clock_gettime(CLOCK_REALTIME, &ts);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
     return Timestamp(ts.tv_sec * Timestamp::microseconds_per_second + ts.tv_nsec / 1000);
 }
 

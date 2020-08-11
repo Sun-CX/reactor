@@ -21,10 +21,6 @@ void Exception::fill_stack_trace(bool demangle, int max_frames) {
     }
 }
 
-//string Exception::demangle_symbol(const char *symbol) const {
-//    return std::__cxx11::string();
-//}
-
 const char *Exception::what() const noexcept {
     return message.c_str();
 }

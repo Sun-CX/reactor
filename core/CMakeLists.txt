@@ -6,7 +6,8 @@ set(CMAKE_CXX_STANDARD 14)
 add_subdirectory(tests)
 
 set(LIBRARY_SOURCE Thread.cpp CurrentThread.cpp Exception.cpp Timestamp.cpp
-        Mutex.cpp Condition.cpp CountDownLatch.cpp BlockingQueue.h
+        Mutex.cpp Condition.cpp CountDownLatch.cpp Singleton.h
+        BlockingQueue.h
 
         )
 

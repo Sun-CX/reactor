@@ -5,17 +5,20 @@
 #include "Mutex.h"
 
 Mutex::Mutex() : pid(0) {
-    assert(pthread_mutex_init(&mutex, nullptr) == 0);
+    auto status = pthread_mutex_init(&mutex, nullptr);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 
 void Mutex::lock() {
-    assert(pthread_mutex_lock(&mutex) == 0);
+    auto status = pthread_mutex_lock(&mutex);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
     pid = CurrentThread::get_pid();
 }
 
 void Mutex::unlock() {
     pid = 0;
-    assert(pthread_mutex_unlock(&mutex) == 0);
+    auto status = pthread_mutex_unlock(&mutex);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 
 pthread_mutex_t *Mutex::get_mutex() {
@@ -27,12 +30,13 @@ bool Mutex::is_locked_by_cur_thread() const {
 }
 
 void Mutex::assert_locked_by_cur_thread() const {
-    assert(is_locked_by_cur_thread());
+    if (!is_locked_by_cur_thread()) ERROR_EXIT("assert error.");
 }
 
 Mutex::~Mutex() {
-    assert(pid == 0);
-    assert(pthread_mutex_destroy(&mutex) == 0);
+    if (unlikely(pid != 0)) ERROR_EXIT("error occurred.");
+    auto status = pthread_mutex_destroy(&mutex);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 
 MutexGuard::MutexGuard(Mutex &mutex) : mutex(mutex) {

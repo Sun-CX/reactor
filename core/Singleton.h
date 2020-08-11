@@ -5,32 +5,45 @@
 #ifndef REACTOR_SINGLETON_H
 #define REACTOR_SINGLETON_H
 
-#include <memory>
 #include <pthread.h>
+#include <memory>
+#include <cassert>
+#include <functional>
+#include "NonCopyable.h"
 
-template <typename T>
-class Singleton {
+using std::shared_ptr;
+using std::function;
+using std::make_shared;
+using std::bind;
+
+template<typename T>
+class Singleton : public NonCopyable {
+private:
+    static pthread_once_t once;
+    static shared_ptr<T> ptr;
+
+    static void init() {
+        ptr = make_shared<T>();
+    }
+
 public:
-    static std::shared_ptr<T> instance()
-    {
-        pthread_once(&once_control, &Singleton::init);
-        return obj;
+    Singleton() = delete;
+
+    static shared_ptr<T> instance() {
+        assert(pthread_once(&once, Singleton::init) == 0);
+        return ptr;
     }
-private:
-    static void init()
-    {
-        obj = std::make_shared<T>();
-    }
-private:
-    static pthread_once_t once_control;
-    static std::shared_ptr<T> obj;
 };
 
-template <typename T>
-pthread_once_t Singleton<T>::once_control = PTHREAD_ONCE_INIT;
+template<typename T>
+pthread_once_t Singleton<T>::once = PTHREAD_ONCE_INIT;
 
-template <typename T>
-std::shared_ptr<T> Singleton<T>::obj = nullptr;
+template<typename T>
+shared_ptr<T> Singleton<T>::ptr;
 
+template<class T>
+shared_ptr<T> make_singleton() {
+    return Singleton<T>::instance();
+}
 
 #endif //REACTOR_SINGLETON_H

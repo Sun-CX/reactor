@@ -6,7 +6,6 @@
 #define REACTOR_MUTEX_H
 
 #include <pthread.h>
-#include <cassert>
 #include "NonCopyable.h"
 #include "CurrentThread.h"
 

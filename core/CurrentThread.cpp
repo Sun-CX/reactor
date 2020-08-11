@@ -6,13 +6,13 @@
 
 const string &CurrentThread::get_name() {
     auto ptr = static_cast<Thread::TSD *>(pthread_getspecific(Thread::key));
-    assert(ptr != nullptr);
+    if (unlikely(ptr == nullptr)) ERROR_EXIT("error occurred.");
     return ptr->name;
 }
 
 pid_t CurrentThread::get_pid() {
     auto ptr = static_cast<Thread::TSD *>(pthread_getspecific(Thread::key));
-    assert(ptr != nullptr);
+    if (unlikely(ptr == nullptr)) ERROR_EXIT("error occurred.");
     return ptr->pid;
 }
 

@@ -9,6 +9,9 @@
 
 class CurrentThread final : public NonCopyable {
 public:
+
+    CurrentThread() = delete;
+
     static const string &get_name();
 
     static pid_t get_pid();

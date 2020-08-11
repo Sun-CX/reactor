@@ -5,21 +5,26 @@
 #include "Condition.h"
 
 Condition::Condition(Mutex &mutex) : mutex(mutex) {
-    assert(pthread_cond_init(&cond, nullptr) == 0);
+    auto status = pthread_cond_init(&cond, nullptr);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 
 Condition::~Condition() {
-    assert(pthread_cond_destroy(&cond) == 0);
+    auto status = pthread_cond_destroy(&cond);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 
 void Condition::wait() {
+    int status;
     Mutex::ConditionWaitGuard guard(mutex);
-    assert(pthread_cond_wait(&cond, mutex.get_mutex()) == 0);
+    status = pthread_cond_wait(&cond, mutex.get_mutex());
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 
 bool Condition::timed_wait(double seconds) {
     timespec ts;
-    assert(clock_gettime(CLOCK_REALTIME, &ts) == 0);
+    auto status = clock_gettime(CLOCK_REALTIME, &ts);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
     //TODO: seconds is double, not int
     ts.tv_sec += seconds;
 
@@ -28,10 +33,12 @@ bool Condition::timed_wait(double seconds) {
 }
 
 void Condition::notify() {
-    assert(pthread_cond_signal(&cond) == 0);
+    auto status = pthread_cond_signal(&cond);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 
 void Condition::notify_all() {
-    assert(pthread_cond_broadcast(&cond) == 0);
+    auto status = pthread_cond_broadcast(&cond);
+    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 

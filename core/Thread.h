@@ -9,11 +9,13 @@
 #include <string>
 #include <atomic>
 #include <functional>
-#include <cassert>
 #include <unistd.h>
 #include <syscall.h>
 #include <sys/prctl.h>
 #include "NonCopyable.h"
+#include "Exception.h"
+
+#define pre_main __attribute__((constructor))
 
 using std::string;
 using std::atomic_int;
