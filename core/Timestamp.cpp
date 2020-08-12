@@ -21,6 +21,10 @@ void Timestamp::swap(Timestamp &timestamp) {
     std::swap(microsecond_since_epoch, timestamp.microsecond_since_epoch);
 }
 
+bool Timestamp::valid() const {
+    return microsecond_since_epoch > 0;
+}
+
 bool Timestamp::operator<(const Timestamp &rhs) const {
     return microsecond_since_epoch < rhs.microsecond_since_epoch;
 }

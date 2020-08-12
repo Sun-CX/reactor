@@ -20,6 +20,12 @@ private:
 
     static const int microseconds_per_second = 1000 * 1000;
 
+    /**
+     * 返回两个时间的差，单位：秒
+     * @param high
+     * @param low
+     * @return 时间差
+     */
     friend double time_diff(const Timestamp &high, const Timestamp &low);
 
     friend Timestamp add_time(Timestamp timestamp, double seconds_offset);
@@ -28,6 +34,8 @@ public:
     explicit Timestamp(int64_t msSinceEpoch = 0);
 
     void swap(Timestamp &timestamp);
+
+    bool valid() const;
 
     string to_string() const;
 

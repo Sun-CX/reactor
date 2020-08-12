@@ -62,7 +62,7 @@ public:
     }
 
     void join_all() {
-        for (int i = 0; i < threads.size(); ++i) {
+        for (size_t i = 0; i < threads.size(); ++i) {
             queue.en_queue("stop");
         }
         for (const auto &th:threads) th->join();
