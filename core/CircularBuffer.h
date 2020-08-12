@@ -6,18 +6,23 @@
 #define REACTOR_CIRCULARBUFFER_H
 
 #include <cstddef>
-#include <iostream>
-
-using std::ostream;
-using std::endl;
-using std::cout;
+#include "Exception.h"
 
 template<class T>
 class CircularBuffer {
 private:
-    size_t capacity;
+    const size_t capacity;
     int front, rear;
     T *arr;
+
+    //TODO: for debug only!
+    friend void println(const CircularBuffer &buffer) {
+        for (int i = buffer.front; i != buffer.rear; i = (i + 1) % buffer.capacity) {
+            printf("%d ", buffer.arr[i]);
+        }
+        printf("\n");
+    }
+
 public:
     explicit CircularBuffer(size_t max_size) : capacity(max_size + 1), front(0), rear(0) {
         arr = new T[capacity];
@@ -27,18 +32,24 @@ public:
         delete[] arr;
     }
 
+    /**
+     * 向循环队列中插入一个元素，如果当前队列已满，则将队头元素出队再插入队尾元素
+     * @param x 插入元素
+     */
     void push_back(const T &x) {
-//        if (full()) ERROR_EXIT("full.");
         arr[rear] = x;
         if (full()) front = (front + 1) % capacity;
         rear = (rear + 1) % capacity;
     }
 
-    bool pop_front(T &x) {
-        if (empty()) return false;
-        x = arr[front];
+    /**
+     * 队头元素出队
+     */
+    T pop_front() {
+        if (unlikely(empty())) ERROR_EXIT("empty!");
+        T val(move(arr[front]));
         front = (front + 1) % capacity;
-        return true;
+        return val;
     }
 
     bool empty() const {
@@ -56,16 +67,6 @@ public:
     //TODO: return capacity or capacity - 1?
     size_t get_capacity() const {
         return capacity - 1;
-    }
-
-    //TODO: debug only
-    friend ostream &operator<<(ostream &os, const CircularBuffer &buffer) {
-        os << "capacity: " << buffer.capacity << endl;
-        for (int i = buffer.front; i != buffer.rear; i = (i + 1) % buffer.capacity) {
-            os << buffer.arr[i] << ' ';
-        }
-        os << endl;
-        return os;
     }
 };
 

@@ -27,6 +27,9 @@ public:
         cond.notify();
     }
 
+    /**
+     * @param x 右值引用，而非万能引用
+     */
     void en_queue(T &&x) {
         MutexGuard guard(mutex);
         queue.push_back(move(x));
@@ -36,9 +39,11 @@ public:
     T de_queue() {
         MutexGuard guard(mutex);
 
-        //TODO: why? 可能出现虚假唤醒？
+        /**
+         * 必须为循环，不能为 if
+         * 防止虚假唤醒
+         */
         while (queue.empty()) cond.wait();
-        assert(!queue.empty());
         T front(move(queue.front()));
         queue.pop_front();
         return front;
