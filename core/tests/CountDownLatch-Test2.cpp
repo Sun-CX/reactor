@@ -15,6 +15,11 @@ using std::bind;
 using std::for_each;
 using std::placeholders::_1;
 
+/**
+ * 本例演示了：
+ * 主线程等待所有子线程执行完毕后再继续执行
+ */
+
 class Demo {
 private:
 

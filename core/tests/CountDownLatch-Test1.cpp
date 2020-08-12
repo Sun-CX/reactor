@@ -17,6 +17,11 @@ using std::for_each;
 using std::placeholders::_1;
 using std::move;
 
+/**
+ * 本例演示了：
+ * 主线程发起起跑命令，然后各子线程同时启动
+ */
+
 class Test {
 private:
     CountDownLatch latch;
@@ -58,8 +63,8 @@ int main(int argc, const char *argv[]) {
     Test t(3);
 //    sleep(3);
     printf("pid: %d, tid: %d, %s running...\n", getpid(), CurrentThread::get_pid(), CurrentThread::get_name().c_str());
-    t.run();
     printf("main thread allow rush...\n");
+    t.run();
     t.join_all();
 
     return 0;
