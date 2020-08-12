@@ -2,8 +2,8 @@
 // Created by suncx on 2020/8/10.
 //
 
-#ifndef REACTOR_BLOCKINGQUEUE_H
-#define REACTOR_BLOCKINGQUEUE_H
+#ifndef REACTOR_BLOCKINGQUEUE_BENCH_TEST_H
+#define REACTOR_BLOCKINGQUEUE_BENCH_TEST_H
 
 #include "Mutex.h"
 #include "Condition.h"
@@ -55,4 +55,4 @@ public:
     }
 };
 
-#endif //REACTOR_BLOCKINGQUEUE_H
+#endif //REACTOR_BLOCKINGQUEUE_BENCH_TEST_H
