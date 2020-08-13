@@ -19,7 +19,7 @@ public:
     explicit CountDownLatch(int count);
 
     /**
-     * 阻塞当前线程，将当前线程加入阻塞队列
+     * 当计数器大于 0 时阻塞当前线程（将当前线程加入阻塞队列）
      */
     void wait();
 
