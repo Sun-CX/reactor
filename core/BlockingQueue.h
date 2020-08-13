@@ -12,6 +12,15 @@
 using std::deque;
 using std::move;
 
+/**
+ * 线程安全的无界队列
+ *
+ * 注意：
+ * 由于是无界队列，所以要避免生产者线程的生产速率大于消费者的消费速率这种情况，否则会出现产品堆积占用大量内存，造成系统运行不稳定
+ *
+ * 若想从根本上规避这个隐患，请使用有界阻塞队列 BoundedBlockingQueue
+ * @tparam T 产品的类型
+ */
 template<class T>
 class BlockingQueue {
 private:
@@ -40,8 +49,8 @@ public:
         MutexGuard guard(mutex);
 
         /**
-         * 必须为循环，不能为 if
-         * 防止虚假唤醒
+         * 注意：
+         * 这里必须为循环，不能为 if，防止虚假唤醒
          */
         while (queue.empty()) cond.wait();
         T front(move(queue.front()));

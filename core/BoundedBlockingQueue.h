@@ -36,11 +36,9 @@ public:
     T pop_front() {
         MutexGuard guard(mutex);
         while (buffer.empty()) not_empty.wait();
-        T v;
-        auto pop_success = buffer.pop_front(v);
-        if (unlikely(!pop_success)) ERROR_EXIT("pop failed!");
+        T front = move(buffer.pop_front());
         not_full.notify();
-        return move(v);
+        return front;
     }
 
     bool empty() const {

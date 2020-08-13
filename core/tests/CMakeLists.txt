@@ -40,5 +40,8 @@ target_link_libraries(blockingqueue-bench-test reactor-core)
 add_executable(circularbuffer-test CircularBuffer-Test.cpp)
 target_link_libraries(circularbuffer-test reactor-core)
 
+add_executable(boundedblockingqueue-test BoundedBlockingQueue-Test.cpp)
+target_link_libraries(boundedblockingqueue-test reactor-core)
+
 
 
