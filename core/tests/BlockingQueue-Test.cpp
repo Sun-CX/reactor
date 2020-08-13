@@ -24,7 +24,7 @@ private:
     vector<unique_ptr<Thread>> threads;
 
     void thread_func() {
-        printf("tid: %d, %s started...\n", CurrentThread::get_pid(), CurrentThread::get_name().c_str());
+        printf("%s[%d] started...\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid());
         latch.count_down();
         bool running = true;
         while (running) {
@@ -50,7 +50,7 @@ public:
     void run(int times) {
         printf("waiting for count_down_latch...\n");
         latch.wait();
-        printf("all threads started...\n");
+        printf("all threads have started...\n");
         char buf[32];
         for (int i = 0; i < times; ++i) {
             memset(buf, 0, sizeof(buf));
@@ -90,7 +90,7 @@ int main(int argc, const char *argv[]) {
            CurrentThread::get_pid());
 
     Test t(5);   // 5 个消费者消费数据
-    t.run(100);     // 生产 100 条数据
+    t.run(100);     // 主线程生产 100 条数据
     t.join_all();
 
 //    test_move();
