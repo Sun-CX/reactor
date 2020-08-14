@@ -46,5 +46,7 @@ target_link_libraries(boundedblockingqueue-test reactor-core)
 add_executable(threadpool-test ThreadPool-Test.cpp)
 target_link_libraries(threadpool-test reactor-core)
 
+add_executable(sundry-test Sundry-Test.cpp)
+
 
 

@@ -6,7 +6,6 @@
 #include "../Thread.h"
 #include <memory>
 #include <vector>
-#include <cstring>
 #include <functional>
 
 using std::vector;
@@ -41,7 +40,6 @@ public:
     explicit Test(int n_threads) : latch(n_threads) {
         char name[32];
         for (int i = 0; i < n_threads; ++i) {
-            memset(name, 0, sizeof(name));
             snprintf(name, sizeof(name), "work-thread-%d", i + 1);
             threads.emplace_back(new Thread(bind(&Test::thread_func, this), name));
         }

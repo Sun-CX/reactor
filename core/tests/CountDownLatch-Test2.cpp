@@ -5,7 +5,6 @@
 #include "../CountDownLatch.h"
 #include "../Thread.h"
 #include <vector>
-#include <cstring>
 #include <memory>
 #include <algorithm>
 
@@ -39,7 +38,6 @@ public:
         threads.reserve(n_threads);
         char name[32];
         for (int i = 0; i < n_threads; ++i) {
-            memset(name, 0, sizeof(name));
             snprintf(name, sizeof(name), "work-thread-%d", i + 1);
             threads.push_back(make_unique<Thread>(bind(&Demo::thread_func, this), name));
         }

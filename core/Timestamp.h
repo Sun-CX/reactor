@@ -6,13 +6,8 @@
 #define REACTOR_TIMESTAMP_H
 
 #include <cstdint>
-#include <string>
-#include <cstring>
 #include <cinttypes>
-#include <ctime>
 #include "Exception.h"
-
-using std::string;
 
 class Timestamp final {
 private:

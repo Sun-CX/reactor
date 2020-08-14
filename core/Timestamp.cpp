@@ -8,7 +8,6 @@ Timestamp::Timestamp(int64_t msSinceEpoch) : microsecond_since_epoch(msSinceEpoc
 
 string Timestamp::to_string() const {
     char buf[32];
-    memset(buf, 0, sizeof(buf));
     int64_t sec = microsecond_since_epoch / microseconds_per_second;
 
     int64_t micro_seconds = microsecond_since_epoch % microseconds_per_second;
@@ -69,7 +68,6 @@ Timestamp Timestamp::now() {
 
 string Timestamp::to_fmt_string(bool show_microsecond) const {
     char buf[32];
-    memset(buf, 0, sizeof(buf));
     time_t seconds = microsecond_since_epoch / microseconds_per_second;
     tm tm_time;
     localtime_r(&seconds, &tm_time);

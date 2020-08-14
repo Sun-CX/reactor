@@ -55,7 +55,7 @@ ThreadPool::Task ThreadPool::get_task() {
     if (!task_queue.empty()) {
         task = task_queue.front();
         task_queue.pop_front();
-        if (0 < max_queue_size) {
+        if (max_queue_size > 0) {
             not_full.notify();
         }
     }
@@ -63,7 +63,7 @@ ThreadPool::Task ThreadPool::get_task() {
 }
 
 void ThreadPool::run_in_thread() {
-    if (task) task();
+//    if (task) task();
     while (running) {
         Task task = get_task();
         if (task) task();

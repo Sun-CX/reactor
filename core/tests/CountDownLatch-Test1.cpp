@@ -8,7 +8,6 @@
 #include <memory>
 #include <functional>
 #include <algorithm>
-#include <cstring>
 
 using std::vector;
 using std::unique_ptr;
@@ -39,7 +38,6 @@ public:
         threads.reserve(n_threads);
         char name[32];
         for (int i = 0; i < n_threads; ++i) {
-            memset(name, 0, sizeof(name));
             snprintf(name, sizeof(name), "work thread-%d", i);
             threads.push_back(make_unique<Thread>(bind(&Test::thread_func, this), name));
         }

@@ -9,8 +9,8 @@ static void print() {
     printf("%s[%d] execute print...\n", CurrentThread::name, CurrentThread::pid);
 }
 
-static void print_str(const char *str) {
-    printf("%s[%d] execute task: %s\n", CurrentThread::name, CurrentThread::pid, str);
+static void print_str(const string &str) {
+    printf("%s[%d] execute task: %s\n", CurrentThread::name, CurrentThread::pid, str.c_str());
     usleep(100 * 1000);
 }
 
@@ -24,11 +24,11 @@ static void test(int max_size) {
 
     char name[32];
     for (int i = 0; i < 100; ++i) {
-        memset(name, 0, sizeof(name));
         snprintf(name, sizeof(name), "task-%d", i + 1);
-        pool.submit(bind(print_str, name));
+//        pool.submit(bind(print_str, name));
+        pool.submit(bind(print_str, string(name)));
     }
-    printf("Done.\n");
+    printf("Tasks submit done.\n");
 
     CountDownLatch latch(1);
     pool.submit(bind(&CountDownLatch::count_down, &latch));

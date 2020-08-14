@@ -32,7 +32,7 @@ private:
     Condition not_empty;
     Condition not_full;
     string name;
-    Task task;
+//    Task task;
     vector<unique_ptr<Thread>> threads;
     deque<Task> task_queue;
     size_t max_queue_size;  // 任务队列的最大长度

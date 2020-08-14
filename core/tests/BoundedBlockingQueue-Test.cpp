@@ -7,7 +7,6 @@
 #include "../Thread.h"
 #include <vector>
 #include <memory>
-#include <cstring>
 #include <functional>
 
 using std::vector;
@@ -45,7 +44,6 @@ public:
         threads.reserve(n_threads);
         char name[32];
         for (int i = 0; i < n_threads; ++i) {
-            memset(name, 0, sizeof(name));
             snprintf(name, sizeof(name), "work-thread-%d", i + 1);
             threads.emplace_back(new Thread(bind(&Test::thread_func, this), name));
         }
@@ -58,7 +56,6 @@ public:
         printf("all threads have started...\n");
         char buf[32];
         for (int i = 0; i < times; ++i) {
-            memset(buf, 0, sizeof(buf));
             snprintf(buf, sizeof(buf), "hello %d", i + 1);
             queue.push_back(buf);
             printf("%s[%d] push_back: %s, queue size: %zu\n", CurrentThread::name,
