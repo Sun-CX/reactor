@@ -4,6 +4,7 @@
 
 #include "../Mutex.h"
 #include "../Timestamp.h"
+#include "../Thread.h"
 #include <vector>
 #include <memory>
 

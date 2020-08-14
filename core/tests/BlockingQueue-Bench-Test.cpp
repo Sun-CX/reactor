@@ -27,7 +27,7 @@ private:
     CountDownLatch latch;
 
     void thread_func() {
-        printf("%s[%d] started...\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid());
+        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
         latch.count_down();
         map<int, int> delays;
         bool running = true;
@@ -42,10 +42,10 @@ private:
             running = timestamp.valid();
         }
 
-        printf("%s[%d] stopped...\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid());
+        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::pid);
 
         for (const auto &delay:delays) {
-            printf("%s[%d] delay: %d, count: %d\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid(),
+            printf("%s[%d] delay: %d, count: %d\n", CurrentThread::name, CurrentThread::pid,
                    delay.first, delay.second);
         }
     }

@@ -1,7 +1,7 @@
 # Build and Release Folders
-cmake-build-debug/
-.idea/
-.settings/
+cmake-build-debug
+.idea
+.settings
 
 # Other files and folders
 

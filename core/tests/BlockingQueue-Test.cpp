@@ -3,6 +3,7 @@
 //
 #include "../BlockingQueue.h"
 #include "../CountDownLatch.h"
+#include "../Thread.h"
 #include <memory>
 #include <vector>
 #include <cstring>
@@ -24,16 +25,16 @@ private:
     vector<unique_ptr<Thread>> threads;
 
     void thread_func() {
-        printf("%s[%d] started...\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid());
+        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
         latch.count_down();
         bool running = true;
         while (running) {
             string d = queue.de_queue();
-            printf("%s[%d]: consume data: %s, size = %zu\n", CurrentThread::get_name().c_str(),
-                   CurrentThread::get_pid(), d.c_str(), queue.size());
+            printf("%s[%d]: consume data: %s, size = %zu\n", CurrentThread::name,
+                   CurrentThread::pid, d.c_str(), queue.size());
             running = d != "stop";
         }
-        printf("%s[%d] stopped...\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid());
+        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::pid);
     }
 
 public:
@@ -56,7 +57,7 @@ public:
             memset(buf, 0, sizeof(buf));
             snprintf(buf, sizeof(buf), "hello %d", i + 1);
             queue.en_queue(buf);
-            printf("%s[%d] enque: %s, queue size: %zu\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid(),
+            printf("%s[%d] enque: %s, queue size: %zu\n", CurrentThread::name, CurrentThread::pid,
                    buf, queue.size());
         }
     }
@@ -86,8 +87,7 @@ void test_move() {
 
 int main(int argc, const char *argv[]) {
 
-    printf("thread name: %s, pid: %d, tid: %d\n", CurrentThread::get_name().c_str(), getpid(),
-           CurrentThread::get_pid());
+    printf("thread name: %s, pid: %d, tid: %d\n", CurrentThread::name, getpid(), CurrentThread::pid);
 
     Test t(5);   // 5 个消费者消费数据
     t.run(100);     // 主线程生产 100 条数据

@@ -12,7 +12,7 @@ Mutex::Mutex() : pid(0) {
 void Mutex::lock() {
     auto status = pthread_mutex_lock(&mutex);
     if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
-    pid = CurrentThread::get_pid();
+    pid = CurrentThread::pid;
 }
 
 void Mutex::unlock() {
@@ -26,7 +26,7 @@ pthread_mutex_t *Mutex::get_mutex() {
 }
 
 bool Mutex::is_locked_by_cur_thread() const {
-    return pid == CurrentThread::get_pid();
+    return pid == CurrentThread::pid;
 }
 
 void Mutex::assert_locked_by_cur_thread() const {
@@ -52,5 +52,5 @@ Mutex::ConditionWaitGuard::ConditionWaitGuard(Mutex &mut) : mut(mut) {
 }
 
 Mutex::ConditionWaitGuard::~ConditionWaitGuard() {
-    mut.pid = CurrentThread::get_pid();
+    mut.pid = CurrentThread::pid;
 }

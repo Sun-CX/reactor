@@ -5,17 +5,16 @@
 #ifndef REACTOR_CURRENTTHREAD_H
 #define REACTOR_CURRENTTHREAD_H
 
-#include "Thread.h"
+#include "NonCopyable.h"
+#include "unistd.h"
 
 class CurrentThread final : public NonCopyable {
 public:
-
     CurrentThread() = delete;
 
-    static const string &get_name();
-
-    static pid_t get_pid();
+    // 线程名最长为 16 字节（包括末尾 '\0' 符）
+    thread_local static char name[16];
+    thread_local static pid_t pid;
 };
-
 
 #endif //REACTOR_CURRENTTHREAD_H

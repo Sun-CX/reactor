@@ -3,6 +3,7 @@
 //
 
 #include "../CountDownLatch.h"
+#include "../Thread.h"
 #include <vector>
 #include <cstring>
 #include <memory>
@@ -27,9 +28,9 @@ private:
     vector<unique_ptr<Thread>> threads;
 
     void thread_func() {
-        printf("tid: %d, %s started...\n", CurrentThread::get_pid(), CurrentThread::get_name().c_str());
+        printf("tid: %d, %s started...\n", CurrentThread::pid, CurrentThread::name);
 //        sleep(3);
-        printf("tid: %d, %s stopped...\n", CurrentThread::get_pid(), CurrentThread::get_name().c_str());
+        printf("tid: %d, %s stopped...\n", CurrentThread::pid, CurrentThread::name);
         latch.count_down();
     }
 
@@ -55,12 +56,12 @@ public:
 };
 
 int main(int argc, const char *argv[]) {
-    printf("pid: %d, tid: %d\n", getpid(), CurrentThread::get_pid());
+    printf("pid: %d, tid: %d\n", getpid(), CurrentThread::pid);
 
     Demo demo(3);
     demo.wait();
 
-    printf("pid: %d, tid: %d %s running...\n", getpid(), CurrentThread::get_pid(), CurrentThread::get_name().c_str());
+    printf("pid: %d, tid: %d %s running...\n", getpid(), CurrentThread::pid, CurrentThread::name);
 
     demo.join_all();
 

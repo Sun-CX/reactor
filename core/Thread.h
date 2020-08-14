@@ -6,7 +6,7 @@
 #define REACTOR_THREAD_H
 
 #include <pthread.h>
-#include <string>
+#include <cstring>
 #include <atomic>
 #include <functional>
 #include <unistd.h>
@@ -14,10 +14,10 @@
 #include <sys/prctl.h>
 #include "NonCopyable.h"
 #include "Exception.h"
+#include "CurrentThread.h"
 
 #define pre_main __attribute__((constructor))
 
-using std::string;
 using std::atomic_int;
 using std::function;
 using std::move;
@@ -27,22 +27,12 @@ class Thread final : public NonCopyable {
 private:
     using thread_func = function<void()>;
 
-    friend class CurrentThread;
-
-    friend void set_startup_process_tsd();
-
-    struct TSD {
-        string name;
-        pid_t pid;      // kernel 线程（LWP）真实 ID
-        TSD(string name, pid_t pid);
-    };
-
     thread_func func;
     pthread_t tid;      // POSIX 虚拟线程 ID
-    TSD tsd;
+    string name;
+    pid_t pid;          // kernel 线程（LWP）真实 ID
 
     static atomic_int thread_count;
-    static pthread_key_t key;
 
     static void *thread_routine(void *arg);
 

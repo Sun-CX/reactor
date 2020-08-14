@@ -17,7 +17,7 @@ public:
         for (int i = 0; i < n; ++i) {
             count++;
         }
-        printf("CurrentThread name: %s, pid: %d\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid());
+        printf("CurrentThread name: %s, pid: %d\n", CurrentThread::name, CurrentThread::pid);
     }
 
     int get_count() const {
@@ -26,7 +26,7 @@ public:
 };
 
 int main(int argc, const char *argv[]) {
-    printf("main thread name: %s, main thread pid: %d\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid());
+    printf("main thread name: %s, main thread pid: %d\n", CurrentThread::name, CurrentThread::pid);
 
     Foo foo;
 

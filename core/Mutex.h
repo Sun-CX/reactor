@@ -7,6 +7,7 @@
 
 #include <pthread.h>
 #include "NonCopyable.h"
+#include "Exception.h"
 #include "CurrentThread.h"
 
 class Mutex final : public NonCopyable {

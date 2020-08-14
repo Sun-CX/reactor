@@ -4,6 +4,7 @@
 
 #include "../BoundedBlockingQueue.h"
 #include "../CountDownLatch.h"
+#include "../Thread.h"
 #include <vector>
 #include <memory>
 #include <cstring>
@@ -26,17 +27,17 @@ private:
     vector<unique_ptr<Thread>> threads;
 
     void thread_func() {
-        printf("%s[%d] started...\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid());
+        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
         latch.count_down();
         bool running = true;
         while (running) {
             string d = queue.pop_front();
-            printf("%s[%d]: consume data: %s, size = %zu\n", CurrentThread::get_name().c_str(),
-                   CurrentThread::get_pid(), d.c_str(), queue.size());
+            printf("%s[%d]: consume data: %s, size = %zu\n", CurrentThread::name,
+                   CurrentThread::pid, d.c_str(), queue.size());
 
             running = d != "stop";
         }
-        printf("%s[%d] stopped...\n", CurrentThread::get_name().c_str(), CurrentThread::get_pid());
+        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::pid);
     }
 
 public:
@@ -60,8 +61,8 @@ public:
             memset(buf, 0, sizeof(buf));
             snprintf(buf, sizeof(buf), "hello %d", i + 1);
             queue.push_back(buf);
-            printf("%s[%d] push_back: %s, queue size: %zu\n", CurrentThread::get_name().c_str(),
-                   CurrentThread::get_pid(),
+            printf("%s[%d] push_back: %s, queue size: %zu\n", CurrentThread::name,
+                   CurrentThread::pid,
                    buf, queue.size());
         }
     }
