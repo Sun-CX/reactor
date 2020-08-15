@@ -12,8 +12,8 @@ class CurrentThread final : public NonCopyable {
 public:
     CurrentThread() = delete;
 
-    // 线程名最长为 16 字节（包括末尾 '\0' 符）
-    thread_local static char name[16];
+    // main 线程名最长为 16 字节（包括末尾 '\0' 符）
+    thread_local static char name[32];
     thread_local static pid_t pid;
 };
 

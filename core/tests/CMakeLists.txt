@@ -43,10 +43,12 @@ target_link_libraries(circularbuffer-test reactor-core)
 add_executable(boundedblockingqueue-test BoundedBlockingQueue-Test.cpp)
 target_link_libraries(boundedblockingqueue-test reactor-core)
 
-add_executable(threadpool-test ThreadPool-Test.cpp)
-target_link_libraries(threadpool-test reactor-core)
+add_executable(fixedthreadpool-test FixedThreadPool-Test.cpp)
+target_link_libraries(fixedthreadpool-test reactor-core)
 
-add_executable(sundry-test Sundry-Test.cpp)
+#add_executable(sundry-test Sundry-Test.cpp)
+#
+#add_executable(vector-emplace-test Vector-Emplace-Test.cpp)
 
 
 
