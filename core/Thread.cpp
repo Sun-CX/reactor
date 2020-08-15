@@ -26,7 +26,7 @@ void Thread::start() {
 
 void *Thread::thread_routine(void *arg) {
     auto th = static_cast<Thread *>(arg);
-    
+
     int status = pthread_setname_np(th->tid, th->name.c_str());
     if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
     th->pid = syscall(SYS_gettid);

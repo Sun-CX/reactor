@@ -46,8 +46,11 @@ target_link_libraries(boundedblockingqueue-test reactor-core)
 add_executable(fixedthreadpool-test FixedThreadPool-Test.cpp)
 target_link_libraries(fixedthreadpool-test reactor-core)
 
+add_executable(threadlocal-test ThreadLocal-Test.cpp)
+target_link_libraries(threadlocal-test reactor-core)
+
 #add_executable(sundry-test Sundry-Test.cpp)
-#
+
 #add_executable(vector-emplace-test Vector-Emplace-Test.cpp)
 
 
