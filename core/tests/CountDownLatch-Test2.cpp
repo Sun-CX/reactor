@@ -2,8 +2,8 @@
 // Created by suncx on 2020/8/10.
 //
 
-#include "../CountDownLatch.h"
-#include "../Thread.h"
+#include "CountDownLatch.h"
+#include "Thread.h"
 #include <vector>
 #include <memory>
 #include <algorithm>

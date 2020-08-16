@@ -2,8 +2,8 @@
 // Created by suncx on 2020/8/8.
 //
 
-#include "../Thread.h"
-#include "../CurrentThread.h"
+#include "Thread.h"
+#include "CurrentThread.h"
 
 using std::bind;
 

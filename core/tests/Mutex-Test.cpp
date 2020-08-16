@@ -2,9 +2,9 @@
 // Created by suncx on 2020/8/9.
 //
 
-#include "../Mutex.h"
-#include "../Timestamp.h"
-#include "../Thread.h"
+#include "Mutex.h"
+#include "Timestamp.h"
+#include "Thread.h"
 #include <vector>
 #include <memory>
 

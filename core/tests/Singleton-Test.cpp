@@ -6,7 +6,7 @@
 #include <string>
 #include <memory>
 #include <thread>
-#include "../Singleton.h"
+#include "Singleton.h"
 
 using std::shared_ptr;
 

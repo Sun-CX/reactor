@@ -3,9 +3,9 @@
 //
 
 #include <cstdio>
-#include "../CurrentThread.h"
-#include "../FixedThreadPool.h"
-#include "../CountDownLatch.h"
+#include "CurrentThread.h"
+#include "FixedThreadPool.h"
+#include "CountDownLatch.h"
 
 static void print() {
     printf("%s[%d] execute print...\n", CurrentThread::name, CurrentThread::pid);

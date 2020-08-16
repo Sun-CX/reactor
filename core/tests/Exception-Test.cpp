@@ -2,7 +2,7 @@
 // Created by suncx on 2020/8/8.
 //
 
-#include "../Exception.h"
+#include "Exception.h"
 
 class Fool {
 public:

@@ -2,9 +2,9 @@
 // Created by suncx on 2020/8/13.
 //
 
-#include "../BoundedBlockingQueue.h"
-#include "../CountDownLatch.h"
-#include "../Thread.h"
+#include "BoundedBlockingQueue.h"
+#include "CountDownLatch.h"
+#include "Thread.h"
 #include <vector>
 #include <memory>
 #include <functional>

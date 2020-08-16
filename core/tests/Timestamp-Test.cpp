@@ -1,7 +1,7 @@
 //
 // Created by suncx on 2020/8/8.
 //
-#include "../Timestamp.h"
+#include "Timestamp.h"
 #include <vector>
 
 using std::vector;

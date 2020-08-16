@@ -2,7 +2,7 @@
 // Created by suncx on 2020/8/8.
 //
 
-#include "../NonCopyable.h"
+#include "NonCopyable.h"
 
 class Foo : public NonCopyable {
 

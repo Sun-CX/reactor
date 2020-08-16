@@ -2,7 +2,7 @@
 // Created by suncx on 2020/8/11.
 //
 
-#include "../CircularBuffer.h"
+#include "CircularBuffer.h"
 
 int main(int argc, const char *argv[]) {
 

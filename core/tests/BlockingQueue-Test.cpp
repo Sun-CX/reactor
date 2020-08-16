@@ -1,9 +1,9 @@
 //
 // Created by suncx on 2020/8/10.
 //
-#include "../BlockingQueue.h"
-#include "../CountDownLatch.h"
-#include "../Thread.h"
+#include "BlockingQueue.h"
+#include "CountDownLatch.h"
+#include "Thread.h"
 #include <memory>
 #include <vector>
 #include <functional>

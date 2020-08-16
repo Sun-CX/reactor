@@ -2,9 +2,9 @@
 // Created by suncx on 2020/8/15.
 //
 
-#include "../ThreadLocal.h"
-#include "../CurrentThread.h"
-#include "../Thread.h"
+#include "ThreadLocal.h"
+#include "CurrentThread.h"
+#include "Thread.h"
 
 class Test {
 private:
