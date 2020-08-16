@@ -51,10 +51,5 @@ target_link_libraries(fixedthreadpool-test reactor-core)
 add_executable(threadlocal-test ThreadLocal-Test.cpp)
 target_link_libraries(threadlocal-test reactor-core)
 
-add_executable(sundry-test Sundry-Test.cpp)
-target_link_libraries(sundry-test reactor-core)
-
-#add_executable(vector-emplace-test Vector-Emplace-Test.cpp)
-
 
 
