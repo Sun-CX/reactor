@@ -105,7 +105,7 @@ public:
      * @return 字符串长度
      */
     template<class T>
-    static size_t itoa(char buf[], T x) {
+    static size_t itoa_dec(char *buf, T x) {
         decltype(x) i = x;
         char *p = buf;
         decltype(i) lsd;
@@ -127,7 +127,7 @@ public:
      * @return 字符串长度
      */
     template<class T>
-    static size_t itoh(char buf[], T x) {
+    static size_t itoa_hex(char *buf, T x) {
         decltype(x) i = x;
         char *p = buf;
         decltype(i) lsd;
@@ -148,7 +148,7 @@ public:
      * @return 字符串长度
      */
     template<class T>
-    static size_t itob(char buf[], T x) {
+    static size_t itoa_bin(char *buf, T x) {
         decltype(x) i = x;
         char *p = buf;
         decltype(i) lsd;

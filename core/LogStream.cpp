@@ -47,7 +47,7 @@ LogStream &LogStream::operator<<(byte x) {
     format_value<byte>(x, [](char *buf, byte x) -> size_t {
         buf[0] = '0';
         buf[1] = 'b';
-        auto len = Converter::itob(buf + 2, x);
+        auto len = Converter::itoa_bin(buf + 2, x);
         return len + 2;
     });
     return *this;
@@ -55,56 +55,56 @@ LogStream &LogStream::operator<<(byte x) {
 
 LogStream &LogStream::operator<<(short x) {
     format_value<short>(x, [](char *buf, short x) -> size_t {
-        return Converter::itoa(buf, x);
+        return Converter::itoa_dec(buf, x);
     });
     return *this;
 }
 
 LogStream &LogStream::operator<<(unsigned short x) {
     format_value<unsigned short>(x, [](char *buf, unsigned short x) -> size_t {
-        return Converter::itoa(buf, x);
+        return Converter::itoa_dec(buf, x);
     });
     return *this;
 }
 
 LogStream &LogStream::operator<<(int x) {
     format_value<int>(x, [](char *buf, int x) -> size_t {
-        return Converter::itoa(buf, x);
+        return Converter::itoa_dec(buf, x);
     });
     return *this;
 }
 
 LogStream &LogStream::operator<<(unsigned int x) {
     format_value<unsigned int>(x, [](char *buf, unsigned int x) -> size_t {
-        return Converter::itoa(buf, x);
+        return Converter::itoa_dec(buf, x);
     });
     return *this;
 }
 
 LogStream &LogStream::operator<<(long x) {
     format_value<long>(x, [](char *buf, long x) -> size_t {
-        return Converter::itoa(buf, x);
+        return Converter::itoa_dec(buf, x);
     });
     return *this;
 }
 
 LogStream &LogStream::operator<<(unsigned long x) {
     format_value<unsigned long>(x, [](char *buf, unsigned long x) -> size_t {
-        return Converter::itoa(buf, x);
+        return Converter::itoa_dec(buf, x);
     });
     return *this;
 }
 
 LogStream &LogStream::operator<<(long long x) {
     format_value<long long>(x, [](char *buf, long long x) -> size_t {
-        return Converter::itoa(buf, x);
+        return Converter::itoa_dec(buf, x);
     });
     return *this;
 }
 
 LogStream &LogStream::operator<<(unsigned long long x) {
     format_value<unsigned long long>(x, [](char *buf, unsigned long long x) -> size_t {
-        return Converter::itoa(buf, x);
+        return Converter::itoa_dec(buf, x);
     });
     return *this;
 }
@@ -128,7 +128,7 @@ LogStream &LogStream::operator<<(const void *ptr) {
     format_value<uintptr_t>(p, [](char *buf, uintptr_t pt) -> size_t {
         buf[0] = '0';
         buf[1] = 'x';
-        auto len = Converter::itoh(buf + 2, pt);
+        auto len = Converter::itoa_hex(buf + 2, pt);
         return len + 2;
     });
     return *this;
