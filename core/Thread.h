@@ -5,16 +5,15 @@
 #ifndef REACTOR_THREAD_H
 #define REACTOR_THREAD_H
 
+#include "NonCopyable.h"
+#include "Exception.h"
+#include "CurrentThread.h"
 #include <pthread.h>
 #include <cstring>
 #include <atomic>
 #include <functional>
-#include <unistd.h>
 #include <syscall.h>
 #include <sys/prctl.h>
-#include "NonCopyable.h"
-#include "Exception.h"
-#include "CurrentThread.h"
 
 #define pre_main __attribute__((constructor))
 

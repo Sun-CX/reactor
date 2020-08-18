@@ -6,9 +6,9 @@
 #define REACTOR_THREADPOOL_H
 
 #include "NonCopyable.h"
+#include "Thread.h"
 #include "Mutex.h"
 #include "Condition.h"
-#include "Thread.h"
 #include <vector>
 #include <memory>
 #include <deque>

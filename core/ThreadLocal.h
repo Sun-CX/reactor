@@ -5,9 +5,9 @@
 #ifndef REACTOR_THREADLOCAL_H
 #define REACTOR_THREADLOCAL_H
 
-#include <pthread.h>
 #include "NonCopyable.h"
 #include "Exception.h"
+#include <pthread.h>
 
 template<class T>
 class ThreadLocal final : public NonCopyable {

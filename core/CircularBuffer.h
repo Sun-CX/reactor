@@ -5,7 +5,6 @@
 #ifndef REACTOR_CIRCULARBUFFER_H
 #define REACTOR_CIRCULARBUFFER_H
 
-#include <cstddef>
 #include "Exception.h"
 
 /**

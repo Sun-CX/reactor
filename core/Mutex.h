@@ -5,10 +5,10 @@
 #ifndef REACTOR_MUTEX_H
 #define REACTOR_MUTEX_H
 
-#include <pthread.h>
 #include "NonCopyable.h"
 #include "Exception.h"
 #include "CurrentThread.h"
+#include <pthread.h>
 
 class Mutex final : public NonCopyable {
 private:

@@ -5,11 +5,10 @@
 #ifndef REACTOR_SINGLETON_H
 #define REACTOR_SINGLETON_H
 
-#include <pthread.h>
-#include <memory>
-#include <functional>
 #include "NonCopyable.h"
 #include "Exception.h"
+#include <pthread.h>
+#include <functional>
 
 using std::shared_ptr;
 using std::function;

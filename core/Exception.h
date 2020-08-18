@@ -5,7 +5,6 @@
 #ifndef REACTOR_EXCEPTION_H
 #define REACTOR_EXCEPTION_H
 
-#include <exception>
 #include <string>
 #include <execinfo.h>
 

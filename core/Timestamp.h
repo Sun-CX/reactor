@@ -5,9 +5,8 @@
 #ifndef REACTOR_TIMESTAMP_H
 #define REACTOR_TIMESTAMP_H
 
-#include <cstdint>
-#include <cinttypes>
 #include "Exception.h"
+#include <cinttypes>
 
 class Timestamp final {
 private:
