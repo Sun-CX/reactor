@@ -2,14 +2,14 @@
 // Created by suncx on 2020/8/17.
 //
 
-#ifndef REACTOR_EPOLLER_H
-#define REACTOR_EPOLLER_H
+#ifndef REACTOR_EPOLLPOLLER_H
+#define REACTOR_EPOLLPOLLER_H
 
 #include "Poller.h"
-#include <cstring>
+#include "Channel.h"
 #include <sys/epoll.h>
 
-class Epoller : public Poller {
+class EpollPoller final : public Poller {
 private:
     using Events = vector<epoll_event>;
 
@@ -20,19 +20,24 @@ private:
 
     void update(Channel *channel, int operation);
 
+    static const int NEW;
+    static const int ADD;
+    static const int DEL;
+
     static const char *operation_to_string(int op);
 
 public:
-    explicit Epoller(EventLoop *loop);
+    explicit EpollPoller(EventLoop *loop);
 
-    virtual ~Epoller();
+    virtual ~EpollPoller();
 
-    Timestamp poll(Channels *active_channels, int timeout_micro_seconds) override;
+    Timestamp poll(Channels *active_channels, int milliseconds) override;
 
     void update_channel(Channel *channel) override;
 
     void remove_channel(Channel *channel) override;
+
+    bool has_channel(Channel *channel) override;
 };
 
-
-#endif //REACTOR_EPOLLER_H
+#endif //REACTOR_EPOLLPOLLER_H

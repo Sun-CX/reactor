@@ -3,6 +3,8 @@
 //
 
 #include "EventLoop.h"
+#include "Exception.h"
+#include "CurrentThread.h"
 
 thread_local bool EventLoop::already_existed_in_this_thread;
 
@@ -37,11 +39,11 @@ void EventLoop::update_channel(Channel *channel) {
 }
 
 void EventLoop::remove_channel(Channel *channel) {
-//    poller->remove_channel(channel);
+    poller->remove_channel(channel);
 }
 
 bool EventLoop::has_channel(Channel *channel) {
-//    return poller->has_channel(channel);
+    return poller->has_channel(channel);
 }
 
 bool EventLoop::is_in_created_thread() const {
@@ -51,3 +53,9 @@ bool EventLoop::is_in_created_thread() const {
 void EventLoop::assert_in_created_thread() {
     if (!is_in_created_thread()) ERROR_EXIT("assert_in_created_thread failed.");
 }
+
+//TimerId EventLoop::run_at(const Timer::TimerCallback &callback, Timestamp timestamp) {
+//
+//
+//    return ;
+//}

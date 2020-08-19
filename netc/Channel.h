@@ -5,16 +5,13 @@
 #ifndef REACTOR_CHANNEL_H
 #define REACTOR_CHANNEL_H
 
-#include "NonCopyable.h"
+#include "Timestamp.h"
 #include "EventLoop.h"
-#include <memory>
 #include <functional>
-#include <poll.h>
+#include <memory>
 
-using std::move;
 using std::function;
 using std::weak_ptr;
-using std::shared_ptr;
 
 class EventLoop;
 
@@ -32,7 +29,7 @@ private:
     const int fd;
     int events;     // 关心的 IO 事件
     int revents;    // 活跃的 IO 事件
-    int index;
+    int index;      // used by poller
 //    bool loghup;
     weak_ptr<void> tie;
     bool tied;

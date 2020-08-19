@@ -3,6 +3,11 @@
 //
 
 #include "Socket.h"
+#include "Exception.h"
+#include "InetAddress.h"
+#include <unistd.h>
+#include <cstring>
+#include <netinet/tcp.h>
 
 Socket::Socket(int sock_fd) : sock_fd(sock_fd) {}
 
@@ -26,7 +31,7 @@ void Socket::listen() {
 }
 
 int Socket::accept(InetAddress *peer_addr) {
-    sockaddr_in6 addr;
+    sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     socklen_t len = sizeof(addr);
     int con_fd = ::accept(sock_fd, reinterpret_cast<sockaddr *>(&addr), &len);

@@ -5,12 +5,9 @@
 #ifndef REACTOR_SOCKET_H
 #define REACTOR_SOCKET_H
 
-#include <unistd.h>
-#include <sys/socket.h>
-#include <netinet/tcp.h>
 #include "NonCopyable.h"
-#include "Exception.h"
-#include "InetAddress.h"
+
+class InetAddress;
 
 class Socket final : public NonCopyable {
 private:

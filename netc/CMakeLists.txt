@@ -7,14 +7,16 @@ add_subdirectory(tests)
 
 set(LIBRARY_SOURCE
         EventLoop.cpp
-#        Channel.cpp
-#        Poller.cpp
-#        Epoller.cpp
-#        InetAddress.cpp
-#        Acceptor.cpp
-#        Socket.cpp
+        Channel.cpp
+        Poller.cpp
+        EpollPoller.cpp
+        InetAddress.cpp
+        #        Acceptor.cpp
+        Socket.cpp
+        #        Timer.cpp TimerId.cpp TimerQueue.cpp
         )
 
 add_library(netc SHARED ${LIBRARY_SOURCE})
 target_include_directories(netc PRIVATE ../core)
+#target_link_libraries()
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)

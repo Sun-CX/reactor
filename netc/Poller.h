@@ -5,15 +5,21 @@
 #ifndef REACTOR_POLLER_H
 #define REACTOR_POLLER_H
 
-#include "NonCopyable.h"
 #include "EventLoop.h"
-#include "Epoller.h"
+#include "Timestamp.h"
 #include <vector>
 #include <map>
 
 using std::map;
 using std::vector;
 
+class EventLoop;
+
+class Channel;
+
+/**
+ * 轮询器：具体实现可以用 poll 或者 epoll
+ */
 class Poller : public NonCopyable {
 private:
     EventLoop *loop;
@@ -25,7 +31,13 @@ public:
 
     explicit Poller(EventLoop *loop);
 
-    virtual Timestamp poll(Channels *active_channels, int timeout_micro_seconds) = 0;
+    /**
+     * 轮询活跃的事件
+     * @param active_channels
+     * @param milliseconds 超时时间（毫秒），值为 -1 时永不超时
+     * @return
+     */
+    virtual Timestamp poll(Channels *active_channels, int milliseconds) = 0;
 
     virtual void update_channel(Channel *channel) = 0;
 

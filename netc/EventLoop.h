@@ -5,13 +5,15 @@
 #ifndef REACTOR_EVENTLOOP_H
 #define REACTOR_EVENTLOOP_H
 
-#include "Timestamp.h"
-#include "CurrentThread.h"
-#include "Channel.h"
-#include <atomic>
+#include "NonCopyable.h"
+#include "Poller.h"
+#include <memory>
 
 using std::unique_ptr;
-using std::atomic_bool;
+
+class Channel;
+
+class Poller;
 
 /**
  * 每个 EventLoop 代表一个 IO 线程
@@ -34,7 +36,7 @@ private:
 //    bool calling_pending_func;
 //    int64_t iteration;
 //    Timestamp poll_return_time;
-//    unique_ptr<Poller> poller;
+    unique_ptr<Poller> poller;
 //    unique_ptr<TimerQueue> timer_queue;
 //    int wakeup_fd;
 //    unique_ptr<Channel> wakeup_channel;
@@ -59,6 +61,8 @@ public:
     void remove_channel(Channel *channel);
 
     bool has_channel(Channel *channel);
+
+//    TimerId run_at(const Timer::TimerCallback &callback, Timestamp timestamp);
 };
 
 #endif //REACTOR_EVENTLOOP_H

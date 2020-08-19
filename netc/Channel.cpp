@@ -3,6 +3,9 @@
 //
 
 #include "Channel.h"
+#include <poll.h>
+
+using std::shared_ptr;
 
 Channel::Channel(EventLoop *loop, int fd) : loop(loop), fd(fd), events(0),
                                             revents(0), index(-1), tied(false), event_handling(false),

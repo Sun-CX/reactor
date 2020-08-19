@@ -3,14 +3,15 @@
 //
 
 #include "Poller.h"
+#include "EpollPoller.h"
 
 Poller::Poller(EventLoop *loop) : loop(loop) {}
 
 void Poller::assert_in_loop_thread() const {
-    loop->assert_in_loop_thread();
+    loop->assert_in_created_thread();
 }
 
 Poller *Poller::default_poller(EventLoop *loop) {
-    return reinterpret_cast<Poller *>(new Epoller(loop));
+    return new EpollPoller(loop);
 }
 
