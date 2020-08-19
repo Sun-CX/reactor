@@ -3,6 +3,9 @@
 //
 
 #include "Exception.h"
+#include <execinfo.h>
+
+using std::move;
 
 Exception::Exception(string message, bool demangle, int max_frames) : message(move(message)) {
     fill_stack_trace(demangle, max_frames);

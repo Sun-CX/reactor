@@ -5,7 +5,6 @@
 #ifndef REACTOR_BLOCKINGQUEUE_BENCH_TEST_H
 #define REACTOR_BLOCKINGQUEUE_BENCH_TEST_H
 
-#include "Mutex.h"
 #include "Condition.h"
 #include <deque>
 

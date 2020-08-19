@@ -6,21 +6,14 @@
 #define REACTOR_THREAD_H
 
 #include "NonCopyable.h"
-#include "Exception.h"
-#include "CurrentThread.h"
-#include <pthread.h>
-#include <cstring>
 #include <atomic>
 #include <functional>
-#include <syscall.h>
-#include <sys/prctl.h>
 
 #define pre_main __attribute__((constructor))
 
 using std::atomic_int;
 using std::function;
-using std::move;
-using std::to_string;
+using std::string;
 
 class Thread final : public NonCopyable {
 private:

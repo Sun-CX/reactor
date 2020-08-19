@@ -3,6 +3,7 @@
 //
 
 #include "Mutex.h"
+#include "Exception.h"
 
 Mutex::Mutex() : pid(0) {
     auto status = pthread_mutex_init(&mutex, nullptr);

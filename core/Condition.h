@@ -5,8 +5,6 @@
 #ifndef REACTOR_CONDITION_H
 #define REACTOR_CONDITION_H
 
-#include "NonCopyable.h"
-#include "Exception.h"
 #include "Mutex.h"
 
 class Condition final : public NonCopyable {

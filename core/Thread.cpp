@@ -3,6 +3,14 @@
 //
 
 #include "Thread.h"
+#include "Exception.h"
+#include "CurrentThread.h"
+#include <sys/prctl.h>
+#include <syscall.h>
+#include <cstring>
+
+using std::move;
+using std::to_string;
 
 atomic_int Thread::thread_count;
 

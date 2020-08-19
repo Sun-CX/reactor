@@ -4,6 +4,8 @@
 
 #include "FixedThreadPool.h"
 
+using std::bind;
+
 FixedThreadPool::FixedThreadPool(int n_threads, int max_task_size, string name)
         : mutex(), not_empty(mutex), not_full(mutex), name(move(name)), max_queue_size(max_task_size), running(false) {
     threads.reserve(n_threads);

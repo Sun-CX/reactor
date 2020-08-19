@@ -3,6 +3,7 @@
 //
 
 #include "Condition.h"
+#include "Exception.h"
 
 Condition::Condition(Mutex &mutex) : mutex(mutex) {
     auto status = pthread_cond_init(&cond, nullptr);

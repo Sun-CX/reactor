@@ -5,8 +5,10 @@
 #ifndef REACTOR_TIMESTAMP_H
 #define REACTOR_TIMESTAMP_H
 
-#include "Exception.h"
+#include <string>
 #include <cinttypes>
+
+using std::string;
 
 class Timestamp final {
 private:

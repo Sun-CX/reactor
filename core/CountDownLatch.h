@@ -5,8 +5,6 @@
 #ifndef REACTOR_COUNTDOWNLATCH_H
 #define REACTOR_COUNTDOWNLATCH_H
 
-#include "NonCopyable.h"
-#include "Mutex.h"
 #include "Condition.h"
 
 class CountDownLatch final : public NonCopyable {

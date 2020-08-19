@@ -5,9 +5,7 @@
 #ifndef REACTOR_THREADPOOL_H
 #define REACTOR_THREADPOOL_H
 
-#include "NonCopyable.h"
 #include "Thread.h"
-#include "Mutex.h"
 #include "Condition.h"
 #include <vector>
 #include <memory>
@@ -16,8 +14,6 @@
 using std::vector;
 using std::unique_ptr;
 using std::deque;
-using std::move;
-using std::bind;
 
 /**
  * 线程池本质上也是一个生产者/消费者问题

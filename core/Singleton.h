@@ -8,12 +8,9 @@
 #include "NonCopyable.h"
 #include "Exception.h"
 #include <pthread.h>
-#include <functional>
 
 using std::shared_ptr;
-using std::function;
 using std::make_shared;
-using std::bind;
 
 template<typename T>
 class Singleton : public NonCopyable {

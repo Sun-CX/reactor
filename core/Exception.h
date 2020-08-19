@@ -6,7 +6,6 @@
 #define REACTOR_EXCEPTION_H
 
 #include <string>
-#include <execinfo.h>
 
 /**
  * 使用 likely()，执行 if 语句的机会更大
@@ -25,7 +24,6 @@ do{\
 
 using std::string;
 using std::exception;
-using std::move;
 
 class Exception : public exception {
 private:

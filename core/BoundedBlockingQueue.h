@@ -5,7 +5,6 @@
 #ifndef REACTOR_BOUNDEDBLOCKINGQUEUE_H
 #define REACTOR_BOUNDEDBLOCKINGQUEUE_H
 
-#include "Mutex.h"
 #include "Condition.h"
 #include "CircularBuffer.h"
 
