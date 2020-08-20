@@ -54,6 +54,21 @@ void EventLoop::assert_in_created_thread() {
     if (!is_in_created_thread()) ERROR_EXIT("assert_in_created_thread failed.");
 }
 
+void EventLoop::quit() {
+    is_quit = true;
+    if (!is_in_created_thread()) {
+//        wakeup();
+    }
+}
+
+void EventLoop::run_in_loop(const function<void()> &func) {
+    if (is_in_created_thread()) {
+        func();
+    } else {
+        //TODO: queue_in_loop(cb);
+    }
+}
+
 //TimerId EventLoop::run_at(const Timer::TimerCallback &callback, Timestamp timestamp) {
 //
 //

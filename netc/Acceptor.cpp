@@ -3,10 +3,17 @@
 //
 
 #include "Acceptor.h"
+#include "Exception.h"
+#include "InetAddress.h"
+#include <fcntl.h>
+#include <unistd.h>
+#include <sys/socket.h>
+
+using std::bind;
 
 Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
-loop(loop), accept_socket(create_socket()), accept_channel(loop, accept_socket.fd()),
-listening(false), idle_fd(::open("/dev/null",O_RDONLY | O_CLOEXEC)) {
+        loop(loop), accept_socket(create_socket()), accept_channel(loop, accept_socket.fd()),
+        listening(false), idle_fd(::open("/dev/null", O_RDONLY | O_CLOEXEC)) {
     accept_socket.reuse_addr(true);
     accept_socket.reuse_port(reuse_port);
     accept_socket.bind(addr);

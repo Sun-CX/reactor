@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.15)
-project(netc)
 
 set(CMAKE_CXX_STANDARD 14)
 
@@ -11,12 +10,21 @@ set(LIBRARY_SOURCE
         Poller.cpp
         EpollPoller.cpp
         InetAddress.cpp
-        #        Acceptor.cpp
+        Acceptor.cpp
         Socket.cpp
+        TcpServer.cpp
+        TcpConnection.cpp
+        Buffer.cpp
+        Events.h
+        EventLoopThread.cpp
+        EventLoopThreadPool.cpp
         #        Timer.cpp TimerId.cpp TimerQueue.cpp
         )
 
-add_library(netc SHARED ${LIBRARY_SOURCE})
-target_include_directories(netc PRIVATE ../core)
-#target_link_libraries()
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+
+include_directories(${PROJECT_SOURCE_DIR}/core)
+link_directories(${PROJECT_BINARY_DIR}/lib)
+
+add_library(netc SHARED ${LIBRARY_SOURCE})
+target_link_libraries(netc reactor-core)

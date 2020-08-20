@@ -5,6 +5,7 @@
 #include "CountDownLatch.h"
 #include "Thread.h"
 #include <memory>
+#include <cstring>
 #include <vector>
 #include <functional>
 

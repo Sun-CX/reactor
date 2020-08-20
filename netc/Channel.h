@@ -75,6 +75,16 @@ public:
     void remove();
 
     EventLoop *loop_owner() const;
+
+    void enable_reading();
+
+    void disable_reading();
+
+    void enable_writing();
+
+    void disable_writing();
+
+    void disable_all();
 };
 
 #endif //REACTOR_CHANNEL_H

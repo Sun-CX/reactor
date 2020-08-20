@@ -8,8 +8,12 @@
 #include "NonCopyable.h"
 #include "Poller.h"
 #include <memory>
+#include <atomic>
+#include <functional>
 
 using std::unique_ptr;
+using std::atomic_bool;
+using std::function;
 
 class Channel;
 
@@ -31,7 +35,7 @@ private:
      */
     thread_local static bool already_existed_in_this_thread;
 
-//    atomic_bool quit;
+    atomic_bool is_quit;
 //    bool event_handling;
 //    bool calling_pending_func;
 //    int64_t iteration;
@@ -62,6 +66,9 @@ public:
 
     bool has_channel(Channel *channel);
 
+    void quit();
+
+    void run_in_loop(const function<void()> &func);
 //    TimerId run_at(const Timer::TimerCallback &callback, Timestamp timestamp);
 };
 

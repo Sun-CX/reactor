@@ -161,7 +161,6 @@ LogStream &LogStream::operator<<(const LogStream::Buffer &buf) {
     return *this << buf.to_string_piece();
 }
 
-
 template<class T>
 Formatter::Formatter(const char *fmt, T val) {
     len = snprintf(buf, sizeof(buf), fmt, val);

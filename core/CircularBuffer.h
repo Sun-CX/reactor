@@ -7,6 +7,8 @@
 
 #include "Exception.h"
 
+using std::move;
+
 /**
  * 循环队列，亦称为环形缓冲区
  *

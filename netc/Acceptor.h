@@ -5,18 +5,14 @@
 #ifndef REACTOR_ACCEPTOR_H
 #define REACTOR_ACCEPTOR_H
 
-#include <fcntl.h>
-#include <functional>
-#include "NonCopyable.h"
-#include "EventLoop.h"
-#include "InetAddress.h"
 #include "Socket.h"
+#include "Channel.h"
 
-using std::bind;
+class EventLoop;
 
 class Acceptor final : public NonCopyable {
 private:
-    using ConnectionCallback = function<void(int sock_fd, const InetAddress &addr)>;
+    using ConnectionCallback = function<void(int, const InetAddress &)>;
 
     EventLoop *loop;
     Socket accept_socket;

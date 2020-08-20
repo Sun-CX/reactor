@@ -6,6 +6,9 @@
 #include "CurrentThread.h"
 #include "FixedThreadPool.h"
 #include "CountDownLatch.h"
+#include <functional>
+
+using std::bind;
 
 static void print() {
     printf("%s[%d] execute print...\n", CurrentThread::name, CurrentThread::pid);

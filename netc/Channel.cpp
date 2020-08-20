@@ -97,6 +97,31 @@ void Channel::set_index(int idx) {
     index = idx;
 }
 
+void Channel::enable_reading() {
+    events |= (POLLIN | POLLPRI);
+    update();
+}
+
+void Channel::disable_reading() {
+    events &= ~(POLLIN | POLLPRI);
+    update();
+}
+
+void Channel::enable_writing() {
+    events |= POLLOUT;
+    update();
+}
+
+void Channel::disable_writing() {
+    events &= ~POLLOUT;
+    update();
+}
+
+void Channel::disable_all() {
+    events = 0;
+    update();
+}
+
 //Channel::~Channel() {
 //    if(loop->is_in_loop_thread()){
 //

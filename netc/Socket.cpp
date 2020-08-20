@@ -21,7 +21,7 @@ int Socket::fd() const {
 }
 
 void Socket::bind(const InetAddress &addr) {
-    auto status = ::bind(sock_fd, addr.get_sockaddr(), sizeof(sockaddr_in6));
+    auto status = ::bind(sock_fd, addr.get_sockaddr(), sizeof(sockaddr_in));
     if (unlikely(status != 0)) ERROR_EXIT("socket bind error.");
 }
 
