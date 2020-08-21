@@ -14,7 +14,9 @@ using std::unique_ptr;
 using std::enable_shared_from_this;
 
 class EventLoop;
+
 class Channel;
+
 class Socket;
 
 class TcpConnection final : public NonCopyable, public enable_shared_from_this<TcpConnection> {

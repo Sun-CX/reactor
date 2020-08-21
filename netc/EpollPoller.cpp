@@ -2,8 +2,10 @@
 // Created by suncx on 2020/8/17.
 //
 
-#include "Exception.h"
 #include "EpollPoller.h"
+#include "Exception.h"
+#include "Channel.h"
+#include "Timestamp.h"
 #include <cstring>
 #include <unistd.h>
 
@@ -78,7 +80,7 @@ void EpollPoller::update_channel(Channel *channel) {
         update(channel, EPOLL_CTL_ADD);
     } else {
         int fd = channel->get_fd();
-        if (channel->none_events()) {
+        if (channel->has_none_events()) {
             update(channel, EPOLL_CTL_DEL);
             channel->set_index(DEL);
         } else {

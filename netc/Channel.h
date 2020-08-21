@@ -5,13 +5,11 @@
 #ifndef REACTOR_CHANNEL_H
 #define REACTOR_CHANNEL_H
 
-#include "Timestamp.h"
-#include "EventLoop.h"
+#include "NonCopyable.h"
 #include <functional>
 #include <memory>
 
 using std::function;
-using std::weak_ptr;
 
 class EventLoop;
 
@@ -21,27 +19,27 @@ class EventLoop;
  * Channel 作为 epoll_event.data.ptr 的挂载
  */
 class Channel final : public NonCopyable {
-public:
-    using EventCallback  = function<void()>;
-    using ReadEventCallback = function<void(Timestamp)>;
 private:
+    using EventCallback  = function<void()>;
+
     EventLoop *loop;
     const int fd;
     int events;     // 关心的 IO 事件
-    int revents;    // 活跃的 IO 事件
+    int revents;    // 实际发生了的 IO 事件
     int index;      // used by poller
-//    bool loghup;
-    weak_ptr<void> tie;
-    bool tied;
-    bool event_handling;
-    bool add_to_loop;
 
-    ReadEventCallback read_callback;
+
+//    weak_ptr<void> tie;
+//    bool tied;
+//    bool event_handling;
+//    bool add_to_loop;
+
+    EventCallback read_callback;
     EventCallback write_callback;
     EventCallback close_callback;
     EventCallback error_callback;
 
-    void handle_event_with_guard(Timestamp timestamp);
+//    void handle_event_with_guard(Timestamp timestamp);
 
     void update();
 
@@ -50,15 +48,15 @@ public:
 
 //    virtual ~Channel();
 
-    void handle_event(Timestamp timestamp);
+    void handle_event();
 
-    void set_read_callback(ReadEventCallback callback);
+    void set_read_callback(const EventCallback &callback);
 
-    void set_write_callback(EventCallback callback);
+    void set_write_callback(const EventCallback &callback);
 
-    void set_close_callback(EventCallback callback);
+    void set_close_callback(const EventCallback &callback);
 
-    void set_error_callback(EventCallback callback);
+    void set_error_callback(const EventCallback &callback);
 
     int get_fd() const;
 
@@ -70,7 +68,7 @@ public:
 
     void set_revents(int ev);
 
-    bool none_events() const;
+    bool has_none_events() const;
 
     void remove();
 

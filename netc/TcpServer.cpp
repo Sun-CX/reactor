@@ -6,6 +6,7 @@
 #include "Timestamp.h"
 #include "Buffer.h"
 #include "Acceptor.h"
+#include "EventLoop.h"
 #include "InetAddress.h"
 #include "TcpConnection.h"
 #include "EventLoopThreadPool.h"

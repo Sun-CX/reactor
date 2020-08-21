@@ -3,7 +3,9 @@
 //
 
 #include "Poller.h"
-#include "EpollPoller.h"
+#include "Channel.h"
+#include "EventLoop.h"
+#include "PollPoller.h"
 
 Poller::Poller(EventLoop *loop) : loop(loop) {}
 
@@ -12,6 +14,12 @@ void Poller::assert_in_loop_thread() const {
 }
 
 Poller *Poller::default_poller(EventLoop *loop) {
-    return new EpollPoller(loop);
+    return new PollPoller(loop);
+}
+
+bool Poller::has_channel(Channel *channel) const {
+    assert_in_loop_thread();
+    auto it = channel_map.find(channel->get_fd());
+    return it != channel_map.end() and it->second == channel;
 }
 

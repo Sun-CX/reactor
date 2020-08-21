@@ -3,21 +3,39 @@
 //
 
 #include "CurrentThread.h"
+#include "EventLoop.h"
+#include "Channel.h"
 #include <cstdio>
-#include <EventLoop.h>
+#include <sys/timerfd.h>
+#include <cstring>
 
-static void thread_func(){
-    printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
-    EventLoop loop;
+static EventLoop *g_loop;
 
+void time_out() {
+    printf("timeout...\n");
+    g_loop->quit();
 }
 
 int main(int argc, const char *argv[]) {
-    printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
+//    printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
 
     EventLoop loop;
+    g_loop = &loop;
 
+    auto timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 
+    Channel channel(g_loop, timerfd);
+    channel.set_read_callback(time_out);
+    channel.enable_reading();
 
+    itimerspec spec;
+
+    memset(&spec, 0, sizeof(spec));
+    spec.it_value.tv_sec = 3;
+
+    timerfd_settime(timerfd, 0, &spec, nullptr);
+
+    loop.loop();
+    close(timerfd);
     return 0;
 }

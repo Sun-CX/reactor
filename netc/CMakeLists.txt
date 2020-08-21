@@ -8,16 +8,16 @@ set(LIBRARY_SOURCE
         EventLoop.cpp
         Channel.cpp
         Poller.cpp
-        EpollPoller.cpp
-        InetAddress.cpp
-        Acceptor.cpp
-        Socket.cpp
-        TcpServer.cpp
-        TcpConnection.cpp
-        Buffer.cpp
-        Events.h
-        EventLoopThread.cpp
-        EventLoopThreadPool.cpp
+        PollPoller.cpp
+        #        InetAddress.cpp
+        #        Acceptor.cpp
+        #        Socket.cpp
+        #        TcpServer.cpp
+        #        TcpConnection.cpp
+        #        Buffer.cpp
+        #        Events.h
+        #        EventLoopThread.cpp
+        #        EventLoopThreadPool.cpp
         #        Timer.cpp TimerId.cpp TimerQueue.cpp
         )
 

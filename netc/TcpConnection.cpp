@@ -3,6 +3,7 @@
 //
 
 #include "TcpConnection.h"
+#include "EventLoop.h"
 #include "Socket.h"
 #include "Channel.h"
 

@@ -6,7 +6,6 @@
 #define REACTOR_EPOLLPOLLER_H
 
 #include "Poller.h"
-#include "Channel.h"
 #include <sys/epoll.h>
 
 class EpollPoller final : public Poller {
@@ -37,7 +36,7 @@ public:
 
     void remove_channel(Channel *channel) override;
 
-    bool has_channel(Channel *channel) override;
+    bool has_channel(Channel *channel);
 };
 
 #endif //REACTOR_EPOLLPOLLER_H

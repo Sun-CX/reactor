@@ -5,6 +5,7 @@
 #include "Acceptor.h"
 #include "Exception.h"
 #include "InetAddress.h"
+#include "EventLoop.h"
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/socket.h>
@@ -17,7 +18,9 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
     accept_socket.reuse_addr(true);
     accept_socket.reuse_port(reuse_port);
     accept_socket.bind(addr);
-    accept_channel.set_read_callback(bind(&Acceptor::read_handler, this));
+
+    //TODO:bug
+    //accept_channel.set_read_callback(bind(&Acceptor::read_handler, this));
 }
 
 int Acceptor::create_socket() const {

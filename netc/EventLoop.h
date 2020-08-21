@@ -6,13 +6,12 @@
 #define REACTOR_EVENTLOOP_H
 
 #include "NonCopyable.h"
-#include "Poller.h"
+#include <vector>
 #include <memory>
-#include <atomic>
 #include <functional>
 
+using std::vector;
 using std::unique_ptr;
-using std::atomic_bool;
 using std::function;
 
 class Channel;
@@ -24,23 +23,24 @@ class Poller;
  */
 class EventLoop final : public NonCopyable {
 private:
-//    thread_local static EventLoop *loop_in_this_thread;
+    thread_local static EventLoop *loop_in_this_thread;
+    using Channels = vector<Channel *>;
 
     bool looping;
-    const char *thread_name;
+    bool is_quit;
     const pid_t pid;
+    unique_ptr<Poller> poller;
+    const char *thread_name;
 
+    Channels active_channels;
     /**
      * 控制一个线程最多只能有一个 EventLoop
      */
-    thread_local static bool already_existed_in_this_thread;
 
-    atomic_bool is_quit;
 //    bool event_handling;
 //    bool calling_pending_func;
 //    int64_t iteration;
 //    Timestamp poll_return_time;
-    unique_ptr<Poller> poller;
 //    unique_ptr<TimerQueue> timer_queue;
 //    int wakeup_fd;
 //    unique_ptr<Channel> wakeup_channel;
@@ -70,6 +70,8 @@ public:
 
     void run_in_loop(const function<void()> &func);
 //    TimerId run_at(const Timer::TimerCallback &callback, Timestamp timestamp);
+
+    static EventLoop *event_loop_of_current_thread();
 };
 
 #endif //REACTOR_EVENTLOOP_H

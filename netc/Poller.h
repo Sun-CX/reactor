@@ -5,20 +5,21 @@
 #ifndef REACTOR_POLLER_H
 #define REACTOR_POLLER_H
 
-#include "EventLoop.h"
-#include "Timestamp.h"
+#include "NonCopyable.h"
 #include <vector>
 #include <map>
 
 using std::map;
 using std::vector;
 
+class Timestamp;
+
 class EventLoop;
 
 class Channel;
 
 /**
- * 轮询器：具体实现可以用 poll 或者 epoll
+ * 轮询器：具体实现可以是 poll 或者 epoll
  */
 class Poller : public NonCopyable {
 private:
@@ -43,12 +44,11 @@ public:
 
     virtual void remove_channel(Channel *channel) = 0;
 
-    virtual bool has_channel(Channel *channel) = 0;
+    virtual bool has_channel(Channel *channel) const;
 
     void assert_in_loop_thread() const;
 
     static Poller *default_poller(EventLoop *loop);
 };
-
 
 #endif //REACTOR_POLLER_H
