@@ -30,8 +30,8 @@ int main(int argc, const char *argv[]) {
 
     Foo foo;
 
-    Thread t1(bind(&Foo::increment, &foo, 100000));
-    Thread t2(bind(&Foo::increment, &foo, 100000));
+    Thread t1(bind(&Foo::increment, &foo, 1000000));
+    Thread t2(bind(&Foo::increment, &foo, 1000000));
 
     t1.start();
     t2.start();

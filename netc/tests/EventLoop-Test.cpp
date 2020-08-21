@@ -31,11 +31,12 @@ int main(int argc, const char *argv[]) {
     itimerspec spec;
 
     memset(&spec, 0, sizeof(spec));
-    spec.it_value.tv_sec = 3;
+    spec.it_value.tv_sec = 4;
 
     timerfd_settime(timerfd, 0, &spec, nullptr);
 
-    loop.loop();
+//    loop.loop();
+    g_loop->loop();
     close(timerfd);
     return 0;
 }

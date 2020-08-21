@@ -23,19 +23,20 @@ class Poller;
  */
 class EventLoop final : public NonCopyable {
 private:
-    thread_local static EventLoop *loop_in_this_thread;
     using Channels = vector<Channel *>;
-
-    bool looping;
-    bool is_quit;
-    const pid_t pid;
-    unique_ptr<Poller> poller;
-    const char *thread_name;
-
-    Channels active_channels;
     /**
      * 控制一个线程最多只能有一个 EventLoop
      */
+    thread_local static EventLoop *loop_in_this_thread;
+
+    static int default_timeout_milliseconds;
+
+    bool looping;
+    bool exited;        // 循环是否退出
+    const pid_t pid;
+    unique_ptr<Poller> poller;
+    const char *thread_name;
+    Channels active_channels;
 
 //    bool event_handling;
 //    bool calling_pending_func;

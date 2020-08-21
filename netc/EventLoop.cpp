@@ -13,12 +13,10 @@
 using std::for_each;
 
 thread_local EventLoop *EventLoop::loop_in_this_thread;
+int EventLoop::default_timeout_milliseconds = 10 * 60 * 1000;
 
-EventLoop::EventLoop() : looping(false), is_quit(false), pid(CurrentThread::pid), poller(Poller::default_poller(this)),
-                         thread_name(CurrentThread::name) {
-
-//    printf("poller == null: %d\n", poller == nullptr);
-
+EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid),
+                         poller(Poller::default_poller(this)), thread_name(CurrentThread::name) {
     if (unlikely(loop_in_this_thread != nullptr)) {
         fprintf(stderr, "Another EventLoop already existed in %s[%d].", thread_name, pid);
         exit(0);
@@ -30,18 +28,16 @@ EventLoop::~EventLoop() { loop_in_this_thread = nullptr; }
 void EventLoop::loop() {
     assert_in_created_thread();
     looping = true;
-    is_quit = false;
 
     printf("EventLoop %p start loop...\n", this);
 
-    while (!is_quit) {
+    while (!exited) {
         active_channels.clear();
-        poller->poll(&active_channels, 1000);
+        poller->poll(&active_channels, default_timeout_milliseconds);
 
-        for_each(active_channels.cbegin(), active_channels.cend(), [](const Channel *channel) {
-//            channel->handle_event();
+        for_each(active_channels.cbegin(), active_channels.cend(), [](Channel *const channel) {
+            channel->handle_event();
         });
-
     }
     looping = false;
 }
@@ -50,7 +46,6 @@ void EventLoop::update_channel(Channel *channel) {
     assert_in_created_thread();
 
     poller->update_channel(channel);
-
 }
 
 void EventLoop::remove_channel(Channel *channel) {
@@ -70,10 +65,10 @@ void EventLoop::assert_in_created_thread() {
 }
 
 void EventLoop::quit() {
-    is_quit = true;
-    if (!is_in_created_thread()) {
+    exited = true;
+//    if (!is_in_created_thread()) {
 //        wakeup();
-    }
+//    }
 }
 
 void EventLoop::run_in_loop(const function<void()> &func) {
@@ -87,9 +82,3 @@ void EventLoop::run_in_loop(const function<void()> &func) {
 EventLoop *EventLoop::event_loop_of_current_thread() {
     return loop_in_this_thread;
 }
-
-//TimerId EventLoop::run_at(const Timer::TimerCallback &callback, Timestamp timestamp) {
-//
-//
-//    return ;
-//}
