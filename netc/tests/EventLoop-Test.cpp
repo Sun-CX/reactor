@@ -17,7 +17,6 @@ void time_out() {
 }
 
 int main(int argc, const char *argv[]) {
-//    printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
 
     EventLoop loop;
     g_loop = &loop;
@@ -35,7 +34,6 @@ int main(int argc, const char *argv[]) {
 
     timerfd_settime(timerfd, 0, &spec, nullptr);
 
-//    loop.loop();
     g_loop->loop();
     close(timerfd);
     return 0;
