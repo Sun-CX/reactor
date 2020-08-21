@@ -3,6 +3,7 @@
 //
 
 #include "FixedThreadPool.h"
+#include "Thread.h"
 
 using std::bind;
 

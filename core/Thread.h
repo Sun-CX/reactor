@@ -6,9 +6,9 @@
 #define REACTOR_THREAD_H
 
 #include "NonCopyable.h"
-#include <pthread.h>
 #include <atomic>
 #include <string>
+#include <pthread.h>
 #include <functional>
 
 #define pre_main __attribute__((constructor))

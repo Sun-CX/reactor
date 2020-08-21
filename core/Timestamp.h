@@ -6,7 +6,6 @@
 #define REACTOR_TIMESTAMP_H
 
 #include <string>
-#include <cinttypes>
 
 using std::string;
 

@@ -4,6 +4,7 @@
 
 #include "Timestamp.h"
 #include "Exception.h"
+#include <cinttypes>
 
 Timestamp::Timestamp(int64_t msSinceEpoch) : microsecond_since_epoch(msSinceEpoch) {}
 
