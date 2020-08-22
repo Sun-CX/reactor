@@ -30,18 +30,17 @@ private:
     string message;
     string stacks;
 
-    void fill_stack_trace(bool demangle, int max_frames);
+    void fill_stack_trace(int max_frames);
 
     //TODO: demangle function name...
-    string demangle_symbol(const char *symbol) const;
+    //string demangle_symbol(const char *symbol) const;
 
 public:
-    explicit Exception(string message, bool demangle = false, int max_frames = 128);
+    explicit Exception(string message, int max_frames = 128);
 
     const char *what() const noexcept override;
 
     const char *stack_trace() const noexcept;
 };
-
 
 #endif //REACTOR_EXCEPTION_H

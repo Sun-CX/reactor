@@ -5,13 +5,11 @@
 #include "Exception.h"
 #include <execinfo.h>
 
-using std::move;
-
-Exception::Exception(string message, bool demangle, int max_frames) : message(move(message)) {
-    fill_stack_trace(demangle, max_frames);
+Exception::Exception(string message, int max_frames) : message(move(message)) {
+    fill_stack_trace(max_frames);
 }
 
-void Exception::fill_stack_trace(bool demangle, int max_frames) {
+void Exception::fill_stack_trace(int max_frames) {
     void *frames[max_frames];
     int n = backtrace(frames, max_frames);
     char **msgs = backtrace_symbols(frames, n);
