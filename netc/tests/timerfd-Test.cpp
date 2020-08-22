@@ -87,8 +87,10 @@
 //}
 
 #include <sys/timerfd.h>
-#include <Timestamp.h>
 #include <unistd.h>
+#include <poll.h>
+#include <cstdio>
+#include <cstdint>
 
 int main(int argc, const char *argv[]) {
 //    timespec n1, n2;
@@ -97,31 +99,48 @@ int main(int argc, const char *argv[]) {
 //    printf("[realtime] sec: %ld, ns: %ld\n[monotonic] sec: %ld, ns: %ld\n", n1.tv_sec, n1.tv_nsec, n2.tv_sec, n2.tv_nsec);
 
 
-    auto timer_fd = timerfd_create(CLOCK_MONOTONIC, TFD_CLOEXEC);
+    auto timer_fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 //
 //    timespec now;
 //    clock_gettime(CLOCK_MONOTONIC, &now);
 //
     itimerspec it;
-    it.it_value.tv_sec = 3;
+    it.it_value.tv_sec = 7;
     it.it_value.tv_nsec = 0;
-    it.it_interval.tv_sec = 1;
+    it.it_interval.tv_sec = 2;
     it.it_interval.tv_nsec = 0;
+
+    pollfd pfd;
+    pfd.fd = timer_fd;
+    pfd.events = POLLIN | POLLPRI;
+    pfd.revents = 0;
 
     /**
      * flags：0 代表使用相对时间；TFD_TIMER_ABSTIME 使用绝对时间
      */
     timerfd_settime(timer_fd, 0, &it, nullptr);
-//
-    uint64_t val;
 
+
+    uint64_t val;
     for (int i = 0; i < 10; ++i) {
-        read(timer_fd, &val, sizeof(val));
-        printf("read val: %lu\n", val);
+        auto num_ev = poll(&pfd, 1, -1);
+        if (num_ev > 0) {
+            if (pfd.revents & (POLLIN | POLLPRI | POLLRDHUP)) {
+                printf("alarm...\n");
+                read(timer_fd, &val, sizeof(val));
+//                printf("read val: %lu\n", val);
+            }
+        }
     }
 
+
+//
+//    uint64_t val;
+//
+//    for (int i = 0; i < 10; ++i) {
+//        read(timer_fd, &val, sizeof(val));
+//        printf("read val: %lu\n", val);
+//    }
     close(timer_fd);
-
-
     return 0;
 }

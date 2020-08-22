@@ -7,6 +7,14 @@
 
 #include "Poller.h"
 
+/**
+ * Data structure describing a polling request.
+ * struct pollfd {
+ *      int fd;			//File descriptor to poll.
+ *      short int events;		//Types of events poller cares about.
+ *      short int revents;		//Types of events that actually occurred.
+ * }
+ */
 struct pollfd;
 
 class PollPoller final : public Poller {
@@ -26,6 +34,5 @@ public:
 
     void remove_channel(Channel *channel) override;
 };
-
 
 #endif //REACTOR_POLLPOLLER_H

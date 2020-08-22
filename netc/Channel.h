@@ -24,10 +24,9 @@ private:
 
     EventLoop *loop;
     const int fd;
-    int events;     // 关心的 IO 事件
-    int revents;    // 实际发生了的 IO 事件
+    uint32_t events;     // 关心的 IO 事件
+    uint32_t revents;    // 实际发生了的 IO 事件
     int index;      // used by poller
-
 
 //    weak_ptr<void> tie;
 //    bool tied;
@@ -64,9 +63,9 @@ public:
 
     int get_index() const;
 
-    int get_events() const;
+    uint32_t get_events() const;
 
-    void set_revents(int ev);
+    void set_revents(uint32_t ev);
 
     bool has_none_events() const;
 

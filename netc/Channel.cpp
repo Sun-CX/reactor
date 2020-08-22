@@ -6,22 +6,35 @@
 #include "EventLoop.h"
 #include <cstdio>
 #include <poll.h>
+#include <sys/epoll.h>
 
-//using std::shared_ptr;
+static_assert(POLLIN == EPOLLIN and
+              POLLRDNORM == EPOLLRDNORM and
+              POLLRDBAND == EPOLLRDBAND and
+              POLLPRI == EPOLLPRI and
+              POLLOUT == EPOLLOUT and
+              POLLWRNORM == EPOLLWRNORM and
+              POLLWRBAND == EPOLLWRBAND and
+              POLLERR == EPOLLERR and
+              POLLHUP == EPOLLHUP and
+              POLLMSG == EPOLLMSG and
+              POLLRDHUP == EPOLLRDHUP
+
+//              POLLREMOVE == EPOLLREMOVE
+//              POLLNVAL == EPOLLNVAL
+        , "POLL/EPOLL constants assert.");
 
 Channel::Channel(EventLoop *loop, int fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
 
-//void Channel::handle_event() {
-//    shared_ptr<void> guard;
-//    if (tied) {
-//        guard = tie.lock();
-//        if (guard)
-//            handle_event_with_guard(timestamp);
-//    } else handle_event_with_guard(timestamp);
-//}
-
 void Channel::handle_event() {
 //    event_handling = true;
+    if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
+        if (read_callback) read_callback();
+    }
+
+    if (revents & POLLOUT) {
+        if (write_callback) write_callback();
+    }
 
     if ((revents & POLLHUP) and !(revents & POLLIN)) {
         fprintf(stderr, "fd: %d, Channel::handle_event error.", fd);
@@ -31,14 +44,6 @@ void Channel::handle_event() {
     if (revents & (POLLERR | POLLNVAL)) {
         fprintf(stderr, "fd: %d, Channel::handle_event error.", fd);
         if (error_callback) error_callback();
-    }
-
-    if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
-        if (read_callback) read_callback();
-    }
-
-    if (revents & POLLOUT) {
-        if (write_callback) write_callback();
     }
 //    event_handling = false;
 }
@@ -52,11 +57,11 @@ int Channel::get_fd() const {
     return fd;
 }
 
-int Channel::get_events() const {
+uint32_t Channel::get_events() const {
     return events;
 }
 
-void Channel::set_revents(int ev) {
+void Channel::set_revents(uint32_t ev) {
     revents = ev;
 }
 
@@ -82,7 +87,7 @@ void Channel::set_index(int idx) {
 }
 
 void Channel::enable_reading() {
-    events |= (POLLIN | POLLPRI);
+    events |= POLLIN | POLLPRI;
     update();
 }
 
@@ -92,12 +97,12 @@ void Channel::disable_reading() {
 }
 
 void Channel::enable_writing() {
-    events |= POLLOUT;
+    events |= POLLOUT | POLLWRBAND;
     update();
 }
 
 void Channel::disable_writing() {
-    events &= ~POLLOUT;
+    events &= ~(POLLOUT | POLLWRBAND);
     update();
 }
 
@@ -121,9 +126,3 @@ void Channel::set_close_callback(const Channel::EventCallback &callback) {
 void Channel::set_error_callback(const Channel::EventCallback &callback) {
     error_callback = callback;
 }
-
-//Channel::~Channel() {
-//    if(loop->is_in_loop_thread()){
-//
-//    }
-//}

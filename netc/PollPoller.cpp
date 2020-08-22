@@ -13,7 +13,7 @@ using std::iter_swap;
 PollPoller::PollPoller(EventLoop *loop) : Poller(loop) {}
 
 Timestamp PollPoller::poll(Poller::Channels *active_channels, int milliseconds) {
-    auto num_events = ::poll(&*fds.begin(), fds.size(), milliseconds);
+    auto num_events = ::poll(fds.data(), fds.size(), milliseconds);
     Timestamp now = Timestamp::now();
     int saved_no = errno;
     if (unlikely(num_events == -1)) {
@@ -24,7 +24,7 @@ Timestamp PollPoller::poll(Poller::Channels *active_channels, int milliseconds) 
     } else if (num_events == 0) {
         printf("poll timeout, nothing happened.\n");
     } else {
-        printf("PollPoller::poll() received %d events.\n", num_events);
+//        printf("poll() received %d events...\n", num_events);
         fill_active_channels(active_channels, num_events);
     }
     return now;
@@ -35,11 +35,10 @@ void PollPoller::update_channel(Channel *channel) {
     if (channel->get_index() < 0) { // a new one
         pollfd pfd;
         pfd.fd = channel->get_fd();
-        pfd.events = static_cast<short>(channel->get_events());
+        pfd.events = channel->get_events();
         pfd.revents = 0;
         fds.push_back(pfd);
-        auto idx = fds.size() - 1;
-        channel->set_index(idx);
+        channel->set_index(static_cast<int>(fds.size() - 1));
         channel_map[pfd.fd] = channel;
     } else {
         auto idx = channel->get_index();

@@ -25,17 +25,16 @@ class Poller : public NonCopyable {
 private:
     EventLoop *loop;
 protected:
+    using Channels = vector<Channel *>;
     using ChannelMap = map<int, Channel *>;
     ChannelMap channel_map;
 public:
-    using Channels = vector<Channel *>;
-
     explicit Poller(EventLoop *loop);
 
     /**
      * 轮询活跃的事件
      * @param active_channels
-     * @param milliseconds 超时时间（毫秒），值为 -1 时永不超时
+     * @param milliseconds 超时时间（毫秒），值为负数为永不超时
      * @return
      */
     virtual Timestamp poll(Channels *active_channels, int milliseconds) = 0;

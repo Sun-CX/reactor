@@ -9,11 +9,20 @@
 #include <sys/timerfd.h>
 #include <cstring>
 
+using std::bind;
+
 static EventLoop *g_loop;
 
-void time_out() {
-    printf("timeout...\n");
-    g_loop->quit();
+static int count = 1;
+
+void time_out(int fd) {
+    if (count == 10) {
+        g_loop->quit();
+    }
+    uint64_t val;
+    read(fd, &val, sizeof(val));
+    printf("event triggered for %d times.\n", count);
+    count++;
 }
 
 int main(int argc, const char *argv[]) {
@@ -24,13 +33,14 @@ int main(int argc, const char *argv[]) {
     auto timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 
     Channel channel(g_loop, timerfd);
-    channel.set_read_callback(time_out);
+    channel.set_read_callback(bind(time_out, timerfd));
     channel.enable_reading();
 
     itimerspec spec;
 
     memset(&spec, 0, sizeof(spec));
-    spec.it_value.tv_sec = 4;
+    spec.it_value.tv_sec = 3;
+    spec.it_interval.tv_sec = 1;
 
     timerfd_settime(timerfd, 0, &spec, nullptr);
 
