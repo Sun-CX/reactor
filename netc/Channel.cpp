@@ -24,7 +24,7 @@ static_assert(POLLIN == EPOLLIN and
 //              POLLNVAL == EPOLLNVAL
         , "POLL/EPOLL constants assert.");
 
-Channel::Channel(EventLoop *loop, int fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
+Channel::Channel(EventLoop *loop, const int &fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
 
 void Channel::handle_event() {
 //    event_handling = true;
@@ -51,10 +51,6 @@ void Channel::handle_event() {
 void Channel::update() {
 //    add_to_loop = true;
     loop->update_channel(this);
-}
-
-int Channel::get_fd() const {
-    return fd;
 }
 
 uint32_t Channel::get_events() const {
@@ -125,4 +121,8 @@ void Channel::set_close_callback(const Channel::EventCallback &callback) {
 
 void Channel::set_error_callback(const Channel::EventCallback &callback) {
     error_callback = callback;
+}
+
+const int &Channel::get_fd() const {
+    return fd;
 }

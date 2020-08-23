@@ -23,7 +23,7 @@ private:
     using EventCallback  = function<void()>;
 
     EventLoop *loop;
-    const int fd;
+    const int &fd;       // Channel 本身不持有 fd，由用户代码控制 fd 的生存期
     uint32_t events;     // 关心的 IO 事件
     uint32_t revents;    // 实际发生了的 IO 事件
     int index;      // used by poller
@@ -43,7 +43,7 @@ private:
     void update();
 
 public:
-    Channel(EventLoop *loop, int fd);
+    Channel(EventLoop *loop, const int &fd);
 
 //    virtual ~Channel();
 
@@ -57,7 +57,7 @@ public:
 
     void set_error_callback(const EventCallback &callback);
 
-    int get_fd() const;
+    const int &get_fd() const;
 
     void set_index(int idx);
 

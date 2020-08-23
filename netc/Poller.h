@@ -31,6 +31,8 @@ protected:
 public:
     explicit Poller(EventLoop *loop);
 
+    virtual ~Poller() = default;
+
     /**
      * 轮询活跃的事件
      * @param active_channels

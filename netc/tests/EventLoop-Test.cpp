@@ -19,9 +19,9 @@ void time_out(int fd) {
     if (count == 10) {
         g_loop->quit();
     }
-    uint64_t val;
-    read(fd, &val, sizeof(val));
-    printf("event triggered for %d times.\n", count);
+    char buf[1024];
+    auto n = read(fd, buf, sizeof(buf));
+    printf("has read: %ld, event triggered for %d times.\n", n, count);
     count++;
 }
 
