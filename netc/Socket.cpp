@@ -16,10 +16,6 @@ Socket::~Socket() {
     if (unlikely(status != 0)) ERROR_EXIT("close socket error.");
 }
 
-int Socket::fd() const {
-    return sock_fd;
-}
-
 void Socket::bind(const InetAddress &addr) {
     auto status = ::bind(sock_fd, addr.get_sockaddr(), sizeof(sockaddr_in));
     if (unlikely(status != 0)) ERROR_EXIT("socket bind error.");
@@ -34,8 +30,7 @@ int Socket::accept(InetAddress *peer_addr) {
     sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     socklen_t len = sizeof(addr);
-    int con_fd = ::accept(sock_fd, reinterpret_cast<sockaddr *>(&addr), &len);
-    if (unlikely(con_fd == -1)) ERROR_EXIT("socket accept error.");
+    int con_fd = ::accept4(sock_fd, reinterpret_cast<sockaddr *>(&addr), &len, SOCK_NONBLOCK | SOCK_CLOEXEC);
     peer_addr->set_sockaddr(addr);
     return con_fd;
 }
@@ -62,6 +57,10 @@ void Socket::keep_alive(bool on) const {
     const int opt = on ? 1 : 0;
     auto status = setsockopt(sock_fd, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt));
     if (unlikely(status != 0)) ERROR_EXIT("setsockopt error.");
+}
+
+int Socket::fd() const {
+    return sock_fd;
 }
 
 

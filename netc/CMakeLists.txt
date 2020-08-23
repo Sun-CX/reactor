@@ -5,17 +5,21 @@ set(CMAKE_CXX_STANDARD 14)
 add_subdirectory(tests)
 
 set(LIBRARY_SOURCE
+        #        ============== reactor ==============
         EventLoop.cpp
         Channel.cpp
         Poller.cpp
         PollPoller.cpp
-        #        InetAddress.cpp
-        #        Acceptor.cpp
-        #        Socket.cpp
+        #        =============== tcp server ===============
+        InetAddress.cpp
+        Events.h
+        Socket.cpp
+        Acceptor.cpp
+
+        Buffer.cpp
+        TcpConnection.cpp
         #        TcpServer.cpp
-        #        TcpConnection.cpp
-        #        Buffer.cpp
-        #        Events.h
+        #        Connector.cpp
         #        EventLoopThread.cpp
         #        EventLoopThreadPool.cpp
         #        Timer.cpp TimerId.cpp TimerQueue.cpp

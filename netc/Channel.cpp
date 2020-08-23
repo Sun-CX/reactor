@@ -37,13 +37,21 @@ void Channel::handle_event() {
     }
 
     if ((revents & POLLHUP) and !(revents & POLLIN)) {
-        fprintf(stderr, "fd: %d, Channel::handle_event error.", fd);
-        if (close_callback) close_callback();
+//        fprintf(stderr, "fd: %d, Channel::handle_event error.\n", fd);
+//        if (close_callback) close_callback();
+        fprintf(stderr, "gan1...\n");
+        loop->quit();
     }
 
     if (revents & (POLLERR | POLLNVAL)) {
-        fprintf(stderr, "fd: %d, Channel::handle_event error.", fd);
-        if (error_callback) error_callback();
+//        fprintf(stderr, "fd: %d, Channel::handle_event error.\n", fd);
+//        if (error_callback) {
+//            fprintf(stderr, "error_callback, gan...\n");
+//            loop->quit();
+////            error_callback();
+//        }
+        fprintf(stderr, "gan2, fd: %d\n", fd);
+        loop->quit();
     }
 //    event_handling = false;
 }
@@ -123,6 +131,6 @@ void Channel::set_error_callback(const Channel::EventCallback &callback) {
     error_callback = callback;
 }
 
-const int &Channel::get_fd() const {
+int Channel::get_fd() const {
     return fd;
 }

@@ -20,3 +20,6 @@ target_link_libraries(echoserver-test netc)
 
 add_executable(buffer-test Buffer-Test.cpp)
 target_link_libraries(buffer-test netc)
+
+add_executable(acceptor-test Acceptor-Test.cpp)
+target_link_libraries(acceptor-test netc)

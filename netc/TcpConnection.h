@@ -44,7 +44,7 @@ private:
     Buffer input_buffer;
     Buffer output_buffer;
 
-    void read_handler(Timestamp recv_time);
+    void read_handler();
 
     void write_handler();
 
@@ -67,6 +67,5 @@ public:
 
     void connection_established();
 };
-
 
 #endif //REACTOR_TCPCONNECTION_H

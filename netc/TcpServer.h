@@ -36,13 +36,14 @@ private:
     const string ip_port;
     unique_ptr<Acceptor> acceptor;
     shared_ptr<EventLoopThreadPool> thread_pool;
+    atomic_int started;
+    int next_conn_id;
+    ConnectionMap connections;
+
     ConnectionCallback conn_callback;
     MessageCallback msg_callback;
     WriteCompleteCallback write_complete_callback;
     ThreadInitCallback thread_init_callback;
-    atomic_int started;
-    int next_conn_id;
-    ConnectionMap connections;
 
     void new_connection(int fd, const InetAddress &peer);
 
@@ -53,6 +54,5 @@ public:
 
 
 };
-
 
 #endif //REACTOR_TCPSERVER_H

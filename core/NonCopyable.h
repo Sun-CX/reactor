@@ -14,7 +14,7 @@ public:
 protected:
     NonCopyable() = default;
 
-    ~NonCopyable() = default;
+    virtual ~NonCopyable() = default;
 };
 
 

@@ -10,12 +10,17 @@
 
 class EventLoop;
 
+/**
+ * Acceptor 是对被动连接套接字的抽象
+ *
+ * 一般来说，在上层应用程序中，不直接使用 Acceptor，而是把它作为 TcpServer 的成员
+ */
 class Acceptor final : public NonCopyable {
 private:
     using ConnectionCallback = function<void(int, const InetAddress &)>;
 
     EventLoop *loop;
-    Socket accept_socket;
+    Socket socket;
     Channel accept_channel;
     ConnectionCallback callback;
     bool listening;
@@ -30,7 +35,7 @@ public:
 
     virtual ~Acceptor();
 
-    void set_read_handler(const ConnectionCallback &handler);
+    void set_new_conn_callback(const ConnectionCallback &handler);
 
     void listen();
 
