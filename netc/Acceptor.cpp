@@ -56,7 +56,7 @@ Acceptor::~Acceptor() {
     close(idle_fd);
 }
 
-void Acceptor::set_new_conn_callback(const Acceptor::ConnectionCallback &handler) {
+void Acceptor::set_connection_callback(const Acceptor::ConnectionCallback &handler) {
     callback = handler;
 }
 

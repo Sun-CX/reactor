@@ -35,6 +35,7 @@ int main(int argc, const char *argv[]) {
     Channel channel(g_loop, timerfd);
     channel.set_read_callback(bind(time_out, timerfd));
     channel.enable_reading();
+//    channel.disable_reading();
 
     itimerspec spec;
 

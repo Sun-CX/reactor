@@ -18,10 +18,10 @@ set(LIBRARY_SOURCE
 
         Buffer.cpp
         TcpConnection.cpp
-        #        TcpServer.cpp
+        TcpServer.cpp
+        EventLoopThread.cpp
+#        EventLoopThreadPool.cpp
         #        Connector.cpp
-        #        EventLoopThread.cpp
-        #        EventLoopThreadPool.cpp
         #        Timer.cpp TimerId.cpp TimerQueue.cpp
         )
 

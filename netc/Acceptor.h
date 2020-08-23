@@ -35,7 +35,7 @@ public:
 
     virtual ~Acceptor();
 
-    void set_new_conn_callback(const ConnectionCallback &handler);
+    void set_connection_callback(const ConnectionCallback &handler);
 
     void listen();
 

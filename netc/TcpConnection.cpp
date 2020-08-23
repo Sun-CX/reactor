@@ -6,6 +6,7 @@
 #include "EventLoop.h"
 #include "Socket.h"
 #include "Channel.h"
+#include <unistd.h>
 
 using std::bind;
 using std::placeholders::_1;
@@ -38,7 +39,26 @@ void TcpConnection::read_handler() {
 }
 
 void TcpConnection::write_handler() {
+    loop->assert_in_created_thread();
+    if (channel->is_writing()) {
+        auto n = write(channel->get_fd(), output_buffer.peek(), output_buffer.readable_bytes());
+        if (n > 0) {
+            output_buffer.retrieve(n);
+            if (output_buffer.readable_bytes() == 0) {
+                channel->disable_writing();
+                if (write_complete_callback) {
 
+                }
+                if (status == Disconnecting) {
+
+                }
+            }
+        } else {
+            fprintf(stderr, "write error.\n");
+        }
+    } else {
+
+    }
 }
 
 void TcpConnection::close_handler() {

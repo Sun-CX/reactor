@@ -134,3 +134,11 @@ void Channel::set_error_callback(const Channel::EventCallback &callback) {
 int Channel::get_fd() const {
     return fd;
 }
+
+bool Channel::is_writing() const {
+    return events & (POLLOUT | POLLWRBAND);
+}
+
+bool Channel::is_reading() const {
+    return events & (POLLIN | POLLPRI);
+}

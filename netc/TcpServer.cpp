@@ -9,6 +9,7 @@
 #include "EventLoop.h"
 #include "InetAddress.h"
 #include "TcpConnection.h"
+#include "EventLoopThread.h"
 #include "EventLoopThreadPool.h"
 
 using std::make_shared;
@@ -30,7 +31,7 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &listen_addr, string nam
           conn_callback(default_connection_callback),
           msg_callback(default_message_callback),
           next_conn_id(1) {
-    acceptor->set_read_handler(bind(&TcpServer::new_connection, this, _1, _2));
+    acceptor->set_connection_callback(bind(&TcpServer::new_connection, this, _1, _2));
 
 }
 
