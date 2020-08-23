@@ -21,8 +21,8 @@ void EventLoopThreadPool::start(const EventLoopThreadPool::ThreadInitCallback &c
     char buf[name.size() + 32];
     for (int i = 0; i < num_threads; ++i) {
         snprintf(buf, sizeof(buf), "%s-%d", name.c_str(), i + 1);
-        auto th = make_unique<EventLoopThread>(callback, string(buf));
-        threads.push_back(th);
+        auto th = new EventLoopThread(callback, string(buf));
+        threads.push_back(unique_ptr<EventLoopThread>(th));
         loops.push_back(th->start());
     }
     if (num_threads == 0 and callback) {

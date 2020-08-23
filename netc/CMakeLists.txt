@@ -12,7 +12,6 @@ set(LIBRARY_SOURCE
         PollPoller.cpp
         #        =============== tcp server ===============
         InetAddress.cpp
-        Events.h
         Socket.cpp
         Acceptor.cpp
 
@@ -20,7 +19,7 @@ set(LIBRARY_SOURCE
         TcpConnection.cpp
         TcpServer.cpp
         EventLoopThread.cpp
-#        EventLoopThreadPool.cpp
+        EventLoopThreadPool.cpp
         #        Connector.cpp
         #        Timer.cpp TimerId.cpp TimerQueue.cpp
         )
