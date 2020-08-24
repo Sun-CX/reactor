@@ -9,12 +9,13 @@
 #include "NonCopyable.h"
 #include "Timer.h"
 
-class TimerId final : public NonCopyable {
+class TimerId final {
 private:
     Timer *timer;
     int64_t sequence;
 
-    friend class EventLoop;
+//    friend class EventLoop;
+    friend class TimerQueue;
 
 public:
     TimerId();

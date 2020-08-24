@@ -45,8 +45,6 @@ private:
 public:
     Channel(EventLoop *loop, const int &fd);
 
-//    virtual ~Channel();
-
     void handle_event();
 
     void set_read_callback(const EventCallback &callback);

@@ -4,7 +4,10 @@ set(CMAKE_CXX_STANDARD 14)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
-include_directories(${PROJECT_SOURCE_DIR}/core ${PROJECT_SOURCE_DIR}/netc)
+include_directories(
+        ${PROJECT_SOURCE_DIR}/core
+        ${PROJECT_SOURCE_DIR}/netc
+)
 link_directories(${PROJECT_BINARY_DIR}/lib)
 
 add_executable(eventloop-test EventLoop-Test.cpp)

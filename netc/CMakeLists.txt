@@ -20,8 +20,10 @@ set(LIBRARY_SOURCE
         TcpServer.cpp
         EventLoopThread.cpp
         EventLoopThreadPool.cpp
+        Timer.cpp
+        TimerId.cpp
+        TimerQueue.cpp
         #        Connector.cpp
-        #        Timer.cpp TimerId.cpp TimerQueue.cpp
         )
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)

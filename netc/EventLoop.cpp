@@ -63,6 +63,7 @@ void EventLoop::assert_in_created_thread() {
 
 void EventLoop::quit() {
     exited = true;
+    //TODO: 跨线程调用
 //    if (!is_in_created_thread()) {
 //        wakeup();
 //    }

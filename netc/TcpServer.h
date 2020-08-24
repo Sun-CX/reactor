@@ -52,7 +52,6 @@ private:
 public:
     TcpServer(EventLoop *loop, const InetAddress &listen_addr, string name, bool reuse_port = false);
 
-
 };
 
 #endif //REACTOR_TCPSERVER_H

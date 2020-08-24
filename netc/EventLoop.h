@@ -48,7 +48,7 @@ private:
 public:
     EventLoop();
 
-    ~EventLoop() override;
+    virtual ~EventLoop();
 
     // 只能在创建该对象的线程中调用，不能跨线程调用
     void loop();
@@ -67,6 +67,9 @@ public:
 
     bool has_channel(Channel *channel);
 
+    /**
+     * 本函数可以跨线程调用
+     */
     void quit();
 
     void run_in_loop(const function<void()> &func);
