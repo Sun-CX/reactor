@@ -53,3 +53,7 @@ void TcpServer::new_connection(int fd, const InetAddress &peer) {
     conn->set_close_callback(bind(&TcpServer::remove_connection, this, _1));
     io_loop->run_in_loop(bind(&TcpConnection::connection_established, conn));
 }
+
+void TcpServer::remove_connection(const shared_ptr<TcpConnection> &con) {
+
+}

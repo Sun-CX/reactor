@@ -19,7 +19,7 @@ class Channel;
 class Poller;
 
 /**
- * 每个 EventLoop 代表一个 IO 线程
+ * 创建 EventLoop 对象的线程是 IO 线程，其主要功能是运行事件循环
  */
 class EventLoop final : public NonCopyable {
 private:
@@ -34,7 +34,7 @@ private:
     bool looping;
     bool exited;        // 循环是否退出
     const pid_t pid;
-    unique_ptr<Poller> poller;
+    unique_ptr<Poller> poller;  // 其生命期与 EventLoop 对象相等
     const char *thread_name;
     Channels active_channels;
 

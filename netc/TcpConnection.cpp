@@ -69,3 +69,27 @@ void TcpConnection::error_handler() {
 
 }
 
+void TcpConnection::set_connection_callback(const ConnectionCallback &callback) {
+
+}
+
+void TcpConnection::set_message_callback(const MessageCallback &callback) {
+
+}
+
+void TcpConnection::set_write_complete_callback(const WriteCompleteCallback &callback) {
+
+}
+
+void TcpConnection::set_high_water_mark_callback(const HighWaterMarkCallback &callback) {
+
+}
+
+void TcpConnection::set_close_callback(const CloseCallback &callback) {
+
+}
+
+void TcpConnection::connection_established() {
+
+}
+

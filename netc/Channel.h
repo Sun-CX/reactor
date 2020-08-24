@@ -16,7 +16,7 @@ class EventLoop;
 /**
  * Channel 是对 IO 事件注册和响应的封装
  *
- * 每个 Channel 对象自始至终只属于一个 EventLoop（即只运行在某一个 IO 线程），负责某一个文件描述符的 IO 事件分发
+ * 每个 Channel 对象自始至终只属于一个 EventLoop（即只属于某一个 IO 线程），负责某一个文件描述符的 IO 事件分发
  */
 class Channel final : public NonCopyable {
 private:
@@ -26,7 +26,7 @@ private:
     const int fd;        // Channel 本身不持有 fd，由用户代码控制 fd 的生存期
     uint32_t events;     // 关心的 IO 事件
     uint32_t revents;    // 实际发生了的 IO 事件
-    int index;      // used by poller
+    int index;      // 当前 Channel 在 PollPoller::fds 中的下标
 
 //    weak_ptr<void> tie;
 //    bool tied;
