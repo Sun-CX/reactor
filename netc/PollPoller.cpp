@@ -55,9 +55,12 @@ void PollPoller::update_channel(Channel *channel) {
         pfd.events = static_cast<short>(channel->get_events());
         pfd.revents = 0;
         /**
+         * The field fd contains a file descriptor for an open file. If this field is negative, then the corresponding events field is ignored and the revents field returns zero.
+         * This provides an easy way of ignoring a file descriptor for a single poll() call: simply negate the fd field.
+         * Note, however, that this technique can't be used to ignore file descriptor 0.
          * 如果某一个 channel 暂时不关心任何事件，那么可以把 pollfd.fd 设置为负数，这样 poll 会忽略此文件描述符
          * 不能仅仅将 pollfd.events 设置为 0，因为无法屏蔽 POLLERR 事件
-         * pfd.fd 进行减一操作是为了解决 fd 可能为 0 的情况：-0 == 0，所以要减 1
+         * pfd.fd 进行减一操作是为了解决 fd 可能为 0 的情况：因为 -0 == 0，所以要减一
          */
         if (channel->has_none_events()) pfd.fd = -channel->get_fd() - 1;
     }
