@@ -10,6 +10,9 @@ include_directories(
 )
 link_directories(${PROJECT_BINARY_DIR}/lib)
 
+add_executable(channel-test Channel-Test.cpp)
+target_link_libraries(channel-test netc)
+
 add_executable(eventloop-test EventLoop-Test.cpp)
 target_link_libraries(eventloop-test netc)
 

@@ -14,6 +14,7 @@ using std::function;
 class EventLoop;
 
 /**
+ * Channel 类一般不对用户代码可见
  * Channel 是对 IO 事件注册和响应的封装
  *
  * 每个 Channel 对象自始至终只属于一个 EventLoop（即只属于某一个 IO 线程），负责某一个文件描述符的 IO 事件分发
