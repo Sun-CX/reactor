@@ -45,6 +45,8 @@ int main(int argc, const char *argv[]) {
     timerfd_settime(timerfd, 0, &spec, nullptr);
 
     g_loop->loop();
+
+    printf("result: %d\n", g_loop->has_channel(&channel));
     close(timerfd);
     return 0;
 }

@@ -43,7 +43,7 @@ private:
     void update();
 
 public:
-    Channel(EventLoop *loop, const int &fd);
+    Channel(EventLoop *loop, int fd);
 
     void handle_event();
 

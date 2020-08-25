@@ -31,7 +31,9 @@ Timestamp PollPoller::poll(Poller::Channels *active_channels, int milliseconds) 
 }
 
 void PollPoller::update_channel(Channel *channel) {
+#ifndef NDEBUG
     Poller::assert_in_loop_thread();
+#endif
     if (channel->get_index() < 0) { // a new one
         pollfd pfd;
         pfd.fd = channel->get_fd();
@@ -51,7 +53,9 @@ void PollPoller::update_channel(Channel *channel) {
 }
 
 void PollPoller::remove_channel(Channel *channel) {
+#ifndef NDEBUG
     Poller::assert_in_loop_thread();
+#endif
     auto idx = channel->get_index();
     pollfd &pfd = fds[idx];
     auto n = channel_map.erase(channel->get_fd());

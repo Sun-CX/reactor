@@ -24,7 +24,7 @@ static_assert(POLLIN == EPOLLIN and
 //              POLLNVAL == EPOLLNVAL
         , "POLL/EPOLL constants assert failed.");
 
-Channel::Channel(EventLoop *loop, const int &fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
+Channel::Channel(EventLoop *loop, int fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
 
 void Channel::handle_event() {
 //    event_handling = true;
@@ -44,14 +44,7 @@ void Channel::handle_event() {
 //    }
 
     if (revents & (POLLERR | POLLNVAL)) {
-//        fprintf(stderr, "fd: %d, Channel::handle_event error.\n", fd);
-//        if (error_callback) {
-//            fprintf(stderr, "error_callback, gan...\n");
-//            loop->quit();
-//            error_callback();
-//        }
-        fprintf(stderr, "gan2, fd: %d\n", fd);
-        loop->quit();
+        if (error_callback) error_callback();
     }
 //    event_handling = false;
 }

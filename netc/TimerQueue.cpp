@@ -27,7 +27,8 @@ int TimerQueue::timer_create() const {
 }
 
 void TimerQueue::read_handler() {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     Timestamp now = Timestamp::now();
     read_timeout_event(timer_fd, now);
     vector<Entry> expired = get_expired(now);
@@ -78,14 +79,16 @@ TimerId TimerQueue::add_timer(TimerQueue::TimerCallback callback, Timestamp when
 }
 
 void TimerQueue::add_timer_in_loop(Timer *timer) {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     auto earliest_changed = insert(timer);
     if (earliest_changed)
         reset_timer_fd(timer_fd, timer->expire_time());
 }
 
 bool TimerQueue::insert(Timer *timer) {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     assert(timers.size() == active_timers.size());
     bool earliest_changed = false;
     auto when = timer->expire_time();
@@ -108,7 +111,8 @@ void TimerQueue::cancel(TimerId timer_id) {
 }
 
 void TimerQueue::cancel_in_loop(TimerId timer_id) {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     ActiveTimer active_timer(timer_id.timer, timer_id.sequence);
     auto it = active_timers.find(active_timer);
     if (it != active_timers.end()) {

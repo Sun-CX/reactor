@@ -28,11 +28,11 @@ private:
 public:
     explicit PollPoller(EventLoop *loop);
 
-    Timestamp poll(Channels *active_channels, int milliseconds) override;
-
     void update_channel(Channel *channel) override;
 
     void remove_channel(Channel *channel) override;
+
+    Timestamp poll(Channels *active_channels, int milliseconds) override;
 };
 
 #endif //REACTOR_POLLPOLLER_H

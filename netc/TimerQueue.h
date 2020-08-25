@@ -40,10 +40,11 @@ private:
 
     EventLoop *loop;
     const int timer_fd;
+    bool calling_expired_timers;
     Channel timer_channel;
+
     Timers timers;
     ActiveTimerSet active_timers;
-    bool calling_expired_timers;
     ActiveTimerSet canceled_timers;
 
     int timer_create() const;

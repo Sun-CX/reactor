@@ -24,6 +24,7 @@ class Poller;
 class EventLoop final : public NonCopyable {
 private:
     using Channels = vector<Channel *>;
+    using Functor = function<void()>;
     /**
      * 控制一个线程最多只能有一个 EventLoop
      */
@@ -35,7 +36,6 @@ private:
     bool exited;        // 循环是否退出
     const pid_t pid;
     unique_ptr<Poller> poller;  // 其生命期与 EventLoop 对象相等
-    const char *thread_name;
     Channels active_channels;
 
 //    bool event_handling;
@@ -57,14 +57,17 @@ public:
      * 检查当前对象是否处于创建该对象的线程中
      * @return
      */
-    bool is_in_created_thread() const;
-
-    void assert_in_created_thread();
+    bool is_in_loop_thread() const;
 
     void update_channel(Channel *channel);
 
     void remove_channel(Channel *channel);
 
+    /**
+     * 检查 channel 是否在当前 EventLoop 中
+     * @param channel
+     * @return
+     */
     bool has_channel(Channel *channel);
 
     /**
@@ -72,7 +75,7 @@ public:
      */
     void quit();
 
-    void run_in_loop(const function<void()> &func);
+    void run_in_loop(const Functor &func);
 //    TimerId run_at(const Timer::TimerCallback &callback, Timestamp timestamp);
 
     static EventLoop *event_loop_of_current_thread();

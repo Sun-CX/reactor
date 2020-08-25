@@ -2,6 +2,7 @@
 // Created by suncx on 2020/8/20.
 //
 
+#include <cassert>
 #include "EventLoopThreadPool.h"
 #include "EventLoopThread.h"
 #include "EventLoop.h"
@@ -16,7 +17,8 @@ void EventLoopThreadPool::set_thread_num(int num) {
 }
 
 void EventLoopThreadPool::start(const EventLoopThreadPool::ThreadInitCallback &callback) {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     started = true;
     char buf[name.size() + 32];
     for (int i = 0; i < num_threads; ++i) {
@@ -31,7 +33,8 @@ void EventLoopThreadPool::start(const EventLoopThreadPool::ThreadInitCallback &c
 }
 
 EventLoop *EventLoopThreadPool::get_next_loop() {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     EventLoop *lo = loop;
     if (!loops.empty()) {
         loop = loops[next++];

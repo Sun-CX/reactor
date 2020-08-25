@@ -7,6 +7,7 @@
 #include "Socket.h"
 #include "Channel.h"
 #include <unistd.h>
+#include <cassert>
 
 using std::bind;
 using std::placeholders::_1;
@@ -24,7 +25,8 @@ TcpConnection::TcpConnection(EventLoop *loop, string name, int sock_fd, const In
 }
 
 void TcpConnection::read_handler() {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     int saved_errno = 0;
     ssize_t n = input_buffer.read_from_fd(channel->get_fd(), &saved_errno);
     if (n > 0) {
@@ -39,7 +41,8 @@ void TcpConnection::read_handler() {
 }
 
 void TcpConnection::write_handler() {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     if (channel->is_writing()) {
         auto n = write(channel->get_fd(), output_buffer.peek(), output_buffer.readable_bytes());
         if (n > 0) {

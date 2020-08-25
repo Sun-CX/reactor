@@ -9,6 +9,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/socket.h>
+#include <cassert>
 
 using std::bind;
 
@@ -29,7 +30,8 @@ int Acceptor::create_socket() const {
 }
 
 void Acceptor::read_handler() {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     InetAddress peer_addr;
     int con_fd = socket.accept(&peer_addr);
     if (con_fd >= 0) {// success
@@ -61,7 +63,8 @@ void Acceptor::set_connection_callback(const Acceptor::ConnectionCallback &handl
 }
 
 void Acceptor::listen() {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     listening = true;
     socket.listen();
     accept_channel.enable_reading();

@@ -2,6 +2,7 @@
 // Created by suncx on 2020/8/19.
 //
 
+#include <cassert>
 #include "TcpServer.h"
 #include "Timestamp.h"
 #include "Buffer.h"
@@ -36,7 +37,8 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &listen_addr, string nam
 }
 
 void TcpServer::new_connection(int fd, const InetAddress &peer) {
-    loop->assert_in_created_thread();
+//    loop->assert_in_created_thread();
+    assert(loop->is_in_loop_thread());
     auto io_loop = thread_pool->get_next_loop();
     char buf[64];
     snprintf(buf, sizeof(buf), "-%s-%d", ip_port.c_str(), next_conn_id++);
