@@ -12,6 +12,13 @@
 #include <cstring>
 
 using std::bind;
+using std::copy;
+
+TimerQueue::TimerQueue(EventLoop *loop) : loop(loop), timer_fd(timer_create()), timer_channel(loop, timer_fd),
+                                          timers(), calling_expired_timers(false) {
+    timer_channel.set_read_callback(bind(&TimerQueue::read_handler, this));
+    timer_channel.enable_reading();
+}
 
 int TimerQueue::timer_create() const {
     auto fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
@@ -19,32 +26,48 @@ int TimerQueue::timer_create() const {
     return fd;
 }
 
-TimerQueue::TimerQueue(EventLoop *loop) : loop(loop), timer_fd(timer_create()), timer_channel(loop, timer_fd),
-                                          timers(), calling_expired_timers(false) {
-
-    timer_channel.set_read_callback(bind(&TimerQueue::read_handler, this));
-    timer_channel.enable_reading();
-}
-
 void TimerQueue::read_handler() {
     loop->assert_in_created_thread();
     Timestamp now = Timestamp::now();
-    read_timer_fd(timer_fd, now);
+    read_timeout_event(timer_fd, now);
     vector<Entry> expired = get_expired(now);
+    calling_expired_timers = true;
+    canceled_timers.clear();
+
+    for (const Entry &e:expired) {
+        e.second->run();
+    }
+    calling_expired_timers = false;
+    reset(expired, now);
 }
 
-void TimerQueue::read_timer_fd(int fd, Timestamp now) {
-    uint64_t many;
-    auto n = read(fd, &many, sizeof(many));
-    if (unlikely(n != sizeof(many)))
+void TimerQueue::read_timeout_event(int fd, Timestamp now) {
+    uint64_t exp;
+    auto n = read(fd, &exp, sizeof(exp));
+#ifndef NDEBUG
+    printf("TimerQueue handle readable event at %s\n", now.to_fmt_string().c_str());
+#endif
+    if (unlikely(n != sizeof(exp)))
         fprintf(stderr, "read timer_fd error.");
 }
 
 vector<TimerQueue::Entry> TimerQueue::get_expired(Timestamp now) {
     vector<Entry> expired;
     Entry sentry(now, reinterpret_cast<Timer *>(UINTPTR_MAX));
+    auto end = timers.lower_bound(sentry);
+    assert(end == timers.end() or now < end->first);
 
+    copy(timers.begin(), end, back_inserter(expired));
 
+    timers.erase(timers.begin(), end);
+
+    for (const Entry &e:expired) {
+        ActiveTimer timer(e.second, e.second->get_sequence());
+        auto n = active_timers.erase(timer);
+        assert(n == 1);
+    }
+
+    assert(timers.size() == active_timers.size());
     return expired;
 }
 
@@ -109,4 +132,25 @@ void TimerQueue::reset_timer_fd(int fd, Timestamp timestamp) {
     if (unlikely(ret != 0)) ERROR_EXIT("timerfd_settime error.");
 }
 
+timespec TimerQueue::time_from_now(Timestamp time) {
+    auto ms = time.microseconds_since_epoch() - Timestamp::now().microseconds_since_epoch();
+    if (ms < 100) ms = 100;
+    return {ms / Timestamp::microseconds_per_second, ms % Timestamp::microseconds_per_second * 1000};
+}
+
+void TimerQueue::reset(const vector<Entry> &expired, Timestamp now) {
+    Timestamp next_expire;
+    for (const Entry &e:expired) {
+        ActiveTimer timer(e.second, e.second->get_sequence());
+        if (e.second->is_repeated() and canceled_timers.find(timer) == canceled_timers.end()) {
+            e.second->restart(now);
+            insert(e.second);
+        } else {
+            delete e.second;
+        }
+    }
+
+    if (!timers.empty()) next_expire = timers.begin()->second->expire_time();
+    if (next_expire.valid()) reset_timer_fd(timer_fd, next_expire);
+}
 

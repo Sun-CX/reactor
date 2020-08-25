@@ -96,3 +96,7 @@ string Timestamp::to_fmt_string(bool show_microsecond) const {
              tm_time.tm_sec);
     return buf;
 }
+
+int64_t Timestamp::microseconds_since_epoch() const {
+    return microsecond_since_epoch;
+}

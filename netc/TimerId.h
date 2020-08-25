@@ -5,16 +5,19 @@
 #ifndef REACTOR_TIMERID_H
 #define REACTOR_TIMERID_H
 
-
 #include "NonCopyable.h"
-#include "Timer.h"
+#include <cstdint>
 
+class Timer;
+
+/**
+ * 不透明的定时器 ID, 用来取消定时器
+ */
 class TimerId final {
 private:
     Timer *timer;
     int64_t sequence;
 
-//    friend class EventLoop;
     friend class TimerQueue;
 
 public:
@@ -22,6 +25,5 @@ public:
 
     TimerId(Timer *timer, int64_t seq);
 };
-
 
 #endif //REACTOR_TIMERID_H
