@@ -7,6 +7,7 @@
 #include "Exception.h"
 #include "Channel.h"
 #include <poll.h>
+#include <cassert>
 
 using std::iter_swap;
 
@@ -21,7 +22,7 @@ Timestamp PollPoller::poll(Poller::Channels *active_channels, int milliseconds) 
             errno = saved_no;
             fprintf(stderr, "PollPoller::poll() error.\n");
         }
-    } else if (num_events == 0) {
+    } else if (num_events == 0) {   // 无活跃的文件描述符，超时返回
         printf("poll timeout, nothing happened.\n");
     } else {
 //        printf("poll() received %d events...\n", num_events);
@@ -34,7 +35,9 @@ void PollPoller::update_channel(Channel *channel) {
 #ifndef NDEBUG
     Poller::assert_in_loop_thread();
 #endif
-    if (channel->get_index() < 0) { // a new one
+    auto idx = channel->get_index();
+    if (idx < 0) { // a new one
+        assert(channel_map.find(channel->get_fd()) == channel_map.cend());
         pollfd pfd;
         pfd.fd = channel->get_fd();
         pfd.events = channel->get_events();
@@ -42,12 +45,20 @@ void PollPoller::update_channel(Channel *channel) {
         fds.push_back(pfd);
         channel->set_index(static_cast<int>(fds.size() - 1));
         channel_map[pfd.fd] = channel;
-    } else {
-        auto idx = channel->get_index();
+    } else {    // update existed one
+        assert(channel_map.find(channel->get_fd()) != channel_map.cend());
+        assert(channel_map[channel->get_fd()] == channel);
+        assert(0 <= idx and idx < fds.size());
+
         pollfd &pfd = fds[idx];
         pfd.fd = channel->get_fd();
         pfd.events = static_cast<short>(channel->get_events());
         pfd.revents = 0;
+        /**
+         * 如果某一个 channel 暂时不关心任何事件，那么可以把 pollfd.fd 设置为负数，这样 poll 会忽略此文件描述符
+         * 不能仅仅将 pollfd.events 设置为 0，因为无法屏蔽 POLLERR 事件
+         * pfd.fd 进行减一操作是为了解决 fd 可能为 0 的情况：-0 == 0，所以要减 1
+         */
         if (channel->has_none_events()) pfd.fd = -channel->get_fd() - 1;
     }
 }
@@ -59,10 +70,11 @@ void PollPoller::remove_channel(Channel *channel) {
     auto idx = channel->get_index();
     pollfd &pfd = fds[idx];
     auto n = channel_map.erase(channel->get_fd());
-
+    assert(n == 1);
     if (idx == fds.size() - 1) {
         fds.pop_back();
     } else {
+        //将删除的元素与末尾元素交换，避免元素无谓地移动
         auto channel_at_end = fds.back().fd;
         iter_swap(fds.begin() + idx, fds.end() - 1);
 

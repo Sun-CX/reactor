@@ -28,6 +28,9 @@ protected:
     using Channels = vector<Channel *>;
     using ChannelMap = map<int, Channel *>;
     ChannelMap channel_map;
+
+    void assert_in_loop_thread() const;
+
 public:
     explicit Poller(EventLoop *loop);
 
@@ -46,8 +49,6 @@ public:
     virtual void remove_channel(Channel *channel) = 0;
 
     virtual bool has_channel(Channel *channel) const;
-
-    void assert_in_loop_thread() const;
 
     static Poller *default_poller(EventLoop *loop);
 };
