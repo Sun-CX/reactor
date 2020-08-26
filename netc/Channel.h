@@ -68,8 +68,6 @@ public:
 
     bool has_none_events() const;
 
-    void remove();
-
     EventLoop *loop_owner() const;
 
     void enable_reading();
@@ -81,6 +79,8 @@ public:
     void disable_writing();
 
     void disable_all();
+
+    void remove();
 
     bool is_writing() const;
 

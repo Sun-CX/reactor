@@ -25,7 +25,6 @@ Timestamp PollPoller::poll(Poller::Channels *active_channels, int milliseconds) 
     } else if (num_events == 0) {   // 无活跃的文件描述符，超时返回
         printf("poll timeout, nothing happened.\n");
     } else {
-//        printf("poll() received %d events...\n", num_events);
         fill_active_channels(active_channels, num_events);
     }
     return now;
@@ -65,7 +64,7 @@ void PollPoller::update_channel(Channel *channel) {
          * 
          * 如果某一个 channel 暂时不关心任何事件，那么可以把 pollfd.fd 设置为负数，这样 poll 会忽略此文件描述符
          * 不能仅仅将 pollfd.events 设置为 0，因为无法屏蔽 POLLERR 事件
-         * pfd.fd 进行减一操作是为了解决 fd 可能为 0 的情况：因为 -0 == 0，所以要减一
+         * pfd.fd 取相反数再减一的操作是为了解决 fd 可能为 0 的问题：因为 -0 = 0，所以要减一
          */
         if (channel->has_none_events()) pfd.fd = -channel->get_fd() - 1;
     }
@@ -87,9 +86,7 @@ void PollPoller::remove_channel(Channel *channel) {
         iter_swap(fds.begin() + idx, fds.end() - 1);
         fds.pop_back();
 
-        if (channel_at_end < 0) {
-            channel_at_end = -channel_at_end - 1;
-        }
+        if (channel_at_end < 0) channel_at_end = -channel_at_end - 1;
         channel_map[channel_at_end]->set_index(idx);
     }
 }
