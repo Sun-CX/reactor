@@ -58,6 +58,11 @@ void PollPoller::update_channel(Channel *channel) {
          * The field fd contains a file descriptor for an open file. If this field is negative, then the corresponding events field is ignored and the revents field returns zero.
          * This provides an easy way of ignoring a file descriptor for a single poll() call: simply negate the fd field.
          * Note, however, that this technique can't be used to ignore file descriptor 0.
+         * 
+         * 标准输入 0    stdin 从键盘获得输入
+         * 标准输出 1    stdout 输出到控制台
+         * 错误输出 2    stderr 输出到控制台
+         * 
          * 如果某一个 channel 暂时不关心任何事件，那么可以把 pollfd.fd 设置为负数，这样 poll 会忽略此文件描述符
          * 不能仅仅将 pollfd.events 设置为 0，因为无法屏蔽 POLLERR 事件
          * pfd.fd 进行减一操作是为了解决 fd 可能为 0 的情况：因为 -0 == 0，所以要减一
@@ -80,12 +85,12 @@ void PollPoller::remove_channel(Channel *channel) {
         //将删除的元素与末尾元素交换，避免元素无谓地移动
         auto channel_at_end = fds.back().fd;
         iter_swap(fds.begin() + idx, fds.end() - 1);
+        fds.pop_back();
 
         if (channel_at_end < 0) {
             channel_at_end = -channel_at_end - 1;
         }
         channel_map[channel_at_end]->set_index(idx);
-        fds.pop_back();
     }
 }
 
