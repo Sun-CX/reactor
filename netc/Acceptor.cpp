@@ -30,7 +30,6 @@ int Acceptor::create_socket() const {
 }
 
 void Acceptor::read_handler() {
-//    loop->assert_in_created_thread();
     assert(loop->is_in_loop_thread());
     InetAddress peer_addr;
     int con_fd = socket.accept(&peer_addr);
@@ -63,7 +62,6 @@ void Acceptor::set_connection_callback(const Acceptor::ConnectionCallback &handl
 }
 
 void Acceptor::listen() {
-//    loop->assert_in_created_thread();
     assert(loop->is_in_loop_thread());
     listening = true;
     socket.listen();
