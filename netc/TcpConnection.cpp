@@ -4,6 +4,7 @@
 
 #include "TcpConnection.h"
 #include "EventLoop.h"
+#include "Timestamp.h"
 #include "Socket.h"
 #include "Channel.h"
 #include <unistd.h>
@@ -25,12 +26,12 @@ TcpConnection::TcpConnection(EventLoop *loop, string name, int sock_fd, const In
 }
 
 void TcpConnection::read_handler() {
-//    loop->assert_in_created_thread();
     assert(loop->is_in_loop_thread());
     int saved_errno = 0;
     ssize_t n = input_buffer.read_from_fd(channel->get_fd(), &saved_errno);
     if (n > 0) {
-//        msg_callback(shared_from_this(), &input_buffer, recv_time);
+        //TODO:fix timestamp.
+        msg_callback(shared_from_this(), &input_buffer, Timestamp());
     } else if (n == 0) {
         close_handler();
     } else {
@@ -41,7 +42,6 @@ void TcpConnection::read_handler() {
 }
 
 void TcpConnection::write_handler() {
-//    loop->assert_in_created_thread();
     assert(loop->is_in_loop_thread());
     if (channel->is_writing()) {
         auto n = write(channel->get_fd(), output_buffer.peek(), output_buffer.readable_bytes());
@@ -73,26 +73,31 @@ void TcpConnection::error_handler() {
 }
 
 void TcpConnection::set_connection_callback(const ConnectionCallback &callback) {
-
+    conn_callback = callback;
 }
 
 void TcpConnection::set_message_callback(const MessageCallback &callback) {
-
+    msg_callback = callback;
 }
 
 void TcpConnection::set_write_complete_callback(const WriteCompleteCallback &callback) {
-
+    write_complete_callback = callback;
 }
 
 void TcpConnection::set_high_water_mark_callback(const HighWaterMarkCallback &callback) {
-
+    high_water_mark_callback = callback;
 }
 
 void TcpConnection::set_close_callback(const CloseCallback &callback) {
-
+    close_callback = callback;
 }
 
 void TcpConnection::connection_established() {
+    assert(loop->is_in_loop_thread() and status == Connecting);
+    status = Connected;
+    //TODO:fix tie
 
+    channel->enable_reading();
+    conn_callback(shared_from_this());
 }
 
