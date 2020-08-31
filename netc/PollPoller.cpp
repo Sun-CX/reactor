@@ -63,7 +63,7 @@ void PollPoller::update_channel(Channel *channel) {
          * 错误输出 2    stderr 输出到控制台
          * 
          * 如果某一个 channel 暂时不关心任何事件，那么可以把 pollfd.fd 设置为负数，这样 poll 会忽略此文件描述符
-         * 不能仅仅将 pollfd.events 设置为 0，因为无法屏蔽 POLLERR 事件
+         * 不能仅仅将 pollfd.events 设置为 0，因为无法屏蔽 POLLHUP, POLLERR 和 POLLNVAL 事件
          * pfd.fd 取相反数再减一的操作是为了解决 fd 可能为 0 的问题：因为 -0 = 0，所以要减一
          */
         if (channel->has_none_events()) pfd.fd = -channel->get_fd() - 1;
