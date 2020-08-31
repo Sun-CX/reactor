@@ -5,7 +5,7 @@
 #ifndef REACTOR_EVENTLOOP_H
 #define REACTOR_EVENTLOOP_H
 
-#include "NonCopyable.h"
+#include "Mutex.h"
 #include <vector>
 #include <memory>
 #include <functional>
@@ -25,6 +25,7 @@ class EventLoop final : public NonCopyable {
 private:
     using Channels = vector<Channel *>;
     using Functor = function<void()>;
+    using Functors = vector<Functor>;
     /**
      * 控制一个线程最多只能有一个 EventLoop
      */
@@ -38,13 +39,23 @@ private:
     unique_ptr<Poller> poller;  // 其生命期与 EventLoop 对象相等
     Channels active_channels;
 
+    mutable Mutex mutex;
+    bool calling_pending_func;
+    Functors pending_functors;  // 挂起的执行单元
+
+    int wakeup_fd;
+    unique_ptr<Channel> wakeup_channel;
+
 //    bool event_handling;
-//    bool calling_pending_func;
 //    int64_t iteration;
 //    Timestamp poll_return_time;
 //    unique_ptr<TimerQueue> timer_queue;
-//    int wakeup_fd;
-//    unique_ptr<Channel> wakeup_channel;
+    void wakeup() const;
+
+    int create_event_fd() const;
+
+    void read_handler();
+
 public:
     EventLoop();
 
@@ -76,6 +87,8 @@ public:
     void quit();
 
     void run_in_loop(const Functor &func);
+
+    void queue_in_loop(const Functor &func);
 //    TimerId run_at(const Timer::TimerCallback &callback, Timestamp timestamp);
 
     static EventLoop *event_loop_of_current_thread();
