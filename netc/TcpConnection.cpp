@@ -3,6 +3,7 @@
 //
 
 #include "TcpConnection.h"
+#include "Exception.h"
 #include "EventLoop.h"
 #include "Timestamp.h"
 #include "Socket.h"
@@ -11,7 +12,6 @@
 #include <cassert>
 
 using std::bind;
-using std::placeholders::_1;
 
 TcpConnection::TcpConnection(EventLoop *loop, string name, int sock_fd, const InetAddress &local,
                              const InetAddress &peer) : loop(loop), name(move(name)),
@@ -50,26 +50,38 @@ void TcpConnection::write_handler() {
             if (output_buffer.readable_bytes() == 0) {
                 channel->disable_writing();
                 if (write_complete_callback) {
-
+                    loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
                 }
                 if (status == Disconnecting) {
-
+                    shutdown_in_loop();
                 }
             }
         } else {
             fprintf(stderr, "write error.\n");
         }
     } else {
-
+        printf("Connection fd: %d is down, no more writing...\n", channel->get_fd());
     }
 }
 
 void TcpConnection::close_handler() {
+    assert(loop->is_in_loop_thread());
+    assert(status == Connected or status == Disconnecting);
+    status = Disconnected;
+    channel->disable_all();
 
+    shared_ptr<TcpConnection> guard_this(shared_from_this());
+    //TODO: why?
+    conn_callback(guard_this);
+    close_callback(guard_this);
 }
 
 void TcpConnection::error_handler() {
-
+    int opt;
+    socklen_t len = sizeof(opt);
+    auto n = getsockopt(socket->fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
+    if (unlikely(n < 0)) fprintf(stderr, "TcpConnection::error_handler, errno: %d\n", errno);
+    else fprintf(stderr, "TcpConnection::error_handler, errno: %d\n", opt);
 }
 
 void TcpConnection::set_connection_callback(const ConnectionCallback &callback) {
@@ -99,5 +111,18 @@ void TcpConnection::connection_established() {
 
     channel->enable_reading();
     conn_callback(shared_from_this());
+}
+
+void TcpConnection::shutdown_in_loop() {
+    assert(loop->is_in_loop_thread());
+    if (!channel->is_writing()) {
+//        socket->shutdown_write();
+        auto n = shutdown(socket->fd(), SHUT_WR);
+        if (unlikely(n < 0)) ERROR_EXIT("shutdown error.");
+    }
+}
+
+TcpConnection::~TcpConnection() {
+    assert(status == Disconnected);
 }
 

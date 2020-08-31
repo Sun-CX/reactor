@@ -52,8 +52,12 @@ private:
 
     void error_handler();
 
+    void shutdown_in_loop();
+
 public:
     TcpConnection(EventLoop *loop, string name, int sock_fd, const InetAddress &local, const InetAddress &peer);
+
+    virtual ~TcpConnection();
 
     void set_connection_callback(const ConnectionCallback &callback);
 
