@@ -67,12 +67,12 @@ private:
 public:
     StringPiece() : ptr(nullptr), length(0) {}
 
-    explicit StringPiece(const char *str) : ptr(str), length(static_cast<int>(strlen(str))) {}
+    StringPiece(const char *str) : ptr(str), length(static_cast<int>(strlen(str))) {}
 
-    explicit StringPiece(const unsigned char *str) : ptr(reinterpret_cast<const char *>(str)),
-                                                     length(static_cast<int>(strlen(ptr))) {}
+    StringPiece(const unsigned char *str) : ptr(reinterpret_cast<const char *>(str)),
+                                            length(static_cast<int>(strlen(ptr))) {}
 
-    explicit StringPiece(const string &str) : ptr(str.data()), length(static_cast<int>(str.size())) {}
+    StringPiece(const string &str) : ptr(str.data()), length(static_cast<int>(str.size())) {}
 
     StringPiece(const char *offset, int len) : ptr(offset), length(len) {}
 
