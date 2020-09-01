@@ -6,6 +6,7 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 
 include_directories(
         ${PROJECT_SOURCE_DIR}/core
+        ${PROJECT_SOURCE_DIR}/logging
         ${PROJECT_SOURCE_DIR}/netc
 )
 link_directories(${PROJECT_BINARY_DIR}/lib)

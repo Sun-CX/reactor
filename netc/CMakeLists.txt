@@ -28,7 +28,7 @@ set(LIBRARY_SOURCE
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
-include_directories(${PROJECT_SOURCE_DIR}/core)
+include_directories(${PROJECT_SOURCE_DIR}/core ${PROJECT_SOURCE_DIR}/logging)
 link_directories(${PROJECT_BINARY_DIR}/lib)
 
 add_library(netc SHARED ${LIBRARY_SOURCE})
