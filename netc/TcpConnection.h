@@ -19,6 +19,8 @@ class Channel;
 
 class Socket;
 
+class StringPiece;
+
 class TcpConnection final : public NonCopyable, public enable_shared_from_this<TcpConnection> {
 private:
     enum STATUS {
@@ -54,6 +56,10 @@ private:
 
     void shutdown_in_loop();
 
+    void send_in_loop(const StringPiece &piece);
+
+    void send_in_loop(const void *data, size_t len);
+
 public:
     TcpConnection(EventLoop *loop, string name, int sock_fd, const InetAddress &local, const InetAddress &peer);
 
@@ -70,6 +76,10 @@ public:
     void set_close_callback(const CloseCallback &callback);
 
     void connection_established();
+
+    void send(const StringPiece &piece);
+    
+    void shutdown();
 };
 
 #endif //REACTOR_TCPCONNECTION_H

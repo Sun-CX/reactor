@@ -8,6 +8,7 @@
 #include "Timestamp.h"
 #include "Socket.h"
 #include "Channel.h"
+#include "StringPiece.h"
 #include <unistd.h>
 #include <cassert>
 
@@ -117,12 +118,56 @@ void TcpConnection::shutdown_in_loop() {
     assert(loop->is_in_loop_thread());
     if (!channel->is_writing()) {
 //        socket->shutdown_write();
-        auto n = shutdown(socket->fd(), SHUT_WR);
+        auto n = ::shutdown(socket->fd(), SHUT_WR);
         if (unlikely(n < 0)) ERROR_EXIT("shutdown error.");
     }
 }
 
 TcpConnection::~TcpConnection() {
     assert(status == Disconnected);
+}
+
+void TcpConnection::send(const StringPiece &piece) {
+    assert(status == Connected);
+    if (loop->is_in_loop_thread()) {
+        send_in_loop(piece);
+    } else {
+        void (TcpConnection::*fp)(const StringPiece &piece) = &TcpConnection::send_in_loop;
+        loop->run_in_loop(bind(fp, this, piece));
+    }
+}
+
+void TcpConnection::send_in_loop(const StringPiece &piece) {
+    send_in_loop(piece.data(), piece.size());
+}
+
+void TcpConnection::send_in_loop(const void *data, size_t len) {
+    assert(loop->is_in_loop_thread());
+    ssize_t nwrite = 0;
+    size_t remaining = len;
+    if (!channel->is_writing() and output_buffer.readable_bytes() == 0) {
+        nwrite = write(channel->get_fd(), data, len);
+        if (nwrite >= 0) {
+            remaining = len - nwrite;
+            if (remaining == 0 and write_complete_callback) {
+                loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
+            }
+        } else {
+            nwrite = 0;
+            if (errno == EWOULDBLOCK) {
+                fprintf(stderr, "write error.\n");
+            }
+            if (errno == EPIPE or errno == ECONNRESET) {
+                fprintf(stderr, "special write error.\n");
+            }
+        }
+    }
+}
+
+void TcpConnection::shutdown() {
+    if (status == Connected) {
+        status = Disconnecting;
+        loop->run_in_loop(bind(&TcpConnection::shutdown_in_loop, this));
+    }
 }
 
