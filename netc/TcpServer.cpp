@@ -2,7 +2,6 @@
 // Created by suncx on 2020/8/19.
 //
 
-#include <cassert>
 #include "TcpServer.h"
 #include "Timestamp.h"
 #include "Buffer.h"
@@ -12,6 +11,7 @@
 #include "TcpConnection.h"
 #include "EventLoopThread.h"
 #include "EventLoopThreadPool.h"
+#include <cassert>
 
 using std::make_shared;
 using std::placeholders::_1;
@@ -30,14 +30,13 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &listen_addr, string nam
           acceptor(new Acceptor(loop, listen_addr, reuse_port)),
           thread_pool(new EventLoopThreadPool(loop, move(name))),
           conn_callback(default_connection_callback),
-          msg_callback(default_message_callback),
+          msg_callback(default_message_callback), started(0),
           next_conn_id(1) {
     acceptor->set_connection_callback(bind(&TcpServer::new_connection, this, _1, _2));
 
 }
 
 void TcpServer::new_connection(int fd, const InetAddress &peer) {
-//    loop->assert_in_created_thread();
     assert(loop->is_in_loop_thread());
     auto io_loop = thread_pool->get_next_loop();
     char buf[64];

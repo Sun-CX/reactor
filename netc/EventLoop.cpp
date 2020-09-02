@@ -19,7 +19,7 @@ thread_local EventLoop *EventLoop::loop_in_this_thread;
 int EventLoop::default_timeout_milliseconds = -1;   // 默认永不超时
 
 EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid), poller(Poller::default_poller(this)),
-                         calling_pending_func(false), wakeup_fd(create_event_fd()),
+                         mutex(), calling_pending_func(false), wakeup_fd(create_event_fd()),
                          wakeup_channel(new Channel(this, wakeup_fd)) {
     if (unlikely(loop_in_this_thread != nullptr)) {
         fprintf(stderr, "Another EventLoop already existed in %s[%d].", CurrentThread::name, pid);
