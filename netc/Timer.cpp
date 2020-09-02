@@ -8,7 +8,6 @@ atomic_int64_t Timer::num_created;
 
 Timer::Timer(Timer::TimerCallback callback, Timestamp when, double interval) : callback(move(callback)),
                                                                                expiration(when), interval(interval),
-                                                                               repeated(interval > 0),
                                                                                sequence(++num_created) {}
 
 void Timer::run() const {
@@ -20,7 +19,7 @@ Timestamp Timer::expire_time() const {
 }
 
 bool Timer::is_repeated() const {
-    return repeated;
+    return interval > 0;
 }
 
 int64_t Timer::get_sequence() const {
@@ -28,7 +27,7 @@ int64_t Timer::get_sequence() const {
 }
 
 void Timer::restart(Timestamp now) {
-    if (repeated) {
+    if (interval > 0) {
         expiration = add_time(now, interval);
     } else expiration = Timestamp();
 }

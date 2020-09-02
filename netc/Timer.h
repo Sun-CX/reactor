@@ -20,13 +20,10 @@ class Timer final : public NonCopyable {
 private:
     using TimerCallback = function<void()>;
 
-//    friend class EventLoop;
-
     const TimerCallback callback;   //定时器回调函数
-    Timestamp expiration;       //下一次超时时刻
-    const double interval;      //超时间隔，如果是一次性定时器，则设为 0
-    const bool repeated;        //是否重复，若为 false，表示一次性定时器
-    const int64_t sequence;     //定时器序号
+    Timestamp expiration;           //下一次超时时刻
+    const double interval;          //超时间隔，如果是一次性定时器，则设为 0
+    const int64_t sequence;         //定时器序号，从 1 开始
     static atomic_int64_t num_created;  //定时器计数，当前已经创建的定时器个数
 public:
     Timer(TimerCallback callback, Timestamp when, double interval);
