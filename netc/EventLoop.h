@@ -18,25 +18,20 @@ class Channel;
 
 class Poller;
 
-/**
- * 创建 EventLoop 对象的线程是 IO 线程，其主要功能是运行事件循环
- */
+// 创建 EventLoop 对象的线程是 IO 线程，其主要功能是运行事件循环
 class EventLoop final : public NonCopyable {
 private:
     using Channels = vector<Channel *>;
     using Functor = function<void()>;
     using Functors = vector<Functor>;
-    /**
-     * 控制一个线程最多只能有一个 EventLoop
-     */
-    thread_local static EventLoop *loop_in_this_thread;
 
+    thread_local static EventLoop *loop_in_this_thread; // 控制一个线程最多只能有一个 EventLoop
     static int default_timeout_milliseconds;
 
     bool looping;
     bool exited;        // 循环是否退出（在 Linux 下对 bool 类型的操作天生具有原子性，因此无需设置为原子类型）
     const pid_t pid;
-    unique_ptr<Poller> poller;  // 其生命期与 EventLoop 对象相等
+    unique_ptr<Poller> poller;  // 其生命周期与 EventLoop 对象相等
     Channels active_channels;
 
     mutable Mutex mutex;
@@ -56,9 +51,7 @@ private:
 
     void read_handler();
 
-    /**
-     * 让 IO 线程也能执行一些计算任务
-     */
+    // 让 IO 线程也能执行一些计算任务
     void execute_pending_functors();
 
 public:
@@ -69,26 +62,17 @@ public:
     // 只能在创建该对象的线程中调用，不能跨线程调用
     void loop();
 
-    /**
-     * 检查当前对象是否处于创建该对象的线程中
-     * @return
-     */
+    // 检查当前对象是否处于创建该对象的线程中
     bool is_in_loop_thread() const;
 
     void update_channel(Channel *channel);
 
     void remove_channel(Channel *channel);
 
-    /**
-     * 检查 channel 是否在当前 EventLoop 中
-     * @param channel
-     * @return
-     */
+    // 检查 channel 是否在当前 EventLoop 对象中
     bool has_channel(Channel *channel);
 
-    /**
-     * 本函数可以跨线程调用
-     */
+    // 本函数可以跨线程调用
     void quit();
 
     /**
