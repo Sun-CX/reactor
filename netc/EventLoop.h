@@ -41,7 +41,7 @@ private:
 
     mutable Mutex mutex;
     bool calling_pending_func;
-    Functors pending_functors;  // 挂起的执行单元
+    Functors pending_functors;  // 挂起的执行任务
 
     int wakeup_fd;
     unique_ptr<Channel> wakeup_channel;
@@ -55,6 +55,11 @@ private:
     int create_event_fd() const;
 
     void read_handler();
+
+    /**
+     * 让 IO 线程也能执行一些计算任务
+     */
+    void execute_pending_functors();
 
 public:
     EventLoop();
@@ -86,6 +91,10 @@ public:
      */
     void quit();
 
+    /**
+     * 在 IO 线程中执行某个回调函数，可跨线程调用
+     * @param func 回调函数
+     */
     void run_in_loop(const Functor &func);
 
     void queue_in_loop(const Functor &func);

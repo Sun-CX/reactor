@@ -49,6 +49,7 @@ void EventLoop::loop() {
         active_channels.clear();
         poller->poll(&active_channels, default_timeout_milliseconds);
         for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_event, _1));
+        execute_pending_functors();
     }
     looping = false;
 }
@@ -109,4 +110,17 @@ void EventLoop::read_handler() {
     uint64_t one;
     auto n = read(wakeup_fd, &one, sizeof(one));
     if (unlikely(n != sizeof(one))) ERROR_EXIT("read error.");
+}
+
+void EventLoop::execute_pending_functors() {
+    Functors fns;
+    calling_pending_func = true;
+    {
+        MutexGuard guard(mutex);
+        fns.swap(pending_functors);
+    }
+    for_each(fns.cbegin(), fns.cend(), [](const Functor &func) {
+        func();
+    });
+    calling_pending_func = false;
 }
