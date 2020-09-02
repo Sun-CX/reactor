@@ -26,6 +26,12 @@ private:
     const int64_t sequence;         //定时器序号，从 1 开始
     static atomic_int64_t num_created;  //定时器计数，当前已经创建的定时器个数
 public:
+    /**
+     *
+     * @param callback 超时回调
+     * @param when 超时时刻
+     * @param interval 为 0 表示一次性定时器
+     */
     Timer(TimerCallback callback, Timestamp when, double interval);
 
     void run() const;
