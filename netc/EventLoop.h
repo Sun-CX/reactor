@@ -34,7 +34,7 @@ private:
     static int default_timeout_milliseconds;
 
     bool looping;
-    bool exited;        // 循环是否退出
+    bool exited;        // 循环是否退出（在 Linux 下对 bool 类型的操作天生具有原子性，因此无需设置为原子类型）
     const pid_t pid;
     unique_ptr<Poller> poller;  // 其生命期与 EventLoop 对象相等
     Channels active_channels;
