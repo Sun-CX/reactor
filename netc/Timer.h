@@ -11,7 +11,7 @@
 #include <atomic>
 
 using std::function;
-using std::atomic_int64_t;
+using std::atomic_uint32_t;
 
 /**
  * 定时器内部实现，不向用户代码暴露
@@ -24,7 +24,7 @@ private:
     Timestamp expiration;           //下一次超时时刻
     const double interval;          //超时间隔，如果是一次性定时器，则设为 0
     const int64_t sequence;         //定时器序号，从 1 开始
-    static atomic_int64_t num_created;  //定时器计数，当前已经创建的定时器个数
+    static atomic_uint32_t num_created;  //定时器计数，当前已经创建的定时器个数
 public:
     /**
      *
@@ -38,13 +38,13 @@ public:
 
     Timestamp expire_time() const;
 
-    bool is_repeated() const;
+    bool repeated() const;
 
-    int64_t get_sequence() const;
+    uint32_t get_sequence() const;
 
     void restart(Timestamp now);
 
-    static int64_t get_num_created();
+//    static int64_t get_num_created();
 };
 
 #endif //REACTOR_TIMER_H

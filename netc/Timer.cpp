@@ -4,7 +4,7 @@
 
 #include "Timer.h"
 
-atomic_int64_t Timer::num_created;
+atomic_uint32_t Timer::num_created;
 
 Timer::Timer(Timer::TimerCallback callback, Timestamp when, double interval) : callback(move(callback)),
                                                                                expiration(when), interval(interval),
@@ -18,11 +18,11 @@ Timestamp Timer::expire_time() const {
     return expiration;
 }
 
-bool Timer::is_repeated() const {
+bool Timer::repeated() const {
     return interval > 0;
 }
 
-int64_t Timer::get_sequence() const {
+uint32_t Timer::get_sequence() const {
     return sequence;
 }
 
@@ -32,6 +32,6 @@ void Timer::restart(Timestamp now) {
     } else expiration = Timestamp();
 }
 
-int64_t Timer::get_num_created() {
-    return num_created;
-}
+//int64_t Timer::get_num_created() {
+//    return num_created;
+//}
