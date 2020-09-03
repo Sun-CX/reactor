@@ -88,16 +88,16 @@ vector<TimerQueue::Entry> TimerQueue::get_expired(Timestamp now) {
 }
 
 TimerId TimerQueue::add_timer(TimerQueue::TimerCallback callback, Timestamp when, double interval) {
-    auto new_timer = new Timer(move(callback), when, interval);
-    loop->run_in_loop(bind(&TimerQueue::add_timer_in_loop, this, new_timer));
-    return {new_timer, new_timer->get_sequence()};
+    auto timer = new Timer(move(callback), when, interval);
+    loop->run_in_loop(bind(&TimerQueue::add_timer_in_loop, this, timer));
+    return {timer, timer->get_sequence()};
 }
 
 void TimerQueue::add_timer_in_loop(Timer *timer) {
     assert(loop->is_in_loop_thread());
-    auto earliest_changed = insert(timer);
-    if (earliest_changed)
-        reset_timer_fd(timer_fd, timer->expire_time());
+    // 插入一个定时器，可能会使最早到期的定时器发生改变
+    bool earliest_changed = insert(timer);
+    if (earliest_changed) reset_timer_fd(timer_fd, timer->expire_time());
 }
 
 bool TimerQueue::insert(Timer *timer) {
@@ -105,6 +105,7 @@ bool TimerQueue::insert(Timer *timer) {
     assert(timers.size() == active_timers.size());
     bool earliest_changed = false;
     auto when = timer->expire_time();
+    // 如果 timers 为空或者新插入的定时器的超时时刻小于已有的定时器的最小时刻
     if (timers.begin() == timers.end() or when < timers.begin()->first) {
         earliest_changed = true;
     }

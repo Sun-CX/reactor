@@ -2,8 +2,8 @@
 // Created by suncx on 2020/8/18.
 //
 
-#ifndef REACTOR_TIMERQUEUE_H
-#define REACTOR_TIMERQUEUE_H
+#ifndef REACTOR_TIMERQUEUE_TEST_H
+#define REACTOR_TIMERQUEUE_TEST_H
 
 #include "NonCopyable.h"
 #include "Channel.h"
@@ -35,7 +35,7 @@ private:
      * 可以考虑使用 multimap
      */
     using Entry = pair<Timestamp, Timer *>;
-    using Timers = set<Entry>;
+    using Timers = set<Entry>;  // 按照过期时间升序排序（允许有相同的过期时间，若过期时间相同则再按照 Timer 地址升序排序）
     using ActiveTimer = pair<Timer *, uint32_t>;
     using ActiveTimerSet = set<ActiveTimer>;
 
@@ -69,10 +69,13 @@ private:
 
     void read_handler();
 
+    // invoked in event loop, none lock
     void add_timer_in_loop(Timer *timer);
 
+    // invoked in event loop, none lock
     void cancel_in_loop(TimerId timer_id);
 
+    // invoked in event loop, none lock
     bool insert(Timer *timer);
 
     void reset(const vector<Entry> &expired, Timestamp now);
@@ -96,4 +99,4 @@ public:
     void cancel(TimerId timer_id);
 };
 
-#endif //REACTOR_TIMERQUEUE_H
+#endif //REACTOR_TIMERQUEUE_TEST_H
