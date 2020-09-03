@@ -9,10 +9,12 @@
 #include <vector>
 #include <memory>
 #include <functional>
+#include <atomic>
 
 using std::vector;
 using std::unique_ptr;
 using std::function;
+using std::atomic_bool;
 
 class Channel;
 
@@ -26,10 +28,10 @@ private:
     using Functors = vector<Functor>;
 
     thread_local static EventLoop *loop_in_this_thread; // 控制一个线程最多只能有一个 EventLoop
-    static int default_timeout_milliseconds;
+    static const int default_timeout_milliseconds;
 
     bool looping;
-    bool exited;        // 循环是否退出（在 Linux 下对 bool 类型的操作天生具有原子性，因此无需设置为原子类型）
+    atomic_bool exited;         // 循环是否退出（跨线程读写，原子保护）
     const pid_t pid;
     unique_ptr<Poller> poller;  // 其生命周期与 EventLoop 对象相等
     Channels active_channels;
@@ -38,7 +40,7 @@ private:
     bool calling_pending_func;
     Functors pending_functors;  // 挂起的执行任务
 
-    int wakeup_fd;
+    int event_fd;   // 用来唤醒 poll 调用的事件 fd
     unique_ptr<Channel> wakeup_channel;
 
 //    bool event_handling;
@@ -49,7 +51,7 @@ private:
 
     int create_event_fd() const;
 
-    void read_handler();
+    void read_handler() const;
 
     // 让 IO 线程也能执行一些计算任务
     void execute_pending_functors();

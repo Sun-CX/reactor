@@ -16,25 +16,25 @@ using std::for_each;
 using std::placeholders::_1;
 
 thread_local EventLoop *EventLoop::loop_in_this_thread;
-int EventLoop::default_timeout_milliseconds = -1;   // 默认永不超时
+const int EventLoop::default_timeout_milliseconds = -1;   // 默认永不超时
 
 EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid), poller(Poller::default_poller(this)),
-                         mutex(), calling_pending_func(false), wakeup_fd(create_event_fd()),
-                         wakeup_channel(new Channel(this, wakeup_fd)) {
+                         mutex(), calling_pending_func(false), event_fd(create_event_fd()),
+                         wakeup_channel(new Channel(this, event_fd)) {
     if (unlikely(loop_in_this_thread != nullptr)) {
         fprintf(stderr, "Another EventLoop already existed in %s[%d].", CurrentThread::name, pid);
         exit(0);
     } else loop_in_this_thread = this;
 
     wakeup_channel->set_read_callback(bind(&EventLoop::read_handler, this));
-    // 始终让 wakeup_fd 开启可读
+    // 关注 event_fd 可读事件
     wakeup_channel->enable_reading();
 }
 
 EventLoop::~EventLoop() {
     wakeup_channel->disable_all();
     wakeup_channel->remove();
-    close(wakeup_fd);
+    close(event_fd);
     loop_in_this_thread = nullptr;
 }
 
@@ -96,7 +96,7 @@ EventLoop *EventLoop::event_loop_of_current_thread() {
 
 void EventLoop::wakeup() const {
     uint64_t one = 1;
-    auto n = write(wakeup_fd, &one, sizeof(one));
+    auto n = write(event_fd, &one, sizeof(one));
     if (unlikely(n != sizeof(one))) ERROR_EXIT("write error.");
 }
 
@@ -106,9 +106,9 @@ int EventLoop::create_event_fd() const {
     return fd;
 }
 
-void EventLoop::read_handler() {
+void EventLoop::read_handler() const {
     uint64_t one;
-    auto n = read(wakeup_fd, &one, sizeof(one));
+    auto n = read(event_fd, &one, sizeof(one));
     if (unlikely(n != sizeof(one))) ERROR_EXIT("read error.");
 }
 
