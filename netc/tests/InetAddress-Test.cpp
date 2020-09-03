@@ -34,9 +34,9 @@ int main(int argc, const char *argv[]) {
 //                    sizeof(in_port_t) -
 //                    sizeof(struct in_addr));
 
-    InetAddress addr(true,9090);
+    InetAddress addr(true, 9090);
 
-    to_readable_string(addr);
+    printf("%s\n", to_readable_string(addr).c_str());
 
     return 0;
 }
