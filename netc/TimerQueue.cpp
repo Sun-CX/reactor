@@ -15,6 +15,8 @@
 using std::bind;
 using std::copy;
 
+static_assert(UINTPTR_MAX == 0xFFFFFFFFFFFFFFFF, "UINTPTR_MAX assert failed.");
+
 TimerQueue::TimerQueue(EventLoop *loop) : loop(loop), timer_fd(create_timer_fd()), timer_channel(loop, timer_fd),
                                           calling_expired_timers(false) {
     timer_channel.set_read_callback(bind(&TimerQueue::read_handler, this));
@@ -73,9 +75,9 @@ vector<TimerQueue::Entry> TimerQueue::get_expired(Timestamp now) {
     auto end = timers.lower_bound(sentry);
     assert(end == timers.end() or now < end->first);
 
-    copy(timers.begin(), end, back_inserter(expired));
+    copy(timers.cbegin(), end, back_inserter(expired));
 
-    timers.erase(timers.begin(), end);
+    timers.erase(timers.cbegin(), end);
 
     for (const Entry &e:expired) {
         ActiveTimer timer(e.second, e.second->get_sequence());
@@ -96,8 +98,8 @@ TimerId TimerQueue::add_timer(TimerQueue::TimerCallback callback, Timestamp when
 void TimerQueue::add_timer_in_loop(Timer *timer) {
     assert(loop->is_in_loop_thread());
     // 插入一个定时器，可能会使最早到期的定时器发生改变
-    bool earliest_changed = insert(timer);
-    if (earliest_changed) reset_timer_fd(timer_fd, timer->expire_time());
+    bool is_earliest_timer_task = insert(timer);
+    if (is_earliest_timer_task) reset_timer_fd(timer_fd, timer->expire_time());
 }
 
 bool TimerQueue::insert(Timer *timer) {
@@ -106,7 +108,7 @@ bool TimerQueue::insert(Timer *timer) {
     bool earliest_changed = false;
     auto when = timer->expire_time();
     // 如果 timers 为空或者新插入的定时器的超时时刻小于已有的定时器的最小时刻
-    if (timers.begin() == timers.end() or when < timers.begin()->first) {
+    if (timers.empty() or when < timers.begin()->first) {
         earliest_changed = true;
     }
 
@@ -139,18 +141,18 @@ void TimerQueue::cancel_in_loop(TimerId timer_id) {
     assert(timers.size() == active_timers.size());
 }
 
-void TimerQueue::reset(const vector<Entry> &expired, Timestamp now) {
+void TimerQueue::reset(vector<Entry> &expired, Timestamp now) {
     Timestamp next_expire;
-    for (const Entry &e:expired) {
-        ActiveTimer timer(e.second, e.second->get_sequence());
-        if (e.second->repeated() and canceled_timers.find(timer) == canceled_timers.end()) {
-            e.second->restart(now);
-            insert(e.second);
+    for (auto it = expired.cbegin(); it != expired.cend(); it++) {
+        ActiveTimer timer(it->second, it->second->get_sequence());
+        if (it->second->repeated() and canceled_timers.find(timer) == canceled_timers.end()) {
+            it->second->restart(now);
+            insert(it->second);
         } else {
-            delete e.second;
+            delete it->second;
+            expired.erase(it);
         }
     }
-
     if (!timers.empty()) next_expire = timers.begin()->second->expire_time();
     if (next_expire.valid()) reset_timer_fd(timer_fd, next_expire);
 }

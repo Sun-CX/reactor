@@ -50,17 +50,10 @@ private:
 
     void reset_timer_fd(int fd, Timestamp timestamp) const;
 
-    /**
-     * 超时可读事件触发,读取可读数据以消耗掉本次事件(水平触发模式下如果不读取则会一直触发该事件)
-     * @param fd 定时器 fd
-     */
+    // 超时可读事件触发,读取可读数据以消耗掉本次事件(水平触发模式下如果不读取则会一直触发该事件)
     void read_timeout_event(int fd, Timestamp now) const;
 
-    /**
-     * 计算从当前到 time 的时间,以 timespec 结构返回
-     * @param time 未来的某个时刻
-     * @return
-     */
+    // 计算从当前到 time 的时间,以 timespec 结构返回
     timespec time_from_now(Timestamp time) const;
 
     vector<Entry> get_expired(Timestamp now);
@@ -74,26 +67,18 @@ private:
     void cancel_in_loop(TimerId timer_id);
 
     // invoked in event loop, none lock
+    // 返回：当前插入的 timer 的到期时间是否为最早
     bool insert(Timer *timer);
 
-    void reset(const vector<Entry> &expired, Timestamp now);
+    void reset(vector<Entry> &expired, Timestamp now);
 
 public:
     explicit TimerQueue(EventLoop *loop);
 
-    /**
-     * 必须是线程安全的,通常被其它线程调用(即可以跨线程调用)
-     * @param callback
-     * @param when
-     * @param interval
-     * @return
-     */
-    TimerId add_timer(TimerCallback callback, Timestamp when, double interval);
+    // 可跨线程调用
+    TimerId add_timer(TimerCallback callback, Timestamp when, double interval = 0);
 
-    /**
-     * 可被其它线程调用(即可以跨线程调用)
-     * @param timer_id
-     */
+    // 可跨线程调用
     void cancel(TimerId timer_id);
 };
 
