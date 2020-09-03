@@ -16,14 +16,14 @@ class Timer;
 class TimerId final {
 private:
     Timer *timer;
-    int64_t sequence;
+    uint32_t sequence;
 
     friend class TimerQueue;
 
 public:
     TimerId();
 
-    TimerId(Timer *timer, int64_t seq);
+    TimerId(Timer *timer, uint32_t seq);
 };
 
 #endif //REACTOR_TIMERID_H

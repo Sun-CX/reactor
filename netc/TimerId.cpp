@@ -6,4 +6,4 @@
 
 TimerId::TimerId() : timer(nullptr), sequence(0) {}
 
-TimerId::TimerId(Timer *timer, int64_t seq) : timer(timer), sequence(seq) {}
+TimerId::TimerId(Timer *timer, uint32_t seq) : timer(timer), sequence(seq) {}
