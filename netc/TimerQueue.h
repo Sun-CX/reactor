@@ -22,9 +22,7 @@ class Timer;
 
 class TimerId;
 
-/**
- * 定时器内部实现，不向用户代码暴露
- */
+// 定时器内部实现，不向用户代码暴露
 class TimerQueue final : public NonCopyable {
 private:
     using TimerCallback = function<void()>;
