@@ -6,4 +6,5 @@ enlightened by muduo from chenshuo, reactor has all advantages muduo has and als
 more improvements:
 1. purely written in C++ 11, more modernized code style, don't require any third dependencies(boost).
 2. fix some bugs in muduo.
-3. redesign Socket, implement CircularBuffer instead of boost::circular_buffer.
+3. redesign Socket, implement CircularBuffer instead of `boost::circular_buffer`.
+4. redesign timer by min heap, instead of `std::set`.
