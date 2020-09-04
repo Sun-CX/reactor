@@ -18,6 +18,8 @@ using std::atomic_uint32_t;
  */
 class Timer final : public NonCopyable {
 private:
+    friend class EventLoop;
+
     using TimerCallback = function<void()>;
 
     const TimerCallback callback;   //定时器回调函数
