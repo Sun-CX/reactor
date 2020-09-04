@@ -5,8 +5,9 @@
 #include "EventLoop.h"
 #include "Exception.h"
 #include "Channel.h"
-#include "Timestamp.h"
 #include "Poller.h"
+#include "TimerId.h"
+#include "TimerQueue.h"
 #include <sys/eventfd.h>
 #include <algorithm>
 #include <cassert>
@@ -20,7 +21,7 @@ const int EventLoop::default_timeout_milliseconds = -1;   // 默认永不超时
 
 EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid), poller(Poller::default_poller(this)),
                          mutex(), calling_pending_func(false), event_fd(create_event_fd()),
-                         wakeup_channel(new Channel(this, event_fd)) {
+                         wakeup_channel(new Channel(this, event_fd)), timer_queue(new TimerQueue(this)) {
     if (unlikely(loop_in_this_thread != nullptr)) {
         fprintf(stderr, "Another EventLoop already existed in %s[%d].", CurrentThread::name, pid);
         exit(0);
@@ -123,4 +124,20 @@ void EventLoop::execute_pending_functors() {
         func();
     });
     calling_pending_func = false;
+}
+
+TimerId EventLoop::run_at(const Timer::TimerCallback &callback, Timestamp timestamp) {
+    return timer_queue->add_timer(callback, timestamp);
+}
+
+TimerId EventLoop::run_after(const Timer::TimerCallback &callback, double delay) {
+    return timer_queue->add_timer(callback, add_time(Timestamp::now(), delay));
+}
+
+TimerId EventLoop::run_every(const Timer::TimerCallback &callback, double delay) {
+    return timer_queue->add_timer(callback, add_time(Timestamp::now(), delay), delay);
+}
+
+void EventLoop::cancel(TimerId id) {
+    timer_queue->cancel(id);
 }

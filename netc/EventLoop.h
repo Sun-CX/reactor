@@ -6,19 +6,22 @@
 #define REACTOR_EVENTLOOP_H
 
 #include "Mutex.h"
+#include "Timer.h"
 #include <vector>
 #include <memory>
-#include <functional>
 #include <atomic>
 
 using std::vector;
 using std::unique_ptr;
-using std::function;
 using std::atomic_bool;
 
 class Channel;
 
 class Poller;
+
+class TimerId;
+
+class TimerQueue;
 
 // 创建 EventLoop 对象的线程是 IO 线程，其主要功能是运行事件循环
 class EventLoop final : public NonCopyable {
@@ -42,6 +45,8 @@ private:
 
     int event_fd;   // 用来唤醒 poll 调用的事件 fd
     unique_ptr<Channel> wakeup_channel;
+
+    unique_ptr<TimerQueue> timer_queue;
 
 //    bool event_handling;
 //    int64_t iteration;
@@ -84,7 +89,16 @@ public:
     void run_in_loop(const Functor &func);
 
     void queue_in_loop(const Functor &func);
-//    TimerId run_at(const Timer::TimerCallback &callback, Timestamp timestamp);
+
+    TimerId run_at(const Timer::TimerCallback &callback, Timestamp timestamp);
+
+    // delay(seconds)
+    TimerId run_after(const Timer::TimerCallback &callback, double delay);
+
+    // delay(seconds)
+    TimerId run_every(const Timer::TimerCallback &callback, double delay);
+
+    void cancel(TimerId id);
 
     static EventLoop *event_loop_of_current_thread();
 };
