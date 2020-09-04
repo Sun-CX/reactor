@@ -31,11 +31,9 @@ int TimerQueue::create_timer_fd() const {
 
 void TimerQueue::reset_timer_fd(int fd, Timestamp timestamp) const {
     itimerspec new_val;
-    itimerspec old_val;
     memset(&new_val, 0, sizeof(new_val));
-    memset(&old_val, 0, sizeof(old_val));
     new_val.it_value = time_from_now(timestamp);
-    auto ret = timerfd_settime(fd, 0, &new_val, &old_val);
+    auto ret = timerfd_settime(fd, 0, &new_val, nullptr);
     if (unlikely(ret < 0)) ERROR_EXIT("timerfd_settime error.");
 }
 
