@@ -143,14 +143,15 @@ void TimerQueue::cancel_in_loop(TimerId timer_id) {
 
 void TimerQueue::reset(vector<Entry> &expired, Timestamp now) {
     Timestamp next_expire;
-    for (auto it = expired.cbegin(); it != expired.cend(); it++) {
+    for (auto it = expired.cbegin(); it != expired.cend();) {
         ActiveTimer timer(it->second, it->second->get_sequence());
         if (it->second->repeated() and canceled_timers.find(timer) == canceled_timers.end()) {
             it->second->restart(now);
             insert(it->second);
+            it++;
         } else {
             delete it->second;
-            expired.erase(it);
+            it = expired.erase(it);
         }
     }
     if (!timers.empty()) next_expire = timers.begin()->second->expire_time();
