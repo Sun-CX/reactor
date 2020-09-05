@@ -2,38 +2,34 @@
 // Created by suncx on 2020/8/20.
 //
 
-#include <cassert>
 #include "EventLoopThreadPool.h"
 #include "EventLoopThread.h"
 #include "EventLoop.h"
+#include <cassert>
 
 using std::make_unique;
 
-EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop, string name) :
-        loop(base_loop), name(move(name)), started(false), num_threads(0), next(0) {}
+EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop, int num_threads, string name) :
+        loop(base_loop), name(move(name)), num_threads(num_threads), next(0) {}
 
-void EventLoopThreadPool::set_thread_num(int num) {
-    num_threads = num;
-}
+//void EventLoopThreadPool::set_thread_num(int num) {
+//    num_threads = num;
+//}
 
-void EventLoopThreadPool::start(const EventLoopThreadPool::ThreadInitCallback &callback) {
-//    loop->assert_in_created_thread();
+void EventLoopThreadPool::start(const ThreadInitialCallback &callback) {
     assert(loop->is_in_loop_thread());
-    started = true;
-    char buf[name.size() + 32];
+//    started = true;
+    char thread_name[name.size() + 8];
     for (int i = 0; i < num_threads; ++i) {
-        snprintf(buf, sizeof(buf), "%s-%d", name.c_str(), i + 1);
-        auto th = new EventLoopThread(callback, string(buf));
+        snprintf(thread_name, sizeof(thread_name), "%s-%d", name.c_str(), i + 1);
+        auto th = new EventLoopThread(callback, thread_name);
         threads.push_back(unique_ptr<EventLoopThread>(th));
         loops.push_back(th->start());
     }
-    if (num_threads == 0 and callback) {
-        callback(loop);
-    }
+    if (num_threads == 0 and callback) callback(loop);
 }
 
 EventLoop *EventLoopThreadPool::get_next_loop() {
-//    loop->assert_in_created_thread();
     assert(loop->is_in_loop_thread());
     EventLoop *lo = loop;
     if (!loops.empty()) {

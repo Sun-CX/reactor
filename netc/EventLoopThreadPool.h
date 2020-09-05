@@ -22,22 +22,22 @@ class EventLoopThread;
 
 class EventLoopThreadPool final : public NonCopyable {
 private:
-    using ThreadInitCallback = function<void(EventLoop *)>;
+    using ThreadInitialCallback = function<void(EventLoop *)>;
 
     EventLoop *loop;
-    string name;
-    bool started;
-    int num_threads;
+    const string name;
+//    bool started;
+    const int num_threads;
     int next;
     vector<unique_ptr<EventLoopThread>> threads;
     vector<EventLoop *> loops;
 
 public:
-    EventLoopThreadPool(EventLoop *base_loop, string name);
+    EventLoopThreadPool(EventLoop *base_loop, int num_threads, string name);
 
-    void set_thread_num(int num);
+//    void set_thread_num(int num);
 
-    void start(const ThreadInitCallback &callback);
+    void start(const ThreadInitialCallback &callback);
 
     EventLoop *get_next_loop();
 };
