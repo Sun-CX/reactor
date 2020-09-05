@@ -33,3 +33,6 @@ target_link_libraries(acceptor-test netc)
 
 add_executable(timerqueue-test TimerQueue-Test.cpp)
 target_link_libraries(timerqueue-test netc)
+
+add_executable(eventloopthread-test EventLoopThread-Test.cpp)
+target_link_libraries(eventloopthread-test netc)
