@@ -27,7 +27,7 @@ EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid),
         exit(0);
     } else loop_in_this_thread = this;
 
-    wakeup_channel->set_read_callback(bind(&EventLoop::read_handler, this));
+    wakeup_channel->set_read_callback(bind(&EventLoop::handle_readable_event, this));
     // 关注 event_fd 可读事件
     wakeup_channel->enable_reading();
 }
@@ -41,11 +41,8 @@ EventLoop::~EventLoop() {
 
 void EventLoop::loop() {
     assert(is_in_loop_thread());
-
     looping = true;
-
-    printf("EventLoop %p start loop...\n", this);
-
+    printf("EventLoop(%p) start loop...\n", this);
     while (!exited) {
         active_channels.clear();
         poller->poll(&active_channels, default_timeout_milliseconds);
@@ -96,6 +93,7 @@ EventLoop *EventLoop::event_loop_of_current_thread() {
 }
 
 void EventLoop::wakeup() const {
+    printf("wakeup eventfd...\n");
     uint64_t one = 1;
     auto n = write(event_fd, &one, sizeof(one));
     if (unlikely(n != sizeof(one))) ERROR_EXIT("write error.");
@@ -107,7 +105,8 @@ int EventLoop::create_event_fd() const {
     return fd;
 }
 
-void EventLoop::read_handler() const {
+void EventLoop::handle_readable_event() const {
+    printf("receive event...\n");
     uint64_t one;
     auto n = read(event_fd, &one, sizeof(one));
     if (unlikely(n != sizeof(one))) ERROR_EXIT("read error.");

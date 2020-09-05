@@ -26,9 +26,9 @@ class TimerQueue;
 // 创建 EventLoop 对象的线程是 IO 线程，其主要功能是运行事件循环
 class EventLoop final : public NonCopyable {
 private:
-    using Channels = vector<Channel *>;
     using Functor = function<void()>;
     using Functors = vector<Functor>;
+    using Channels = vector<Channel *>;
 
     thread_local static EventLoop *loop_in_this_thread; // 控制一个线程最多只能有一个 EventLoop
     static const int default_timeout_milliseconds;
@@ -56,7 +56,7 @@ private:
 
     int create_event_fd() const;
 
-    void read_handler() const;
+    void handle_readable_event() const;
 
     // 让 IO 线程也能执行一些计算任务
     void execute_pending_functors();

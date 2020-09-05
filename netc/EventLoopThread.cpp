@@ -20,6 +20,7 @@ EventLoopThread::~EventLoopThread() {
 }
 
 void EventLoopThread::thread_func() {
+    printf("%s invoked.\n", __PRETTY_FUNCTION__);
     EventLoop lo;
     if (initial_callback) initial_callback(&lo);
     {
