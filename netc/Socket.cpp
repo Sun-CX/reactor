@@ -9,7 +9,14 @@
 #include <cstring>
 #include <netinet/tcp.h>
 
-Socket::Socket(int sock_fd) : sock_fd(sock_fd) {}
+Socket::Socket() : sock_fd(create_socket()) {}
+
+int Socket::create_socket() const {
+    int fd = ::socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+    if (unlikely(fd < 0)) ERROR_EXIT("socket created error.");
+    printf("create sock_fd success, sock_fd: %d\n", fd);
+    return fd;
+}
 
 Socket::~Socket() {
     auto status = close(sock_fd);

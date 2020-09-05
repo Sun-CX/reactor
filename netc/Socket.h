@@ -12,8 +12,10 @@ class InetAddress;
 class Socket final : public NonCopyable {
 private:
     const int sock_fd;  // fd 的生存期由 Socket 类控制，在 Socket 析构时会将其关闭
+    int create_socket() const;
+
 public:
-    explicit Socket(int sock_fd);
+    Socket();
 
     virtual ~Socket();
 
