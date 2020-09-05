@@ -12,6 +12,7 @@ class InetAddress;
 class Socket final : public NonCopyable {
 private:
     const int sock_fd;  // fd 的生存期由 Socket 类控制，在 Socket 析构时会将其关闭
+
     int create_socket() const;
 
 public:
@@ -21,9 +22,9 @@ public:
 
     int fd() const;
 
-    void bind(const InetAddress &addr);
+    void bind(const InetAddress &addr) const;
 
-    void listen();
+    void listen() const;
 
     /**
      * 接受客户端的连接，返回已连接套接字：
@@ -34,7 +35,7 @@ public:
      * @param peer_addr 对端地址
      * @return 已连接套接字
      */
-    int accept(InetAddress *peer_addr);
+    int accept(InetAddress *peer_addr) const;
 
     void tcp_no_delay(bool on) const;
 

@@ -23,17 +23,17 @@ Socket::~Socket() {
     if (unlikely(status != 0)) ERROR_EXIT("close socket error.");
 }
 
-void Socket::bind(const InetAddress &addr) {
+void Socket::bind(const InetAddress &addr) const {
     auto status = ::bind(sock_fd, addr.get_sockaddr(), sizeof(sockaddr_in));
     if (unlikely(status != 0)) ERROR_EXIT("socket bind error.");
 }
 
-void Socket::listen() {
+void Socket::listen() const {
     auto status = ::listen(sock_fd, SOMAXCONN);
     if (unlikely(status != 0)) ERROR_EXIT("socket listen error.");
 }
 
-int Socket::accept(InetAddress *peer_addr) {
+int Socket::accept(InetAddress *peer_addr) const {
     sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     socklen_t len = sizeof(addr);
