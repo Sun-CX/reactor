@@ -26,8 +26,6 @@ private:
     bool listening;
     int idle_fd;
 
-    int create_socket() const;
-
     void read_handler();
 
 public:
@@ -41,6 +39,5 @@ public:
 
     bool is_listening() const;
 };
-
 
 #endif //REACTOR_ACCEPTOR_H

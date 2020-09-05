@@ -7,26 +7,17 @@
 #include "InetAddress.h"
 #include "EventLoop.h"
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/socket.h>
 #include <cassert>
 
 using std::bind;
 
 Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
-        loop(loop), socket(create_socket()), accept_channel(loop, socket.fd()),
-        listening(false), idle_fd(::open("/dev/null", O_RDONLY | O_CLOEXEC)) {
+        loop(loop), socket(), accept_channel(loop, socket.fd()),
+        listening(false), idle_fd(open("/dev/null", O_RDONLY | O_CLOEXEC)) {
     socket.reuse_addr(true);
     socket.reuse_port(reuse_port);
     socket.bind(addr);
     accept_channel.set_read_callback(bind(&Acceptor::read_handler, this));
-}
-
-int Acceptor::create_socket() const {
-    int sock_fd = ::socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
-    if (unlikely(sock_fd < 0)) ERROR_EXIT("socket created error.");
-    printf("create sock_fd success, sock_fd: %d\n", sock_fd);
-    return sock_fd;
 }
 
 void Acceptor::read_handler() {
@@ -36,7 +27,7 @@ void Acceptor::read_handler() {
     if (con_fd >= 0) {// success
         if (callback) callback(con_fd, peer_addr);
         else {
-            fprintf(stderr, "Acceptor ConnectionCallback not set, please check.");
+            fprintf(stderr, "Acceptor ConnectionCallback not set, close this connection.\n");
             close(con_fd);
         }
     } else {// error
@@ -44,7 +35,7 @@ void Acceptor::read_handler() {
             close(idle_fd);
             idle_fd = socket.accept(&peer_addr);
             close(idle_fd);
-            idle_fd = ::open("/dev/null", O_RDONLY | O_CLOEXEC);
+            idle_fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
         } else {
             fprintf(stderr, "con_fd error.\n");
         }
