@@ -11,6 +11,14 @@ EventLoopThread::EventLoopThread(EventLoopThread::ThreadInitialCallback callback
         loop(nullptr), exiting(false), thread(bind(&EventLoopThread::thread_func, this), move(name)),
         mutex(), condition(mutex), initial_callback(move(callback)) {}
 
+EventLoopThread::~EventLoopThread() {
+    exiting = true;
+    if (loop != nullptr) {
+        loop->quit();
+        thread.join();
+    }
+}
+
 void EventLoopThread::thread_func() {
     EventLoop lo;
     if (initial_callback) initial_callback(&lo);
@@ -22,14 +30,6 @@ void EventLoopThread::thread_func() {
     loop->loop();
     MutexGuard guard(mutex);
     loop = nullptr;
-}
-
-EventLoopThread::~EventLoopThread() {
-    exiting = true;
-    if (loop != nullptr) {
-        loop->quit();
-        thread.join();
-    }
 }
 
 EventLoop *EventLoopThread::start() {
