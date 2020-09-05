@@ -80,7 +80,7 @@ void EventLoop::run_in_loop(const Functor &func) {
     is_in_loop_thread() ? func() : queue_in_loop(func);
 }
 
-void EventLoop::queue_in_loop(const EventLoop::Functor &func) {
+void EventLoop::queue_in_loop(const Functor &func) {
     {
         MutexGuard guard(mutex);
         pending_functors.push_back(func);
