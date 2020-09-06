@@ -49,9 +49,14 @@ private:
 
     void remove_connection(const shared_ptr<TcpConnection> &con);
 
+    void remove_connection_in_loop(const shared_ptr<TcpConnection> &con);
+
 public:
     TcpServer(EventLoop *loop, const InetAddress &listen_addr, string name, bool reuse_port = false);
 
+    virtual ~TcpServer();
+
+    void start();
 };
 
 #endif //REACTOR_TCPSERVER_H

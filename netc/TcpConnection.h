@@ -35,16 +35,15 @@ private:
     unique_ptr<Channel> channel;
     const InetAddress local;
     const InetAddress peer;
-
-    ConnectionCallback conn_callback;
-    MessageCallback msg_callback;
-    WriteCompleteCallback write_complete_callback;
-    HighWaterMarkCallback high_water_mark_callback;
-    CloseCallback close_callback;
-
     size_t high_water_mark;
     Buffer input_buffer;
     Buffer output_buffer;
+
+    ConnectionCallback conn_callback;
+    MessageCallback msg_callback;
+    CloseCallback close_callback;
+    WriteCompleteCallback write_complete_callback;
+    HighWaterMarkCallback high_water_mark_callback;
 
     void read_handler();
 
@@ -77,9 +76,15 @@ public:
 
     void connection_established();
 
+    void connection_destroyed();
+
     void send(const StringPiece &piece);
-    
+
     void shutdown();
+
+    const string &get_name() const;
+
+    EventLoop *get_loop() const;
 };
 
 #endif //REACTOR_TCPCONNECTION_H

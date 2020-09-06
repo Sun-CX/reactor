@@ -16,8 +16,8 @@ using std::bind;
 
 TcpConnection::TcpConnection(EventLoop *loop, string name, int sock_fd, const InetAddress &local,
                              const InetAddress &peer) : loop(loop), name(move(name)),
-                                                        status(Connecting), reading(true), socket(new Socket(sock_fd)),
-                                                        channel(new Channel(loop, sock_fd)),
+                                                        status(Connecting), reading(true), socket(new Socket()),
+                                                        channel(new Channel(loop, socket->fd())),
                                                         local(local), peer(peer), high_water_mark(64 * 1024 * 1024) {
     channel->set_read_callback(bind(&TcpConnection::read_handler, this));
     channel->set_write_callback(bind(&TcpConnection::write_handler, this));
@@ -169,5 +169,23 @@ void TcpConnection::shutdown() {
         status = Disconnecting;
         loop->run_in_loop(bind(&TcpConnection::shutdown_in_loop, this));
     }
+}
+
+EventLoop *TcpConnection::get_loop() const {
+    return loop;
+}
+
+void TcpConnection::connection_destroyed() {
+    assert(loop->is_in_loop_thread());
+    if (status == Connected) {
+        status = Disconnected;
+        channel->disable_all();
+        conn_callback(shared_from_this());
+    }
+    channel->remove();
+}
+
+const string &TcpConnection::get_name() const {
+    return name;
 }
 

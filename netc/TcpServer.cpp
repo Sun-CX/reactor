@@ -14,6 +14,7 @@
 #include <cassert>
 
 using std::make_shared;
+using std::bind;
 using std::placeholders::_1;
 using std::placeholders::_2;
 
@@ -28,12 +29,20 @@ void default_message_callback(const shared_ptr<TcpConnection> &conn, Buffer *buf
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &listen_addr, string name, bool reuse_port)
         : loop(loop), name(move(name)), ip_port(to_readable_string(listen_addr)),
           acceptor(new Acceptor(loop, listen_addr, reuse_port)),
-          thread_pool(new EventLoopThreadPool(loop, move(name))),
+          thread_pool(new EventLoopThreadPool(loop, 5, move(name))),
           conn_callback(default_connection_callback),
           msg_callback(default_message_callback), started(0),
           next_conn_id(1) {
     acceptor->set_connection_callback(bind(&TcpServer::new_connection, this, _1, _2));
+}
 
+TcpServer::~TcpServer() {
+    assert(loop->is_in_loop_thread());
+    for (auto &e:connections) {
+        shared_ptr<TcpConnection> conn(e.second);
+        e.second.reset();
+        conn->get_loop()->run_in_loop(bind(&TcpConnection::connection_destroyed, conn));
+    }
 }
 
 void TcpServer::new_connection(int fd, const InetAddress &peer) {
@@ -56,5 +65,19 @@ void TcpServer::new_connection(int fd, const InetAddress &peer) {
 }
 
 void TcpServer::remove_connection(const shared_ptr<TcpConnection> &con) {
+    loop->run_in_loop(bind(&TcpServer::remove_connection_in_loop, this, con));
+}
 
+void TcpServer::start() {
+    thread_pool->start(thread_init_callback);
+    assert(!acceptor->is_listening());
+    loop->run_in_loop(bind(&Acceptor::listen, acceptor.get()));
+}
+
+void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) {
+    assert(loop->is_in_loop_thread());
+    auto n = connections.erase(con->get_name());
+    assert(n == 1);
+    EventLoop *io_loop = con->get_loop();
+    io_loop->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
 }
