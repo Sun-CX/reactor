@@ -24,6 +24,7 @@ set(LIBRARY_SOURCE
         TimerId.cpp
         TimerQueue.cpp
         #        Connector.cpp
+        MinHeap.h
         )
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
