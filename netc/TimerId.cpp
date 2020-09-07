@@ -4,6 +4,6 @@
 
 #include "TimerId.h"
 
-TimerId::TimerId() : timer(nullptr), sequence(0) {}
+TimerId::TimerId() : timer_task(nullptr), sequence(0) {}
 
-TimerId::TimerId(Timer *timer, uint32_t seq) : timer(timer), sequence(seq) {}
+TimerId::TimerId(TimerTask *task, uint32_t seq) : timer_task(task), sequence(seq) {}

@@ -20,6 +20,8 @@ class TimerTask final : public NonCopyable {
 private:
     friend class EventLoop;
 
+    friend class Timer;
+
     using TimerCallback = function<void()>;
 
     const TimerCallback callback;   //定时器回调函数

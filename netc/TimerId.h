@@ -8,22 +8,21 @@
 #include "NonCopyable.h"
 #include <cstdint>
 
-class Timer;
+class TimerTask;
 
 /**
  * 不透明的定时器 ID, 用来取消定时器
  */
 class TimerId final {
 private:
-    Timer *timer;
+    friend class Timer;
+
+    TimerTask *timer_task;
     uint32_t sequence;
-
-    friend class TimerQueue;
-
 public:
     TimerId();
 
-    TimerId(Timer *timer, uint32_t seq);
+    TimerId(TimerTask *task, uint32_t seq);
 };
 
 #endif //REACTOR_TIMERID_H

@@ -6,6 +6,7 @@
 #define REACTOR_TIMERQUEUE_TEST_H
 
 #include "NonCopyable.h"
+#include "TimerTask.h"
 #include "Channel.h"
 #include <vector>
 #include <set>
@@ -18,23 +19,19 @@ class EventLoop;
 
 class Timestamp;
 
-class Timer;
-
 class TimerId;
 
 // 定时器内部实现，不向用户代码暴露
-class TimerQueue final : public NonCopyable {
+class Timer final : public NonCopyable {
 private:
-    using TimerCallback = function<void()>;
-
     /**
      * 这里用 set<Entry> 结构,而不直接使用 map<Timestamp, Timer *> 的原因在于:
      * 相同的 Timestamp 可能有不同的 Timer, 而 map 不允许有相同的 key
      * 可以考虑使用 multimap
      */
-    using Entry = pair<Timestamp, Timer *>;
+    using Entry = pair<Timestamp, TimerTask *>;
     using Timers = set<Entry>;  // 按照过期时间升序排序（允许有相同的过期时间，若过期时间相同则再按照 Timer 地址升序排序）
-    using ActiveTimer = pair<Timer *, uint32_t>;
+    using ActiveTimer = pair<TimerTask *, uint32_t>;
     using ActiveTimerSet = set<ActiveTimer>;
 
     EventLoop *loop;
@@ -61,22 +58,24 @@ private:
     void read_handler();
 
     // invoked in event loop, none lock
-    void add_timer_in_loop(Timer *timer);
+    void add_timer_in_loop(TimerTask *task);
 
     // invoked in event loop, none lock
     void cancel_in_loop(TimerId timer_id);
 
     // invoked in event loop, none lock
     // 返回：当前插入的 timer 的到期时间是否为最早
-    bool insert(Timer *timer);
+    bool insert(TimerTask *task);
 
     void reset(vector<Entry> &expired, Timestamp now);
 
 public:
-    explicit TimerQueue(EventLoop *loop);
+    explicit Timer(EventLoop *loop);
+
+    virtual ~Timer();
 
     // 可跨线程调用
-    TimerId add_timer(TimerCallback callback, Timestamp when, double interval = 0);
+    TimerId schedule(TimerTask::TimerCallback callback, Timestamp when, double interval = 0);
 
     // 可跨线程调用
     void cancel(TimerId timer_id);

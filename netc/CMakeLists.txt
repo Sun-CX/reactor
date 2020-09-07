@@ -21,9 +21,9 @@ set(LIBRARY_SOURCE
         TcpServer.cpp
         EventLoopThread.cpp
         EventLoopThreadPool.cpp
-        Timer.cpp
+        TimerTask.cpp
         TimerId.cpp
-        TimerQueue.cpp
+        Timer.cpp
         #        Connector.cpp
         MinHeap.h
         )

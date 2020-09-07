@@ -6,7 +6,7 @@
 #define REACTOR_EVENTLOOP_H
 
 #include "Mutex.h"
-#include "Timer.h"
+#include "TimerTask.h"
 #include <vector>
 #include <memory>
 #include <atomic>
@@ -21,7 +21,7 @@ class Poller;
 
 class TimerId;
 
-class TimerQueue;
+class Timer;
 
 // 创建 EventLoop 对象的线程是 IO 线程，其主要功能是运行事件循环
 class EventLoop final : public NonCopyable {
@@ -43,10 +43,10 @@ private:
     bool calling_pending_func;
     Functors pending_functors;  // 挂起的执行任务
 
-    int event_fd;   // 用来唤醒 poll 调用的事件 fd
+    const int event_fd;   // 用来唤醒 poll 调用的事件 fd
     unique_ptr<Channel> wakeup_channel;
 
-    unique_ptr<TimerQueue> timer_queue;
+    unique_ptr<Timer> timer;
 
 //    bool event_handling;
 //    int64_t iteration;
@@ -90,13 +90,13 @@ public:
 
     void queue_in_loop(const Functor &func);
 
-    TimerId run_at(const Timer::TimerCallback &callback, Timestamp timestamp);
+    TimerId run_at(const TimerTask::TimerCallback &callback, Timestamp timestamp);
 
     // delay(seconds)
-    TimerId run_after(const Timer::TimerCallback &callback, double delay);
+    TimerId run_after(const TimerTask::TimerCallback &callback, double delay);
 
     // delay(seconds)
-    TimerId run_every(const Timer::TimerCallback &callback, double delay);
+    TimerId run_every(const TimerTask::TimerCallback &callback, double delay);
 
     void cancel(TimerId id);
 
