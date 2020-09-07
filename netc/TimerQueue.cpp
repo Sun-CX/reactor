@@ -26,6 +26,7 @@ TimerQueue::TimerQueue(EventLoop *loop) : loop(loop), timer_fd(create_timer_fd()
 int TimerQueue::create_timer_fd() const {
     auto fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
     if (unlikely(fd < 0)) ERROR_EXIT("timerfd_create error.");
+    printf("create timerfd success, timerfd: %d\n", fd);
     return fd;
 }
 
