@@ -1,5 +1,5 @@
 # reactor
-reactor is a network communicating library written in C++11.
+reactor is a network communicating library written in C++ 14.
 
 ## Features
 enlightened by muduo from chenshuo, reactor has all advantages muduo has and also has
