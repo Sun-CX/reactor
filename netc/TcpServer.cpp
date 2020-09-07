@@ -45,16 +45,16 @@ TcpServer::~TcpServer() {
     }
 }
 
-void TcpServer::new_connection(int fd, const InetAddress &peer) {
+void TcpServer::new_connection(int con_fd, const InetAddress &peer) {
     assert(loop->is_in_loop_thread());
     auto io_loop = thread_pool->get_next_loop();
-    char buf[64];
+    char buf[32];
     snprintf(buf, sizeof(buf), "-%s-%d", ip_port.c_str(), next_conn_id++);
 
     string conn_name = name + buf;
-    InetAddress local = InetAddress::get_local_address(fd);
+    InetAddress local = InetAddress::get_local_address(con_fd);
 
-    shared_ptr<TcpConnection> conn = make_shared<TcpConnection>(io_loop, conn_name, fd, local, peer);
+    shared_ptr<TcpConnection> conn = make_shared<TcpConnection>(io_loop, conn_name, con_fd, local, peer);
 
     connections[conn_name] = conn;
     conn->set_connection_callback(conn_callback);
@@ -70,7 +70,7 @@ void TcpServer::remove_connection(const shared_ptr<TcpConnection> &con) {
 
 void TcpServer::start() {
     thread_pool->start(thread_init_callback);
-    assert(!acceptor->is_listening());
+    assert(not acceptor->is_listening());
     loop->run_in_loop(bind(&Acceptor::listen, acceptor.get()));
 }
 
@@ -80,4 +80,20 @@ void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) 
     assert(n == 1);
     EventLoop *io_loop = con->get_loop();
     io_loop->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
+}
+
+void TcpServer::set_conn_callback(const ConnectionCallback &callback) {
+    conn_callback = callback;
+}
+
+void TcpServer::set_msg_callback(const MessageCallback &callback) {
+    msg_callback = callback;
+}
+
+void TcpServer::set_write_complete_callback(const WriteCompleteCallback &callback) {
+    write_complete_callback = callback;
+}
+
+void TcpServer::set_thread_initial_callback(const ThreadInitCallback &callback) {
+    thread_init_callback = callback;
 }

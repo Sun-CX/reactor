@@ -45,7 +45,7 @@ private:
     WriteCompleteCallback write_complete_callback;
     ThreadInitCallback thread_init_callback;
 
-    void new_connection(int fd, const InetAddress &peer);
+    void new_connection(int con_fd, const InetAddress &peer);
 
     void remove_connection(const shared_ptr<TcpConnection> &con);
 
@@ -57,6 +57,14 @@ public:
     virtual ~TcpServer();
 
     void start();
+
+    void set_conn_callback(const ConnectionCallback &callback);
+
+    void set_msg_callback(const MessageCallback &callback);
+
+    void set_write_complete_callback(const WriteCompleteCallback &callback);
+
+    void set_thread_initial_callback(const ThreadInitCallback &callback);
 };
 
 #endif //REACTOR_TCPSERVER_H
