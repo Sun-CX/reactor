@@ -12,6 +12,7 @@ set(LIBRARY_SOURCE
         PollPoller.cpp
         #        =============== tcp server ===============
         InetAddress.cpp
+        ServerSocket.cpp
         Socket.cpp
         Acceptor.cpp
 
