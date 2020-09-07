@@ -38,3 +38,4 @@ add_executable(eventloopthread-test EventLoopThread-Test.cpp)
 target_link_libraries(eventloopthread-test netc)
 
 add_executable(minheap-test MinHeap-Test.cpp)
+target_link_libraries(minheap-test reactor-core)
