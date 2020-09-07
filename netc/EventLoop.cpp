@@ -102,6 +102,7 @@ void EventLoop::wakeup() const {
 int EventLoop::create_event_fd() const {
     int fd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     if (unlikely(fd < 0)) ERROR_EXIT("eventfd created failed.");
+    printf("create eventfd success, eventfd: %d\n", fd);
     return fd;
 }
 
