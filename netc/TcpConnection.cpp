@@ -14,10 +14,10 @@
 
 using std::bind;
 
-TcpConnection::TcpConnection(EventLoop *loop, string name, int sock_fd, const InetAddress &local,
+TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local,
                              const InetAddress &peer) : loop(loop), name(move(name)),
-                                                        status(Connecting), reading(true), socket(new Socket()),
-                                                        channel(new Channel(loop, socket->fd())),
+                                                        status(Connecting), reading(true), socket(new Socket(con_fd)),
+                                                        channel(new Channel(loop, socket->get_fd())),
                                                         local(local), peer(peer), high_water_mark(64 * 1024 * 1024) {
     channel->set_read_callback(bind(&TcpConnection::read_handler, this));
     channel->set_write_callback(bind(&TcpConnection::write_handler, this));
@@ -80,7 +80,7 @@ void TcpConnection::close_handler() {
 void TcpConnection::error_handler() {
     int opt;
     socklen_t len = sizeof(opt);
-    auto n = getsockopt(socket->fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
+    auto n = getsockopt(channel->get_fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
     if (unlikely(n < 0)) fprintf(stderr, "TcpConnection::error_handler, errno: %d\n", errno);
     else fprintf(stderr, "TcpConnection::error_handler, errno: %d\n", opt);
 }
@@ -117,9 +117,7 @@ void TcpConnection::connection_established() {
 void TcpConnection::shutdown_in_loop() {
     assert(loop->is_in_loop_thread());
     if (!channel->is_writing()) {
-//        socket->shutdown_write();
-        auto n = ::shutdown(socket->fd(), SHUT_WR);
-        if (unlikely(n < 0)) ERROR_EXIT("shutdown error.");
+        socket->shutdown_write();
     }
 }
 

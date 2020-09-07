@@ -60,7 +60,7 @@ private:
     void send_in_loop(const void *data, size_t len);
 
 public:
-    TcpConnection(EventLoop *loop, string name, int sock_fd, const InetAddress &local, const InetAddress &peer);
+    TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local, const InetAddress &peer);
 
     virtual ~TcpConnection();
 
