@@ -9,6 +9,7 @@
 
 class InetAddress;
 
+// 封装监听套接字
 class ServerSocket final : public NonCopyable {
 private:
     const int sock_fd;  // sock_fd 的生存期由 ServerSocket 类控制，在 ServerSocket 析构时会将其关闭
