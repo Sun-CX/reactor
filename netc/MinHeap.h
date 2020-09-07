@@ -13,7 +13,7 @@ using std::vector;
 using std::logic_error;
 
 // 要求类型 T 重载 < 运算符
-template<class T, const int dimension = 2>
+template<class T, const int dimension>
 class MinHeap final {
 private:
     vector<T> heap;
@@ -112,4 +112,9 @@ T MinHeap<T, dimension>::peek() const {
     return heap[0];
 }
 
+template<class T>
+using BinaryHeap = MinHeap<T, 2>;
+
+template<class T>
+using QuadHeap = MinHeap<T, 4>;
 #endif //REACTOR_MINHEAP_H

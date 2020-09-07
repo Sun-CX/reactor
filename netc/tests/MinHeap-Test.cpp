@@ -23,7 +23,7 @@ public:
 
 int main(int argc, const char *argv[]) {
 
-    MinHeap<int, 4> heap;
+    BinaryHeap<int> heap;
     heap.insert(6);
     heap.insert(2);
     heap.insert(-2);
@@ -55,7 +55,7 @@ int main(int argc, const char *argv[]) {
 
 //    heap.pop();
 
-    MinHeap<TimerTask, 4> h;
+    QuadHeap<TimerTask> h;
     h.insert(TimerTask(Timestamp(6)));
     h.insert(TimerTask(Timestamp(15)));
     h.insert(TimerTask(Timestamp(2)));
