@@ -5,7 +5,7 @@
 #ifndef REACTOR_ACCEPTOR_H
 #define REACTOR_ACCEPTOR_H
 
-#include "Socket.h"
+#include "ServerSocket.h"
 #include "Channel.h"
 
 class EventLoop;
@@ -20,7 +20,7 @@ private:
     using ConnectionCallback = function<void(int, const InetAddress &)>;
 
     EventLoop *loop;
-    Socket socket;
+    ServerSocket server_socket;
     Channel accept_channel;
     ConnectionCallback callback;
     bool listening;

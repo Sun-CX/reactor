@@ -12,18 +12,18 @@
 using std::bind;
 
 Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
-        loop(loop), socket(), accept_channel(loop, socket.fd()),
+        loop(loop), server_socket(), accept_channel(loop, server_socket.fd()),
         listening(false), idle_fd(open("/dev/null", O_RDONLY | O_CLOEXEC)) {
-    socket.reuse_addr(true);
-    socket.reuse_port(reuse_port);
-    socket.bind(addr);
+    server_socket.reuse_addr(true);
+    server_socket.reuse_port(reuse_port);
+    server_socket.bind(addr);
     accept_channel.set_read_callback(bind(&Acceptor::read_handler, this));
 }
 
 void Acceptor::read_handler() {
     assert(loop->is_in_loop_thread());
     InetAddress peer_addr;
-    int con_fd = socket.accept(&peer_addr);
+    int con_fd = server_socket.accept(&peer_addr);
     if (con_fd >= 0) {// success
         if (callback) callback(con_fd, peer_addr);
         else {
@@ -33,7 +33,7 @@ void Acceptor::read_handler() {
     } else {// error
         if (errno == EMFILE) {
             close(idle_fd);
-            idle_fd = socket.accept(&peer_addr);
+            idle_fd = server_socket.accept(&peer_addr);
             close(idle_fd);
             idle_fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
         } else {
@@ -55,7 +55,7 @@ void Acceptor::set_connection_callback(const Acceptor::ConnectionCallback &handl
 void Acceptor::listen() {
     assert(loop->is_in_loop_thread());
     listening = true;
-    socket.listen();
+    server_socket.listen();
     accept_channel.enable_reading();
 }
 
