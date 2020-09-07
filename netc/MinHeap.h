@@ -8,9 +8,11 @@
 #include <vector>
 #include <stdexcept>
 
+using std::move;
 using std::vector;
 using std::logic_error;
 
+// 要求类型 T 重载 < 运算符
 template<class T, const int dimension = 2>
 class MinHeap final {
 private:
@@ -23,7 +25,10 @@ private:
     int get_min_child_idx(int parent_idx);
 
 public:
-    void insert(const T &x);
+    void insert(T &&x);
+//    void insert(const T &x);
+
+    T peek() const;
 
     T pop();
 
@@ -33,20 +38,20 @@ public:
 };
 
 template<class T, const int dimension>
-void MinHeap<T, dimension>::insert(const T &x) {
-    heap.push_back(x);
+void MinHeap<T, dimension>::insert(T &&x) {
+    heap.push_back(move(x));
     sift_up(heap.size() - 1);
 }
 
 template<class T, const int dimension>
 T MinHeap<T, dimension>::pop() {
     if (empty()) throw logic_error("can not pop an empty heap!");
-    T temp = heap.front();
+    T temp = move(heap.front());
     if (size() == 1) {
         heap.pop_back();
         return temp;
     }
-    heap.front() = heap.back();
+    heap.front() = move(heap.back());
     heap.pop_back();
     sift_down(0, heap.size() - 1);
     return temp;
@@ -55,28 +60,31 @@ T MinHeap<T, dimension>::pop() {
 template<class T, const int dimension>
 void MinHeap<T, dimension>::sift_up(int end) {
     int idx = end, parent_idx = (idx - 1) / dimension;
-    T temp = heap[idx];
+    T temp = move(heap[idx]);
     while (idx > 0) {
-        if (heap[parent_idx] <= temp) break;
-        heap[idx] = heap[parent_idx];
-        idx = parent_idx;
-        parent_idx = (idx - 1) / dimension;
+        if (temp < heap[parent_idx]) {
+            heap[idx] = move(heap[parent_idx]);
+            idx = parent_idx;
+            parent_idx = (idx - 1) / dimension;
+        } else break;
     }
-    heap[idx] = temp;
+    heap[idx] = move(temp);
 }
 
 template<class T, const int dimension>
 void MinHeap<T, dimension>::sift_down(int begin, int end) {
     int idx = begin, child_idx = idx * dimension + 1;
-    T temp = heap[idx];
+    T temp = move(heap[idx]);
     while (child_idx <= end) {
         child_idx = get_min_child_idx(idx);
-        if (temp <= heap[child_idx]) break;
-        heap[idx] = heap[child_idx];
-        idx = child_idx;
-        child_idx = idx * dimension + 1;
+        if (heap[child_idx] < temp) {
+            heap[idx] = move(heap[child_idx]);
+            idx = child_idx;
+            child_idx = idx * dimension + 1;
+        } else break;
+
     }
-    heap[idx] = temp;
+    heap[idx] = move(temp);
 }
 
 template<class T, const int dimension>
@@ -96,6 +104,12 @@ bool MinHeap<T, dimension>::empty() const {
 template<class T, const int dimension>
 size_t MinHeap<T, dimension>::size() const {
     return heap.size();
+}
+
+template<class T, const int dimension>
+T MinHeap<T, dimension>::peek() const {
+    if (empty()) throw logic_error("can not peek an empty heap!");
+    return heap[0];
 }
 
 #endif //REACTOR_MINHEAP_H
