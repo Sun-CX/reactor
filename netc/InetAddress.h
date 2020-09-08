@@ -10,23 +10,11 @@
 
 using std::string;
 
-/**
- * 暂时只支持 IPv4
- */
+// 对网络地址的封装（目前只支持 IPv4）
 class InetAddress final {
 private:
     sockaddr_in ad4;    // 以网络序（大端序）存储
-//        sockaddr_in6 ad6;
-
-    friend string to_readable_string(const InetAddress &addr);
-
 public:
-
-    /**
-     * 描述网络地址
-     * @param ip 网络 IP，如 "127.0.0.1"
-     * @param port 端口号
-     */
     InetAddress();
 
     explicit InetAddress(const char *ip, uint16_t port);
@@ -35,11 +23,11 @@ public:
 
     const sockaddr *get_sockaddr() const;
 
-    /**
-     * 设置网络序地址
-     * @param addr 网络序地址
-     */
+    // 设置网络序地址
     void set_sockaddr(const sockaddr_in &addr);
+
+    // 返回 ip:port 格式的字符串
+    string to_string() const;
 
     static InetAddress get_local_address(int fd);
 };

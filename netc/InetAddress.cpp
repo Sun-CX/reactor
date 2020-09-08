@@ -35,18 +35,18 @@ InetAddress::InetAddress(bool use_loop_back, uint16_t port) {
     ad4.sin_port = htons(port);
 }
 
-string to_readable_string(const InetAddress &addr) {
-    char buf[64];
-    const char *ip = inet_ntoa(addr.ad4.sin_addr);
-    const auto port = ntohs(addr.ad4.sin_port);
-    snprintf(buf, sizeof(buf), "%s:%hu", ip, port);
-    return buf;
-}
-
 InetAddress InetAddress::get_local_address(int fd) {
     InetAddress value;
     socklen_t len = sizeof(value.ad4);
     auto status = getsockname(fd, reinterpret_cast<sockaddr *>(&value.ad4), &len);
     if (unlikely(status == -1)) ERROR_EXIT("error occurred.");
     return value;
+}
+
+string InetAddress::to_string() const {
+    char buf[32];
+    const char *ip = inet_ntoa(ad4.sin_addr);
+    const auto port = ntohs(ad4.sin_port);
+    snprintf(buf, sizeof(buf), "%s:%hu", ip, port);
+    return buf;
 }
