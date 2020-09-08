@@ -16,16 +16,16 @@ using std::bind;
 using std::for_each;
 using std::placeholders::_1;
 
-thread_local EventLoop *EventLoop::loop_in_this_thread;
-const int EventLoop::default_timeout_milliseconds = -1;   // 默认永不超时
+thread_local EventLoop *EventLoop::loop_ptr_in_this_thread;
+const int EventLoop::default_poll_timeout_milliseconds = -1;   // 默认永不超时
 
 EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid), poller(Poller::default_poller(this)),
                          mutex(), calling_pending_func(false), event_fd(create_event_fd()),
                          wakeup_channel(new Channel(this, event_fd)), timer(new Timer(this)) {
-    if (unlikely(loop_in_this_thread != nullptr)) {
+    if (unlikely(loop_ptr_in_this_thread != nullptr)) {
         fprintf(stderr, "Another EventLoop already existed in %s[%d].", CurrentThread::name, pid);
         exit(0);
-    } else loop_in_this_thread = this;
+    } else loop_ptr_in_this_thread = this;
 
     wakeup_channel->set_read_callback(bind(&EventLoop::handle_readable_event, this));
     // 关注 event_fd 可读事件
@@ -37,16 +37,16 @@ EventLoop::~EventLoop() {
     wakeup_channel->remove();
     auto status = close(event_fd);
     if (unlikely(status < 0)) fprintf(stderr, "event_fd close error!\n");
-    loop_in_this_thread = nullptr;
+    loop_ptr_in_this_thread = nullptr;
 }
 
 void EventLoop::loop() {
     assert(is_in_loop_thread());
     looping = true;
-    printf("EventLoop(%p) start loop...\n", this);
+    printf("%s[%d]: EventLoop(%p) start loop...\n", CurrentThread::name, CurrentThread::pid, this);
     while (!exited) {
         active_channels.clear();
-        poller->poll(&active_channels, default_timeout_milliseconds);
+        poller->poll(&active_channels, default_poll_timeout_milliseconds);
         for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_event, _1));
         execute_pending_functors();
     }
@@ -90,7 +90,7 @@ void EventLoop::queue_in_loop(const Functor &func) {
 }
 
 EventLoop *EventLoop::event_loop_of_current_thread() {
-    return loop_in_this_thread;
+    return loop_ptr_in_this_thread;
 }
 
 void EventLoop::wakeup() const {
@@ -101,9 +101,9 @@ void EventLoop::wakeup() const {
 }
 
 int EventLoop::create_event_fd() const {
-    int fd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
+    int fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     if (unlikely(fd < 0)) ERROR_EXIT("eventfd created failed.");
-    printf("create eventfd success, eventfd: %d\n", fd);
+    printf("%s[%d]: create eventfd: %d\n", CurrentThread::name, CurrentThread::pid, fd);
     return fd;
 }
 

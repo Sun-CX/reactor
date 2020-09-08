@@ -23,7 +23,7 @@ void EventLoopThreadPool::start(const ThreadInitialCallback &callback) {
     for (int i = 0; i < num_threads; ++i) {
         snprintf(thread_name, sizeof(thread_name), "%s-%d", name.c_str(), i + 1);
         auto th = new EventLoopThread(callback, thread_name);
-        threads.push_back(unique_ptr<EventLoopThread>(th));
+        threads.emplace_back(th);
         loops.push_back(th->start());
     }
     if (num_threads == 0 and callback) callback(loop);

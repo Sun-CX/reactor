@@ -5,16 +5,18 @@
 #include "ServerSocket.h"
 #include "Exception.h"
 #include "InetAddress.h"
+#include "CurrentThread.h"
 #include <unistd.h>
 #include <cstring>
 #include <netinet/tcp.h>
 
-ServerSocket::ServerSocket() : sock_fd(create_socket()) {}
 
-int ServerSocket::create_socket() const {
+ServerSocket::ServerSocket() : sock_fd(create_listen_fd()) {}
+
+int ServerSocket::create_listen_fd() const {
     int fd = ::socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
     if (unlikely(fd < 0)) ERROR_EXIT("socket created error.");
-    printf("create sock_fd success, sock_fd: %d\n", fd);
+    printf("%s[%d]: create listen_fd: %d\n", CurrentThread::name, CurrentThread::pid, fd);
     return fd;
 }
 

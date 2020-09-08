@@ -7,8 +7,8 @@
 atomic_uint32_t TimerTask::num_created;
 
 TimerTask::TimerTask(TimerCallback callback, Timestamp when, double interval) : callback(move(callback)),
-                                                                               expiration(when), interval(interval),
-                                                                               sequence(++num_created) {}
+                                                                                expiration(when), interval(interval),
+                                                                                sequence(++num_created) {}
 
 void TimerTask::run() const {
     callback();

@@ -5,7 +5,6 @@
 #ifndef REACTOR_TIMERQUEUE_TEST_H
 #define REACTOR_TIMERQUEUE_TEST_H
 
-#include "NonCopyable.h"
 #include "TimerTask.h"
 #include "Channel.h"
 #include <vector>
@@ -57,13 +56,13 @@ private:
 
     void read_handler();
 
-    // invoked in event loop, none lock
+    // only invoked in event loop
     void add_timer_in_loop(TimerTask *task);
 
-    // invoked in event loop, none lock
+    // only invoked in event loop
     void cancel_in_loop(TimerId timer_id);
 
-    // invoked in event loop, none lock
+    // only invoked in event loop
     // 返回：当前插入的 timer 的到期时间是否为最早
     bool insert(TimerTask *task);
 

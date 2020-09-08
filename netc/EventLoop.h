@@ -30,20 +30,20 @@ private:
     using Functors = vector<Functor>;
     using Channels = vector<Channel *>;
 
-    thread_local static EventLoop *loop_in_this_thread; // 控制一个线程最多只能有一个 EventLoop
-    static const int default_timeout_milliseconds;
+    thread_local static EventLoop *loop_ptr_in_this_thread; // 控制一个线程最多只能有一个 EventLoop
+    static const int default_poll_timeout_milliseconds;
 
     bool looping;
     atomic_bool exited;         // 循环是否退出（跨线程读写，原子保护）
     const pid_t pid;
-    unique_ptr<Poller> poller;  // 其生命周期与 EventLoop 对象相等
+    unique_ptr<Poller> poller;  // poller 生命周期与 EventLoop 对象相同
     Channels active_channels;
 
-    mutable Mutex mutex;
+    Mutex mutex;
     bool calling_pending_func;
     Functors pending_functors;  // 挂起的执行任务
 
-    const int event_fd;   // 用来唤醒 poll 调用的事件 fd
+    const int event_fd;   // 用来唤醒 poll 调用
     unique_ptr<Channel> wakeup_channel;
 
     unique_ptr<Timer> timer;

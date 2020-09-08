@@ -26,10 +26,10 @@ void default_message_callback(const shared_ptr<TcpConnection> &conn, Buffer *buf
     buf->retrieve_all();
 }
 
-TcpServer::TcpServer(EventLoop *loop, const InetAddress &listen_addr, string name, bool reuse_port)
-        : loop(loop), name(move(name)), ip_port(to_readable_string(listen_addr)),
-          acceptor(new Acceptor(loop, listen_addr, reuse_port)),
-          thread_pool(new EventLoopThreadPool(loop, 5, move(name))),
+TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name, bool reuse_port)
+        : loop(loop), name(move(name)), ip_port(to_readable_string(bind_addr)),
+          acceptor(new Acceptor(loop, bind_addr, reuse_port)),
+          thread_pool(new EventLoopThreadPool(loop, 5, this->name)),
           conn_callback(default_connection_callback),
           msg_callback(default_message_callback), started(0),
           next_conn_id(1) {

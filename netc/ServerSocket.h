@@ -14,7 +14,7 @@ class ServerSocket final : public NonCopyable {
 private:
     const int sock_fd;  // sock_fd 的生存期由 ServerSocket 类控制，在 ServerSocket 析构时会将其关闭
 
-    int create_socket() const;
+    int create_listen_fd() const;
 
 public:
     ServerSocket();

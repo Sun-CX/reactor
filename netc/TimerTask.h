@@ -13,9 +13,7 @@
 using std::function;
 using std::atomic_uint32_t;
 
-/**
- * 定时器内部实现，不向用户代码暴露
- */
+// 对定时任务的封装
 class TimerTask final : public NonCopyable {
 private:
     friend class EventLoop;
