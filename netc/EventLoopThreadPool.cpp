@@ -30,11 +30,10 @@ void EventLoopThreadPool::start(const ThreadInitialCallback &callback) {
 
 EventLoop *EventLoopThreadPool::get_next_loop() {
     assert(loop->is_in_loop_thread());
-    auto *lo = loop;
+    EventLoop *lo = loop;
     if (not loops.empty()) {
         lo = loops[next++];
         if (next >= loops.size()) next = 0;
     }
     return lo;
 }
-

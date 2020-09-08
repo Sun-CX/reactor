@@ -35,6 +35,7 @@ void TcpConnection::read_handler() {
         msg_callback(shared_from_this(), &input_buffer, Timestamp());
     } else if (n == 0) {
         printf("%s[%d]: from %s invoked.\n", CurrentThread::name, CurrentThread::pid, __PRETTY_FUNCTION__);
+        if (status == Connected) printf("=================================\n");
         close_handler();
     } else {
         errno = saved_errno;
@@ -70,12 +71,12 @@ void TcpConnection::close_handler() {
     assert(loop->is_in_loop_thread());
     assert(status == Connected or status == Disconnecting);
     printf("%s[%d]: con_fd %d closed.\n", CurrentThread::name, CurrentThread::pid, conn_channel->get_fd());
-    status = Disconnected;
 //    conn_channel->disable_all();
 
 //    shared_ptr<TcpConnection> guard_this(shared_from_this());
     //TODO: why?
 //    conn_callback(guard_this);
+    status = Disconnected;
     close_callback(shared_from_this());
 }
 
