@@ -14,10 +14,19 @@ using std::bind;
 Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
         loop(loop), server_socket(), accept_channel(loop, server_socket.fd()),
         listening(false), idle_fd(open("/dev/null", O_RDONLY | O_CLOEXEC)) {
+    printf("%s[%d]: create idle_fd: %d\n", CurrentThread::name, CurrentThread::pid, idle_fd);
     server_socket.reuse_addr(true);
     server_socket.reuse_port(reuse_port);
     server_socket.bind(addr);
     accept_channel.set_read_callback(bind(&Acceptor::read_handler, this));
+}
+
+Acceptor::~Acceptor() {
+    accept_channel.disable_all();
+    accept_channel.remove();
+    auto status = close(idle_fd);
+    if (unlikely(status < 0))
+        fprintf(stderr, "%s[%d]: close idle_fd %d error.\n", CurrentThread::name, CurrentThread::pid, idle_fd);
 }
 
 void Acceptor::read_handler() {
@@ -40,12 +49,6 @@ void Acceptor::read_handler() {
             fprintf(stderr, "con_fd error.\n");
         }
     }
-}
-
-Acceptor::~Acceptor() {
-    accept_channel.disable_all();
-    accept_channel.remove();
-    close(idle_fd);
 }
 
 void Acceptor::set_connection_callback(const Acceptor::ConnectionCallback &handler) {
