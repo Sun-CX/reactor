@@ -2,13 +2,13 @@
 // Created by suncx on 2020/9/3.
 //
 
-#include "Timer.h"
+#include "TimerTask.h"
 #include "TimerId.h"
+#include "CurrentThread.h"
+#include "EventLoop.h"
 #include <vector>
 #include <set>
 #include <algorithm>
-#include <CurrentThread.h>
-#include <EventLoop.h>
 
 using std::pair;
 using std::vector;
@@ -16,23 +16,23 @@ using std::set;
 using std::for_each;
 using std::bind;
 
-using Entry = pair<Timestamp, Timer *>;
+using Entry = pair<Timestamp, TimerTask *>;
 using Timers = set<Entry>;
 
 void test() {
-    auto timer1 = new Timer([] {
+    auto timer1 = new TimerTask([] {
         printf("timer1\n");
     }, Timestamp(1000), 0);
 
-    auto timer2 = new Timer([] {
+    auto timer2 = new TimerTask([] {
         printf("timer2\n");
     }, Timestamp(500), 0);
 
-    auto timer3 = new Timer([] {
+    auto timer3 = new TimerTask([] {
         printf("timer3\n");
     }, Timestamp(300), 0);
 
-    auto timer4 = new Timer([] {
+    auto timer4 = new TimerTask([] {
         printf("timer4\n");
     }, Timestamp(100), 0);
 
