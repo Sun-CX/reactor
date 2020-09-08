@@ -12,7 +12,7 @@ class InetAddress;
 // 封装监听套接字
 class ServerSocket final : public NonCopyable {
 private:
-    const int sock_fd;  // sock_fd 的生存期由 ServerSocket 类控制，在 ServerSocket 析构时会将其关闭
+    const int listen_fd;  // listen_fd 的生存期由 ServerSocket 类控制，在 ServerSocket 析构时会将其关闭
 
     int create_listen_fd() const;
 
@@ -43,8 +43,6 @@ public:
     void reuse_addr(bool on) const;
 
     void reuse_port(bool on) const;
-
-    void keep_alive(bool on) const;
 };
 
 #endif //REACTOR_SERVERSOCKET_H
