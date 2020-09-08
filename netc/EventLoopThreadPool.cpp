@@ -3,7 +3,6 @@
 //
 
 #include "EventLoopThreadPool.h"
-#include "EventLoopThread.h"
 #include "EventLoop.h"
 #include <cassert>
 
@@ -16,7 +15,7 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop, int num_threads, 
     loops.reserve(num_threads);
 }
 
-void EventLoopThreadPool::start(const ThreadInitialCallback &callback) {
+void EventLoopThreadPool::start(const EventLoopThread::ThreadInitialCallback &callback) {
     assert(loop->is_in_loop_thread());
 //    started = true;
     char thread_name[name.size() + 8];

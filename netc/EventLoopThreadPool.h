@@ -5,10 +5,8 @@
 #ifndef REACTOR_EVENTLOOPTHREADPOOL_H
 #define REACTOR_EVENTLOOPTHREADPOOL_H
 
-#include "NonCopyable.h"
+#include "EventLoopThread.h"
 #include <vector>
-#include <string>
-#include <functional>
 #include <memory>
 
 using std::string;
@@ -18,12 +16,8 @@ using std::unique_ptr;
 
 class EventLoop;
 
-class EventLoopThread;
-
 class EventLoopThreadPool final : public NonCopyable {
 private:
-    using ThreadInitialCallback = function<void(EventLoop *)>;
-
     EventLoop *loop;
     const string name;
 //    bool started;
@@ -35,9 +29,7 @@ private:
 public:
     EventLoopThreadPool(EventLoop *base_loop, int num_threads, string name);
 
-//    void set_thread_num(int num);
-
-    void start(const ThreadInitialCallback &callback);
+    void start(const EventLoopThread::ThreadInitialCallback &callback);
 
     EventLoop *get_next_loop();
 };

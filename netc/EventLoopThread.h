@@ -12,8 +12,9 @@ class EventLoop;
 
 class EventLoopThread final : public NonCopyable {
 private:
-    using ThreadInitialCallback = function<void(EventLoop *)>;
+    friend class EventLoopThreadPool;
 
+    using ThreadInitialCallback = function<void(EventLoop *)>;
     EventLoop *loop;
     bool exiting;
     Thread thread;
