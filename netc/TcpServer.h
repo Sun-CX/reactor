@@ -45,7 +45,7 @@ private:
     WriteCompleteCallback write_complete_callback;
     ThreadInitCallback thread_init_callback;
 
-    void new_connection(int con_fd, const InetAddress &peer);
+    void on_new_connection(int con_fd, const InetAddress &peer);
 
     void remove_connection(const shared_ptr<TcpConnection> &con);
 

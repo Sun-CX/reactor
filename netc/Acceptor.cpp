@@ -34,11 +34,9 @@ void Acceptor::read_handler() {
     InetAddress peer_addr;
     int con_fd = server_socket.accept(&peer_addr);
     if (con_fd >= 0) {// success
-        if (callback) callback(con_fd, peer_addr);
-        else {
-            fprintf(stderr, "Acceptor ConnectionCallback not set, close this connection.\n");
-            close(con_fd);
-        }
+        printf("%s[%d]: accept new con_fd %d.\n", CurrentThread::name, CurrentThread::pid, con_fd);
+        assert(callback);
+        callback(con_fd, peer_addr);
     } else {// error
         if (errno == EMFILE) {
             close(idle_fd);
@@ -51,7 +49,7 @@ void Acceptor::read_handler() {
     }
 }
 
-void Acceptor::set_connection_callback(const Acceptor::ConnectionCallback &handler) {
+void Acceptor::set_new_connection_callback(const NewConnectionCallback &handler) {
     callback = handler;
 }
 

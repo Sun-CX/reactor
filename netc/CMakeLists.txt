@@ -24,8 +24,8 @@ set(LIBRARY_SOURCE
         TimerTask.cpp
         TimerId.cpp
         Timer.cpp
-        #        Connector.cpp
         MinHeap.h
+        #        Connector.cpp
         )
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)

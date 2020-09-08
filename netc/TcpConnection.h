@@ -32,7 +32,7 @@ private:
     STATUS status;
     bool reading;
     unique_ptr<Socket> socket;
-    unique_ptr<Channel> channel;
+    unique_ptr<Channel> conn_channel;
     const InetAddress local;
     const InetAddress peer;
     size_t high_water_mark;
@@ -83,6 +83,10 @@ public:
     void shutdown();
 
     const string &get_name() const;
+
+    const InetAddress &local_address() const;
+
+    const InetAddress &peer_address() const;
 
     EventLoop *get_loop() const;
 };

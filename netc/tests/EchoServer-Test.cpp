@@ -35,7 +35,7 @@ private:
 
 public:
     EchoServer(EventLoop *loop, const InetAddress listen_addr) : loop(loop), server(loop, listen_addr, "loop") {
-        server.set_conn_callback(bind(&EchoServer::on_connection, this, _1));
+//        server.set_conn_callback(bind(&EchoServer::on_connection, this, _1));
         server.set_msg_callback(bind(&EchoServer::on_message, this, _1, _2, _3));
     }
 

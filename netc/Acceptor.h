@@ -17,12 +17,12 @@ class EventLoop;
  */
 class Acceptor final : public NonCopyable {
 private:
-    using ConnectionCallback = function<void(int, const InetAddress &)>;
+    using NewConnectionCallback = function<void(int, const InetAddress &)>;
 
     EventLoop *loop;
     ServerSocket server_socket;
     Channel accept_channel;
-    ConnectionCallback callback;
+    NewConnectionCallback callback;
     bool listening;
     int idle_fd;
 
@@ -33,7 +33,7 @@ public:
 
     virtual ~Acceptor();
 
-    void set_connection_callback(const ConnectionCallback &handler);
+    void set_new_connection_callback(const NewConnectionCallback &handler);
 
     void listen();
 

@@ -15,25 +15,26 @@
 using std::bind;
 
 TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local,
-                             const InetAddress &peer) : loop(loop), name(move(name)),
-                                                        status(Connecting), reading(true), socket(new Socket(con_fd)),
-                                                        channel(new Channel(loop, socket->get_fd())),
-                                                        local(local), peer(peer), high_water_mark(64 * 1024 * 1024) {
-    channel->set_read_callback(bind(&TcpConnection::read_handler, this));
-    channel->set_write_callback(bind(&TcpConnection::write_handler, this));
-    channel->set_close_callback(bind(&TcpConnection::close_handler, this));
-    channel->set_error_callback(bind(&TcpConnection::error_handler, this));
+                             const InetAddress &peer) :
+        loop(loop), name(move(name)), status(Connecting), reading(true), socket(new Socket(con_fd)),
+        conn_channel(new Channel(loop, socket->get_fd())), local(local), peer(peer),
+        high_water_mark(64 * 1024 * 1024) {
     socket->keep_alive(true);
+    conn_channel->set_read_callback(bind(&TcpConnection::read_handler, this));
+    conn_channel->set_write_callback(bind(&TcpConnection::write_handler, this));
+    conn_channel->set_close_callback(bind(&TcpConnection::close_handler, this));
+    conn_channel->set_error_callback(bind(&TcpConnection::error_handler, this));
 }
 
 void TcpConnection::read_handler() {
     assert(loop->is_in_loop_thread());
     int saved_errno = 0;
-    ssize_t n = input_buffer.read_from_fd(channel->get_fd(), &saved_errno);
+    ssize_t n = input_buffer.read_from_fd(conn_channel->get_fd(), &saved_errno);
     if (n > 0) {
         //TODO:fix timestamp.
         msg_callback(shared_from_this(), &input_buffer, Timestamp());
     } else if (n == 0) {
+        printf("%s[%d]: from %s invoked.\n", CurrentThread::name, CurrentThread::pid, __PRETTY_FUNCTION__);
         close_handler();
     } else {
         errno = saved_errno;
@@ -44,12 +45,12 @@ void TcpConnection::read_handler() {
 
 void TcpConnection::write_handler() {
     assert(loop->is_in_loop_thread());
-    if (channel->is_writing()) {
-        auto n = write(channel->get_fd(), output_buffer.peek(), output_buffer.readable_bytes());
+    if (conn_channel->is_writing()) {
+        auto n = write(conn_channel->get_fd(), output_buffer.peek(), output_buffer.readable_bytes());
         if (n > 0) {
             output_buffer.retrieve(n);
             if (output_buffer.readable_bytes() == 0) {
-                channel->disable_writing();
+                conn_channel->disable_writing();
                 if (write_complete_callback) {
                     loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
                 }
@@ -61,26 +62,27 @@ void TcpConnection::write_handler() {
             fprintf(stderr, "write error.\n");
         }
     } else {
-        printf("Connection fd: %d is down, no more writing...\n", channel->get_fd());
+        printf("Connection fd: %d is down, no more writing...\n", conn_channel->get_fd());
     }
 }
 
 void TcpConnection::close_handler() {
     assert(loop->is_in_loop_thread());
     assert(status == Connected or status == Disconnecting);
+    printf("%s[%d]: con_fd %d closed.\n", CurrentThread::name, CurrentThread::pid, conn_channel->get_fd());
     status = Disconnected;
-    channel->disable_all();
+//    conn_channel->disable_all();
 
-    shared_ptr<TcpConnection> guard_this(shared_from_this());
+//    shared_ptr<TcpConnection> guard_this(shared_from_this());
     //TODO: why?
-    conn_callback(guard_this);
-    close_callback(guard_this);
+//    conn_callback(guard_this);
+    close_callback(shared_from_this());
 }
 
 void TcpConnection::error_handler() {
     int opt;
     socklen_t len = sizeof(opt);
-    auto n = getsockopt(channel->get_fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
+    auto n = getsockopt(conn_channel->get_fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
     if (unlikely(n < 0)) fprintf(stderr, "TcpConnection::error_handler, errno: %d\n", errno);
     else fprintf(stderr, "TcpConnection::error_handler, errno: %d\n", opt);
 }
@@ -110,13 +112,27 @@ void TcpConnection::connection_established() {
     status = Connected;
     //TODO:fix tie
 
-    channel->enable_reading();
+    conn_channel->enable_reading();
     conn_callback(shared_from_this());
+}
+
+void TcpConnection::connection_destroyed() {
+    assert(loop->is_in_loop_thread());
+    assert(status == Disconnected);
+    conn_channel->disable_all();
+    conn_channel->remove();
+//    if (status == Connected) {
+//        status = Disconnected;
+//        conn_channel->disable_all();
+//        conn_callback(shared_from_this());
+//        close_callback(shared_from_this());
+//        conn_channel->remove();
+//    }
 }
 
 void TcpConnection::shutdown_in_loop() {
     assert(loop->is_in_loop_thread());
-    if (!channel->is_writing()) {
+    if (!conn_channel->is_writing()) {
         socket->shutdown_write();
     }
 }
@@ -143,8 +159,8 @@ void TcpConnection::send_in_loop(const void *data, size_t len) {
     assert(loop->is_in_loop_thread());
     ssize_t nwrite = 0;
     size_t remaining = len;
-    if (!channel->is_writing() and output_buffer.readable_bytes() == 0) {
-        nwrite = write(channel->get_fd(), data, len);
+    if (!conn_channel->is_writing() and output_buffer.readable_bytes() == 0) {
+        nwrite = write(conn_channel->get_fd(), data, len);
         if (nwrite >= 0) {
             remaining = len - nwrite;
             if (remaining == 0 and write_complete_callback) {
@@ -173,17 +189,14 @@ EventLoop *TcpConnection::get_loop() const {
     return loop;
 }
 
-void TcpConnection::connection_destroyed() {
-    assert(loop->is_in_loop_thread());
-    if (status == Connected) {
-        status = Disconnected;
-        channel->disable_all();
-        conn_callback(shared_from_this());
-    }
-    channel->remove();
-}
-
 const string &TcpConnection::get_name() const {
     return name;
 }
 
+const InetAddress &TcpConnection::local_address() const {
+    return local;
+}
+
+const InetAddress &TcpConnection::peer_address() const {
+    return peer;
+}
