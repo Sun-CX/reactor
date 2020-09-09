@@ -72,18 +72,18 @@ void TcpServer::remove_connection(const shared_ptr<TcpConnection> &con) {
     loop->run_in_loop(bind(&TcpServer::remove_connection_in_loop, this, con));
 }
 
-void TcpServer::start() {
-    thread_pool->start(thread_init_callback);
-    assert(not acceptor->is_listening());
-    loop->run_in_loop(bind(&Acceptor::listen, acceptor.get()));
-}
-
 void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) {
     assert(loop->is_in_loop_thread());
     auto n = connections.erase(con->get_name());
     assert(n == 1);
     EventLoop *io_loop = con->get_loop();
     io_loop->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
+}
+
+void TcpServer::start() {
+    thread_pool->start(thread_init_callback);
+    assert(not acceptor->is_listening());
+    loop->run_in_loop(bind(&Acceptor::listen, acceptor.get()));
 }
 
 void TcpServer::set_conn_callback(const ConnectionCallback &callback) {

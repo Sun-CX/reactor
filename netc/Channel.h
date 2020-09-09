@@ -13,12 +13,7 @@ using std::function;
 
 class EventLoop;
 
-/**
- * Channel 类一般不对用户代码可见
- * Channel 是对 IO 事件注册和响应的封装
- *
- * 每个 Channel 对象自始至终只属于一个 EventLoop（即只属于某一个 IO 线程），负责某一个文件描述符的 IO 事件分发
- */
+// Channel 是对某个文件描述符 IO 事件的注册和响应的封装
 class Channel final : public NonCopyable {
 private:
     using EventCallback  = function<void()>;
@@ -40,13 +35,12 @@ private:
     EventCallback error_callback;
 
 //    void handle_event_with_guard(Timestamp timestamp);
-
     void update();
 
 public:
     Channel(EventLoop *loop, int fd);
 
-    void handle_event();
+    void handle_events();
 
     void set_read_callback(const EventCallback &callback);
 

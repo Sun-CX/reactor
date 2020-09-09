@@ -20,6 +20,7 @@ class Timestamp;
 
 class TimerId;
 
+// TODO: 使用最小堆重写
 // 定时器内部实现，不向用户代码暴露
 class Timer final : public NonCopyable {
 private:

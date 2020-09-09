@@ -16,38 +16,35 @@ using std::bind;
 using std::for_each;
 using std::placeholders::_1;
 
-thread_local EventLoop *EventLoop::loop_ptr_in_this_thread;
+thread_local EventLoop *EventLoop::loop_in_this_thread;
 const int EventLoop::default_poll_timeout_milliseconds = -1;   // 默认永不超时
 
 EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid), poller(Poller::default_poller(this)),
-                         mutex(), calling_pending_func(false), event_fd(create_event_fd()),
-                         wakeup_channel(new Channel(this, event_fd)), timer(new Timer(this)) {
-    if (unlikely(loop_ptr_in_this_thread != nullptr)) {
-        fprintf(stderr, "Another EventLoop already existed in %s[%d].", CurrentThread::name, pid);
-        exit(0);
-    } else loop_ptr_in_this_thread = this;
+                         mutex(), calling_pending_func(false), wakeup_channel(new Channel(this, create_event_fd())),
+                         timer(new Timer(this)) {
+    if (unlikely(loop_in_this_thread != nullptr)) ERROR_EXIT("Current thread already has a event loop!");
+    else loop_in_this_thread = this;
 
     wakeup_channel->set_read_callback(bind(&EventLoop::handle_readable_event, this));
-    // 关注 event_fd 可读事件
     wakeup_channel->enable_reading();
 }
 
 EventLoop::~EventLoop() {
     wakeup_channel->disable_all();
     wakeup_channel->remove();
-    auto status = close(event_fd);
+    auto status = close(wakeup_channel->get_fd());
     if (unlikely(status < 0)) fprintf(stderr, "event_fd close error!\n");
-    loop_ptr_in_this_thread = nullptr;
+    loop_in_this_thread = nullptr;
 }
 
 void EventLoop::loop() {
     assert(is_in_loop_thread());
-    looping = true;
     printf("%s[%d]: EventLoop(%p) start loop...\n", CurrentThread::name, CurrentThread::pid, this);
-    while (!exited) {
+    looping = true;
+    while (not exited) {
         active_channels.clear();
         poller->poll(&active_channels, default_poll_timeout_milliseconds);
-        for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_event, _1));
+        for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_events, _1));
         execute_pending_functors();
     }
     looping = false;
@@ -86,17 +83,28 @@ void EventLoop::queue_in_loop(const Functor &func) {
         MutexGuard guard(mutex);
         pending_functors.push_back(func);
     }
-    if (!is_in_loop_thread() or calling_pending_func) wakeup();
+    if (not is_in_loop_thread() or calling_pending_func) wakeup();
+}
+
+void EventLoop::execute_pending_functors() {
+    Functors fns;
+    calling_pending_func = true;
+    {
+        MutexGuard guard(mutex);
+        fns.swap(pending_functors);
+    }
+    for (const auto &functor:fns) functor();
+    calling_pending_func = false;
 }
 
 EventLoop *EventLoop::event_loop_of_current_thread() {
-    return loop_ptr_in_this_thread;
+    return loop_in_this_thread;
 }
 
 void EventLoop::wakeup() const {
     printf("wakeup eventfd...\n");
     uint64_t one = 1;
-    auto n = write(event_fd, &one, sizeof(one));
+    auto n = write(wakeup_channel->get_fd(), &one, sizeof(one));
     if (unlikely(n != sizeof(one))) ERROR_EXIT("write error.");
 }
 
@@ -110,21 +118,8 @@ int EventLoop::create_event_fd() const {
 void EventLoop::handle_readable_event() const {
     printf("receive event...\n");
     uint64_t one;
-    auto n = read(event_fd, &one, sizeof(one));
+    auto n = read(wakeup_channel->get_fd(), &one, sizeof(one));
     if (unlikely(n != sizeof(one))) ERROR_EXIT("read error.");
-}
-
-void EventLoop::execute_pending_functors() {
-    Functors fns;
-    calling_pending_func = true;
-    {
-        MutexGuard guard(mutex);
-        fns.swap(pending_functors);
-    }
-    for_each(fns.cbegin(), fns.cend(), [](const Functor &func) {
-        func();
-    });
-    calling_pending_func = false;
 }
 
 TimerId EventLoop::run_at(const TimerTask::TimerCallback &callback, Timestamp timestamp) {

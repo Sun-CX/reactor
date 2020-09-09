@@ -10,11 +10,7 @@
 
 class EventLoop;
 
-/**
- * Acceptor 是对被动连接套接字的抽象
- *
- * 一般来说，在上层应用程序中，不直接使用 Acceptor，而是把它作为 TcpServer 的成员
- */
+// 在上层应用程序中，一般不直接使用 Acceptor，而是把它作为 TcpServer 的成员
 class Acceptor final : public NonCopyable {
 private:
     using NewConnectionCallback = function<void(int, const InetAddress &)>;

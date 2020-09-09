@@ -30,7 +30,7 @@ private:
     using Functors = vector<Functor>;
     using Channels = vector<Channel *>;
 
-    thread_local static EventLoop *loop_ptr_in_this_thread; // 控制一个线程最多只能有一个 EventLoop
+    thread_local static EventLoop *loop_in_this_thread; // 控制一个线程最多只能有一个 EventLoop
     static const int default_poll_timeout_milliseconds;
 
     bool looping;
@@ -40,18 +40,16 @@ private:
     Channels active_channels;
 
     Mutex mutex;
-    bool calling_pending_func;
+    bool calling_pending_func;  // 是否正在执行 pending_functors
     Functors pending_functors;  // 挂起的执行任务
 
-    const int event_fd;   // 用来唤醒 poll 调用
-    unique_ptr<Channel> wakeup_channel;
+    unique_ptr<Channel> wakeup_channel; // 用来唤醒 poll 调用，使其立即返回
 
     unique_ptr<Timer> timer;
 
 //    bool event_handling;
 //    int64_t iteration;
 //    Timestamp poll_return_time;
-//    unique_ptr<TimerQueue> timer_queue;
     void wakeup() const;
 
     int create_event_fd() const;
@@ -82,10 +80,8 @@ public:
     // 本函数可以跨线程调用
     void quit();
 
-    /**
-     * 在 IO 线程中执行某个回调函数，可跨线程调用
-     * @param func 回调函数
-     */
+    // 如果当前线程处于 loop 线程，那么直接执行回调函数
+    // 如果当前线程不在 loop 线程，则将回调函数加入队列
     void run_in_loop(const Functor &func);
 
     void queue_in_loop(const Functor &func);

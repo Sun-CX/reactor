@@ -48,10 +48,7 @@ void Timer::reset_timer_fd(int fd, Timestamp timestamp) const {
 void Timer::read_timeout_event(int fd, Timestamp now) const {
     uint64_t exp;
     auto n = read(fd, &exp, sizeof(exp));
-#ifndef NDEBUG
-    printf("TimerQueue handle readable event at %s\n", now.to_fmt_string().c_str());
-#endif
-    if (unlikely(n != sizeof(exp))) fprintf(stderr, "read timer_fd error.");
+    if (unlikely(n != sizeof(exp))) ERROR_EXIT("read timer_fd error.");
 }
 
 timespec Timer::time_from_now(Timestamp time) const {

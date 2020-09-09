@@ -25,7 +25,7 @@ static_assert(POLLIN == EPOLLIN and
 
 Channel::Channel(EventLoop *loop, int fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
 
-void Channel::handle_event() {
+void Channel::handle_events() {
 //    event_handling = true;
     if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
         if (read_callback) read_callback();
