@@ -5,6 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(core)
 add_subdirectory(netc)
+add_subdirectory(http)
 
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     message(FATAL_ERROR "${PROJECT_NAME} library only supports Linux OS for now.")
