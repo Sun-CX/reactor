@@ -10,14 +10,14 @@
 using std::string;
 
 class Timestamp final {
-public:
-    enum TimeUint {
-        microsecond, millisecond, second
-    };
 private:
     int64_t microseconds_since_epoch;     // since 1970-01-01 00:00:00 +0000 (UTC).
     static const int factors[];
 public:
+    enum TimeUint {
+        microsecond, millisecond, second
+    };
+
     explicit Timestamp(int64_t time_since_epoch = 0, TimeUint unit = microsecond);
 
     [[nodiscard]]
