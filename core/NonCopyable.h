@@ -17,5 +17,4 @@ protected:
     ~NonCopyable() = default;
 };
 
-
 #endif //REACTOR_NONCOPYABLE_H

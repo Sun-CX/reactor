@@ -60,15 +60,15 @@ public:
         return val;
     }
 
-    bool empty() const {
+    [[nodiscard]] bool empty() const {
         return front == rear;
     }
 
-    bool full() const {
+    [[nodiscard]] bool full() const {
         return (rear + 1) % capacity == front;
     }
 
-    size_t size() const {
+    [[nodiscard]] size_t size() const {
         return (rear + capacity - front) % capacity;
     }
 
@@ -76,7 +76,7 @@ public:
      * 返回循环队列的容量
      * @return 容量
      */
-    size_t get_capacity() const {
+    [[nodiscard]] size_t get_capacity() const {
         return capacity - 1;
     }
 };

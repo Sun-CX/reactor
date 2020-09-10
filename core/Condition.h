@@ -14,6 +14,8 @@ private:
 public:
     explicit Condition(Mutex &mutex);
 
+    ~Condition();
+
     /**
      * 注意：此函数调用之前必须加锁，以保护条件变量
      *
@@ -40,8 +42,6 @@ public:
      * 唤醒阻塞在条件变量上的所有线程
      */
     void notify_all();
-
-    ~Condition();
 };
 
 #endif //REACTOR_CONDITION_H

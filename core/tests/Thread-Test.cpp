@@ -20,7 +20,7 @@ public:
         printf("CurrentThread name: %s, pid: %d\n", CurrentThread::name, CurrentThread::pid);
     }
 
-    int get_count() const {
+    [[nodiscard]] int get_count() const {
         return count;
     }
 };

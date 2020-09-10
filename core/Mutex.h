@@ -34,7 +34,7 @@ public:
 
     void unlock();
 
-    bool is_locked_by_cur_thread() const;
+    [[nodiscard]] bool is_locked_by_cur_thread() const;
 
     void assert_locked_by_cur_thread() const;
 
