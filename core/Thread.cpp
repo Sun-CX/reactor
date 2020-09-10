@@ -22,19 +22,18 @@ pre_main void set_startup_process_tsd() {
     CurrentThread::pid = getpid();
 }
 
-Thread::Thread(Thread::thread_func func, string name) : func(move(func)), tid(0), name(move(name)), pid(0) {
+Thread::Thread(Thread::thread_func func, string name) : func(move(func)), name(move(name)), tid(0), pid(0) {
     // 对于 Linux 来说，进程 ID 为 0 是非法值，操作系统第一个进程 systemd 的 pid 是 1
+    if (this->name.empty()) this->name = "thread-" + to_string(++thread_count);
 }
 
 void Thread::start() {
-    if (name.empty()) name = "thread-" + to_string(++thread_count);
     int status = pthread_create(&tid, nullptr, thread_routine, this);
     if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
 }
 
 void *Thread::thread_routine(void *arg) {
     auto th = static_cast<Thread *>(arg);
-
     int status = pthread_setname_np(th->tid, th->name.c_str());
     if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
     th->pid = syscall(SYS_gettid);

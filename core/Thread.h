@@ -22,8 +22,8 @@ private:
     using thread_func = function<void()>;
 
     thread_func func;
-    pthread_t tid;      // POSIX 虚拟线程 ID
     string name;
+    pthread_t tid;      // POSIX 虚拟线程 ID
     pid_t pid;          // kernel 线程（LWP）真实 ID
 
     static atomic_int thread_count;
