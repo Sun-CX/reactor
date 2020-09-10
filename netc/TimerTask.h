@@ -38,10 +38,13 @@ public:
 
     void run() const;
 
+    [[nodiscard]]
     Timestamp expire_time() const;
 
+    [[nodiscard]]
     bool repeated() const;
 
+    [[nodiscard]]
     uint32_t get_sequence() const;
 
     void restart(Timestamp now);

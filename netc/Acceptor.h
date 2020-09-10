@@ -33,6 +33,7 @@ public:
 
     void listen();
 
+    [[nodiscard]]
     bool is_listening() const;
 };
 

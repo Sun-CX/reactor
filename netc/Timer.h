@@ -43,6 +43,7 @@ private:
     ActiveTimerSet active_timers;
     ActiveTimerSet canceled_timers;
 
+    [[nodiscard]]
     int create_timer_fd() const;
 
     void reset_timer_fd(int fd, Timestamp timestamp) const;
@@ -51,6 +52,7 @@ private:
     void read_timeout_event(int fd, Timestamp now) const;
 
     // 计算从当前到 time 的时间,以 timespec 结构返回
+    [[nodiscard]]
     timespec time_from_now(Timestamp time) const;
 
     vector<Entry> get_expired(Timestamp now);

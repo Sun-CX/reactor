@@ -5,8 +5,8 @@
 #ifndef REACTOR_TCPSERVER_H
 #define REACTOR_TCPSERVER_H
 
-#include "NonCopyable.h"
 #include "Events.h"
+#include "EventLoopThread.h"
 #include <string>
 #include <map>
 #include <atomic>
@@ -29,11 +29,10 @@ class InetAddress;
 class TcpServer final : public NonCopyable {
 private:
     using ConnectionMap = map<string, shared_ptr<TcpConnection>>;
-    using ThreadInitCallback = function<void(EventLoop *)>;
 
     EventLoop *loop;
     const string name;
-    const string ip_port;
+//    const string ip_port;
     unique_ptr<Acceptor> acceptor;
     shared_ptr<EventLoopThreadPool> thread_pool;
     atomic_int started;
@@ -43,7 +42,7 @@ private:
     ConnectionCallback conn_callback;
     MessageCallback msg_callback;
     WriteCompleteCallback write_complete_callback;
-    ThreadInitCallback thread_init_callback;
+    EventLoopThread::ThreadInitialCallback thread_initial_callback;
 
     void on_new_connection(int con_fd, const InetAddress &peer);
 
@@ -64,7 +63,7 @@ public:
 
     void set_write_complete_callback(const WriteCompleteCallback &callback);
 
-    void set_thread_initial_callback(const ThreadInitCallback &callback);
+    void set_thread_initial_callback(const decltype(thread_initial_callback) &callback);
 };
 
 #endif //REACTOR_TCPSERVER_H

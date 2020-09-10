@@ -16,6 +16,7 @@ public:
 
     virtual ~Socket();
 
+    [[nodiscard]]
     int get_fd() const;
 
     void shutdown_read() const;

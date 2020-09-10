@@ -65,9 +65,7 @@ void Timer::read_handler() {
     calling_expired_timers = true;
     canceled_timers.clear();
 
-    for (const Entry &e:expired) {
-        e.second->run();
-    }
+    for (const auto &e:expired) e.second->run();
     calling_expired_timers = false;
     reset(expired, now);
 }

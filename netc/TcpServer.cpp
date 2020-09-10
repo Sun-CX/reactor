@@ -9,12 +9,12 @@
 #include "EventLoop.h"
 #include "InetAddress.h"
 #include "TcpConnection.h"
-#include "EventLoopThread.h"
 #include "EventLoopThreadPool.h"
 #include <cassert>
 
 using std::make_shared;
 using std::bind;
+using std::to_string;
 using std::placeholders::_1;
 using std::placeholders::_2;
 
@@ -31,11 +31,11 @@ void default_message_callback(const shared_ptr<TcpConnection> &conn, Buffer *buf
 }
 
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name, bool reuse_port)
-        : loop(loop), name(move(name)), ip_port(bind_addr.to_string()),
+        : loop(loop), name(move(name)),
           acceptor(new Acceptor(loop, bind_addr, reuse_port)),
           thread_pool(new EventLoopThreadPool(loop, 5, this->name)),
           conn_callback(default_connection_callback), msg_callback(default_message_callback), started(0),
-          next_conn_id(1) {
+          next_conn_id(0) {
     acceptor->set_new_connection_callback(bind(&TcpServer::on_new_connection, this, _1, _2));
 }
 
@@ -48,17 +48,15 @@ TcpServer::~TcpServer() {
     }
 }
 
-// 一旦新的连接到来，则构造 TcpConnection 对象，存入 connections 中
+// 新的连接到来，构造 TcpConnection 对象，存入 connections 中
 void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
     assert(loop->is_in_loop_thread());
     auto io_loop = thread_pool->get_next_loop();
-    char buf[32];
-    snprintf(buf, sizeof(buf), "-%s-%d", ip_port.c_str(), next_conn_id++);
 
-    string conn_name = name + buf;
+    string conn_name = name + '-' + to_string(++next_conn_id);
     InetAddress local = InetAddress::get_local_address(con_fd);
 
-    shared_ptr<TcpConnection> conn = make_shared<TcpConnection>(io_loop, conn_name, con_fd, local, peer);
+    auto conn = make_shared<TcpConnection>(io_loop, conn_name, con_fd, local, peer);
 
     conn->set_connection_callback(conn_callback);
     conn->set_message_callback(msg_callback);
@@ -81,7 +79,7 @@ void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) 
 }
 
 void TcpServer::start() {
-    thread_pool->start(thread_init_callback);
+    thread_pool->start(thread_initial_callback);
     assert(not acceptor->is_listening());
     loop->run_in_loop(bind(&Acceptor::listen, acceptor.get()));
 }
@@ -98,6 +96,6 @@ void TcpServer::set_write_complete_callback(const WriteCompleteCallback &callbac
     write_complete_callback = callback;
 }
 
-void TcpServer::set_thread_initial_callback(const ThreadInitCallback &callback) {
-    thread_init_callback = callback;
+void TcpServer::set_thread_initial_callback(const decltype(thread_initial_callback) &callback) {
+    thread_initial_callback = callback;
 }

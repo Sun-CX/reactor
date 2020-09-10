@@ -50,18 +50,23 @@ public:
 
     void set_error_callback(const EventCallback &callback);
 
+    [[nodiscard]]
     int get_fd() const;
 
     void set_index(int idx);
 
+    [[nodiscard]]
     int get_index() const;
 
+    [[nodiscard]]
     uint32_t get_events() const;
 
     void set_revents(uint32_t ev);
 
+    [[nodiscard]]
     bool has_none_events() const;
 
+    [[nodiscard]]
     EventLoop *loop_owner() const;
 
     void enable_reading();
@@ -76,8 +81,10 @@ public:
 
     void remove();
 
+    [[nodiscard]]
     bool is_writing() const;
 
+    [[nodiscard]]
     bool is_reading() const;
 };
 

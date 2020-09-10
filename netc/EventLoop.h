@@ -35,7 +35,7 @@ private:
 
     bool looping;
     atomic_bool exited;         // 循环是否退出（跨线程读写，原子保护）
-    const pid_t pid;
+    const pid_t pid;            // EventLoop 对象创建时所在的线程 ID
     unique_ptr<Poller> poller;  // poller 生命周期与 EventLoop 对象相同
     Channels active_channels;
 
@@ -52,9 +52,10 @@ private:
 //    Timestamp poll_return_time;
     void wakeup() const;
 
+    [[nodiscard]]
     int create_event_fd() const;
 
-    void handle_readable_event() const;
+    void read_wakeup_event() const;
 
     // 让 IO 线程也能执行一些计算任务
     void execute_pending_functors();
@@ -68,6 +69,7 @@ public:
     void loop();
 
     // 检查当前对象是否处于创建该对象的线程中
+    [[nodiscard]]
     bool is_in_loop_thread() const;
 
     void update_channel(Channel *channel);

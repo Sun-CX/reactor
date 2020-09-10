@@ -141,5 +141,4 @@ public:
     ssize_t read_from_fd(int fd, int *err_no);
 };
 
-
 #endif //REACTOR_BUFFER_H

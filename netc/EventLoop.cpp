@@ -12,6 +12,13 @@
 #include <algorithm>
 #include <cassert>
 
+#ifndef NDEBUG
+
+#include <cxxabi.h>
+
+using abi::__cxa_demangle;
+#endif
+
 using std::bind;
 using std::for_each;
 using std::placeholders::_1;
@@ -25,7 +32,7 @@ EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid),
     if (unlikely(loop_in_this_thread != nullptr)) ERROR_EXIT("Current thread already has a event loop!");
     else loop_in_this_thread = this;
 
-    wakeup_channel->set_read_callback(bind(&EventLoop::handle_readable_event, this));
+    wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup_event, this));
     wakeup_channel->enable_reading();
 }
 
@@ -75,6 +82,11 @@ void EventLoop::quit() {
 }
 
 void EventLoop::run_in_loop(const Functor &func) {
+#ifndef NDEBUG
+    printf("%s[%d]: is_in_loop_thread: %s, run_in_loop: %s\n", CurrentThread::name, CurrentThread::pid,
+           is_in_loop_thread() ? "true" : "false",
+           __cxa_demangle(func.target_type().name(), nullptr, nullptr, nullptr));
+#endif
     is_in_loop_thread() ? func() : queue_in_loop(func);
 }
 
@@ -101,13 +113,6 @@ EventLoop *EventLoop::event_loop_of_current_thread() {
     return loop_in_this_thread;
 }
 
-void EventLoop::wakeup() const {
-    printf("wakeup eventfd...\n");
-    uint64_t one = 1;
-    auto n = write(wakeup_channel->get_fd(), &one, sizeof(one));
-    if (unlikely(n != sizeof(one))) ERROR_EXIT("write error.");
-}
-
 int EventLoop::create_event_fd() const {
     int fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     if (unlikely(fd < 0)) ERROR_EXIT("eventfd created failed.");
@@ -115,11 +120,20 @@ int EventLoop::create_event_fd() const {
     return fd;
 }
 
-void EventLoop::handle_readable_event() const {
-    printf("receive event...\n");
+void EventLoop::wakeup() const {
+    uint64_t one = 1;
+    auto n = write(wakeup_channel->get_fd(), &one, sizeof(one));
+    if (unlikely(n != sizeof(one))) ERROR_EXIT("write error.");
+    printf("%s[%d]: wakeup invoked, write something into eventfd %d.\n", CurrentThread::name, CurrentThread::pid,
+           wakeup_channel->get_fd());
+}
+
+void EventLoop::read_wakeup_event() const {
     uint64_t one;
     auto n = read(wakeup_channel->get_fd(), &one, sizeof(one));
     if (unlikely(n != sizeof(one))) ERROR_EXIT("read error.");
+    printf("%s[%d]: receive event, read something from eventfd %d.\n", CurrentThread::name, CurrentThread::pid,
+           wakeup_channel->get_fd());
 }
 
 TimerId EventLoop::run_at(const TimerTask::TimerCallback &callback, Timestamp timestamp) {

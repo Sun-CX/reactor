@@ -14,7 +14,10 @@ class EventLoopThread final : public NonCopyable {
 private:
     friend class EventLoopThreadPool;
 
+    friend class TcpServer;
+
     using ThreadInitialCallback = function<void(EventLoop *)>;
+
     EventLoop *loop;
     bool exiting;
     Thread thread;

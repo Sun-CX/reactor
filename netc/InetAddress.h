@@ -21,12 +21,14 @@ public:
 
     explicit InetAddress(bool use_loop_back, uint16_t port);
 
+    [[nodiscard]]
     const sockaddr *get_sockaddr() const;
 
     // 设置网络序地址
     void set_sockaddr(const sockaddr_in &addr);
 
     // 返回 ip:port 格式的字符串
+    [[nodiscard]]
     string to_string() const;
 
     static InetAddress get_local_address(int fd);

@@ -14,6 +14,7 @@ class ServerSocket final : public NonCopyable {
 private:
     const int listen_fd;  // listen_fd 的生存期由 ServerSocket 类控制，在 ServerSocket 析构时会将其关闭
 
+    [[nodiscard]]
     int create_listen_fd() const;
 
 public:
@@ -21,6 +22,7 @@ public:
 
     virtual ~ServerSocket();
 
+    [[nodiscard]]
     int fd() const;
 
     void bind(const InetAddress &addr) const;

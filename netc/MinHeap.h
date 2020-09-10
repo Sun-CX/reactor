@@ -32,8 +32,10 @@ public:
 
     T pop();
 
+    [[nodiscard]]
     bool empty() const;
 
+    [[nodiscard]]
     size_t size() const;
 };
 
