@@ -4,30 +4,28 @@
 
 #include "Timestamp.h"
 #include "Exception.h"
-#include <cinttypes>
 
-Timestamp::Timestamp(int64_t msSinceEpoch) : microsecond_since_epoch(msSinceEpoch) {}
+const int Timestamp::factors[] = {1, 1000, 1000 * 1000};
 
-string Timestamp::to_string() const {
-    char buf[32];
-    int64_t sec = microsecond_since_epoch / microseconds_per_second;
-
-    int64_t micro_seconds = microsecond_since_epoch % microseconds_per_second;
-
-    snprintf(buf, sizeof(buf), "%" PRId64 ".%06" PRId64, sec, micro_seconds);
-    return buf;
-}
-
-void Timestamp::swap(Timestamp &timestamp) {
-    std::swap(microsecond_since_epoch, timestamp.microsecond_since_epoch);
-}
+Timestamp::Timestamp(int64_t time_since_epoch, TimeUint unit) :
+        microseconds_since_epoch(time_since_epoch * factors[unit]) {}
 
 bool Timestamp::valid() const {
-    return microsecond_since_epoch > 0;
+    return microseconds_since_epoch > 0;
+}
+
+Timestamp &Timestamp::operator+(const Timestamp &timestamp) {
+    microseconds_since_epoch += timestamp.microseconds_since_epoch;
+    return *this;
+}
+
+Timestamp &Timestamp::operator-(const Timestamp &timestamp) {
+    microseconds_since_epoch -= timestamp.microseconds_since_epoch;
+    return *this;
 }
 
 bool Timestamp::operator<(const Timestamp &rhs) const {
-    return microsecond_since_epoch < rhs.microsecond_since_epoch;
+    return microseconds_since_epoch < rhs.microseconds_since_epoch;
 }
 
 bool Timestamp::operator>(const Timestamp &rhs) const {
@@ -43,39 +41,28 @@ bool Timestamp::operator>=(const Timestamp &rhs) const {
 }
 
 bool Timestamp::operator==(const Timestamp &rhs) const {
-    return microsecond_since_epoch == rhs.microsecond_since_epoch;
+    return microseconds_since_epoch == rhs.microseconds_since_epoch;
 }
 
 bool Timestamp::operator!=(const Timestamp &rhs) const {
     return !(rhs == *this);
 }
 
-double time_diff(const Timestamp &high, const Timestamp &low) {
-    if (unlikely(low > high)) ERROR_EXIT("low > high...");
-    int64_t diff = high.microsecond_since_epoch - low.microsecond_since_epoch;
-    return static_cast<double>(diff) / Timestamp::microseconds_per_second;
-}
-
-Timestamp add_time(const Timestamp timestamp, double seconds_offset) {
-    int64_t delta = seconds_offset * Timestamp::microseconds_per_second;
-    return Timestamp(timestamp.microsecond_since_epoch + delta);
-}
-
 Timestamp Timestamp::now() {
     timespec ts;
     auto status = clock_gettime(CLOCK_REALTIME, &ts);
     if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
-    return Timestamp(ts.tv_sec * Timestamp::microseconds_per_second + ts.tv_nsec / 1000);
+    return Timestamp(ts.tv_sec * factors[second] + ts.tv_nsec / 1000);
 }
 
-string Timestamp::to_fmt_string(bool show_microsecond) const {
+string Timestamp::to_string(bool show_microsecond) const {
     char buf[32];
-    time_t seconds = microsecond_since_epoch / microseconds_per_second;
+    time_t seconds = microseconds_since_epoch / factors[second];
     tm tm_time;
     localtime_r(&seconds, &tm_time);
 
     if (show_microsecond) {
-        auto ms = microsecond_since_epoch % microseconds_per_second;
+        auto ms = microseconds_since_epoch % factors[second];
         snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d.%06ld",
                  tm_time.tm_year + 1900,
                  tm_time.tm_mon + 1,
@@ -97,6 +84,10 @@ string Timestamp::to_fmt_string(bool show_microsecond) const {
     return buf;
 }
 
-int64_t Timestamp::microseconds_since_epoch() const {
-    return microsecond_since_epoch;
+int64_t Timestamp::time_since_epoch() const {
+    return microseconds_since_epoch;
+}
+
+timespec Timestamp::to_timespec() const {
+    return {microseconds_since_epoch / factors[second], microseconds_since_epoch % factors[second] * 1000};
 }

@@ -16,14 +16,12 @@ void benchmark() {
     }
     printf("begin: %s\n", vec.front().to_string().c_str());
     printf("end: %s\n", vec.back().to_string().c_str());
-    printf("insert %d timestamps time used: %f s.\n", n, time_diff(vec.back(), vec.front()));
+    printf("insert %d timestamps time used: %ld microseconds.\n", n, (vec.back() - vec.front()).time_since_epoch());
 }
 
 int main(int argc, const char *argv[]) {
 
-//    Timestamp time(1000 * 1000 * 30);
-
-//    printf("time: %s\n", time.to_string().c_str());
+    printf("time: %s\n", Timestamp::now().to_string().c_str());
 //
 //    Timestamp t1;
 //    Timestamp t2(2000000);
@@ -34,7 +32,6 @@ int main(int argc, const char *argv[]) {
 //    printf("%s\n", Timestamp::now().to_fmt_string().c_str());
 //    printf("%s\n", Timestamp::now().to_fmt_string(true).c_str());
 
-    benchmark();
+//    benchmark();
     return 0;
 }
-
