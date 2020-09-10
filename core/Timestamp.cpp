@@ -91,3 +91,15 @@ int64_t Timestamp::time_since_epoch() const {
 timespec Timestamp::to_timespec() const {
     return {microseconds_since_epoch / factors[second], microseconds_since_epoch % factors[second] * 1000};
 }
+
+Timestamp operator ""_s(unsigned long long x) {
+    return Timestamp(x, Timestamp::TimeUint::second);
+}
+
+Timestamp operator ""_ms(unsigned long long x) {
+    return Timestamp(x, Timestamp::TimeUint::millisecond);
+}
+
+Timestamp operator ""_us(unsigned long long x) {
+    return Timestamp(x, Timestamp::TimeUint::microsecond);
+}

@@ -21,7 +21,7 @@ void benchmark() {
 
 int main(int argc, const char *argv[]) {
 
-    printf("time: %s\n", Timestamp::now().to_string().c_str());
+//    printf("time: %s\n", Timestamp::now().to_string().c_str());
 //
 //    Timestamp t1;
 //    Timestamp t2(2000000);
@@ -33,5 +33,9 @@ int main(int argc, const char *argv[]) {
 //    printf("%s\n", Timestamp::now().to_fmt_string(true).c_str());
 
 //    benchmark();
+
+    Timestamp s = 1000_ms;
+    printf("%s\n", s.to_string().c_str());
+
     return 0;
 }

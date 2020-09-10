@@ -51,4 +51,10 @@ public:
     static Timestamp now();
 };
 
+Timestamp operator ""_s(unsigned long long x);
+
+Timestamp operator ""_ms(unsigned long long x);
+
+Timestamp operator ""_us(unsigned long long x);
+
 #endif //REACTOR_TIMESTAMP_H
