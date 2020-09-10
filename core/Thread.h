@@ -37,9 +37,11 @@ public:
 
     void join();
 
-    [[nodiscard]] const string &get_name() const;
+    [[nodiscard]]
+    const string &get_name() const;
 
-    [[nodiscard]] pid_t get_tid() const;
+    [[nodiscard]]
+    pid_t get_tid() const;
 };
 
 #endif //REACTOR_THREAD_H

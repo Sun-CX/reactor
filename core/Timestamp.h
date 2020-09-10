@@ -29,13 +29,17 @@ public:
 
     void swap(Timestamp &timestamp);
 
-    [[nodiscard]] bool valid() const;
+    [[nodiscard]]
+    bool valid() const;
 
-    [[nodiscard]] string to_string() const;
+    [[nodiscard]]
+    string to_string() const;
 
-    [[nodiscard]] string to_fmt_string(bool show_microsecond = false) const;
+    [[nodiscard]]
+    string to_fmt_string(bool show_microsecond = false) const;
 
-    [[nodiscard]] int64_t microseconds_since_epoch() const;
+    [[nodiscard]]
+    int64_t microseconds_since_epoch() const;
 
     bool operator<(const Timestamp &rhs) const;
 

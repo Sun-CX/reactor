@@ -34,7 +34,8 @@ public:
 
     void unlock();
 
-    [[nodiscard]] bool is_locked_by_cur_thread() const;
+    [[nodiscard]]
+    bool is_locked_by_cur_thread() const;
 
     void assert_locked_by_cur_thread() const;
 
@@ -49,7 +50,5 @@ public:
 
     virtual ~MutexGuard();
 };
-
-//#define MutexGuard(x) error "anonymous MutexGuard object is not allowed."
 
 #endif //REACTOR_MUTEX_H

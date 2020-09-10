@@ -38,8 +38,10 @@ private:
 public:
     explicit Exception(string message, int max_frames = 128);
 
+    [[nodiscard]]
     const char *what() const noexcept override;
 
+    [[nodiscard]]
     const char *stack_trace() const noexcept;
 };
 
