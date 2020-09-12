@@ -9,8 +9,6 @@
 #include "MinHeap.h"
 #include "Channel.h"
 
-using std::pair;
-
 class EventLoop;
 
 class Timer final : public NonCopyable {
