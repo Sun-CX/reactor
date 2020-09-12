@@ -12,7 +12,8 @@
 
 using std::bind;
 
-Timer::Timer(EventLoop *loop) : loop(loop), tasks(), timer_channel(loop, create_timer_fd()) {
+Timer::Timer(EventLoop *loop) : loop(loop), tasks(), timer_channel(loop, create_timer_fd()),
+                                base_time(Timestamp::now()) {
     timer_channel.set_read_callback(bind(&Timer::read_handler, this));
     timer_channel.enable_reading();
 }
@@ -25,8 +26,7 @@ Timer::~Timer() {
 }
 
 int Timer::create_timer_fd() const {
-    // 这里使用了 CLOCK_MONOTONIC, 因此在 timerfd_settime() 时只能用相对时间
-    auto fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+    auto fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);
     if (unlikely(fd < 0)) ERROR_EXIT("timerfd_create error.");
     printf("%s[%d]: create timerfd: %d\n", CurrentThread::name, CurrentThread::pid, fd);
     return fd;
@@ -35,21 +35,19 @@ int Timer::create_timer_fd() const {
 void Timer::read_handler() {
     assert(loop->is_in_loop_thread());
     assert(not tasks.empty());
-    auto now = Timestamp::now();
-
     read_timeout_event();
 
-    TimerTask *task;
     Timestamp expired_time = tasks.peek()->expire_time;
+    TimerTask *task;
     do {
         task = tasks.pop();
         task->alarm();
         if (task->repeated()) {
             task->restart(task->expire_time + task->interval);
             tasks.insert(task);
+            reset_timer_fd();
         } else delete task;
-    } while (not tasks.empty() and tasks.peek()->expire_time == expired_time);
-    if (not tasks.empty()) reset_timer_fd(now);
+    } while (!tasks.empty() and tasks.peek()->expire_time == expired_time);
 }
 
 void Timer::read_timeout_event() const {
@@ -58,23 +56,32 @@ void Timer::read_timeout_event() const {
     if (unlikely(n != sizeof(exp))) ERROR_EXIT("read timer_fd error.");
 }
 
-void Timer::reset_timer_fd(const Timestamp &timestamp) const {
+void Timer::reset_timer_fd() const {
     itimerspec new_val;
     memset(&new_val, 0, sizeof(new_val));
-    auto latest = tasks.peek();
-    new_val.it_value = (latest->get_expired_time() - timestamp).to_timespec();
-    auto ret = timerfd_settime(timer_channel.get_fd(), 0, &new_val, nullptr);
+    new_val.it_value = tasks.peek()->expire_time.to_timespec();
+    auto ret = timerfd_settime(timer_channel.get_fd(), TFD_TIMER_ABSTIME, &new_val, nullptr);
     if (unlikely(ret < 0)) ERROR_EXIT("timerfd_settime error.");
 }
 
 void Timer::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {
-    auto now = Timestamp::now();
-    auto new_task = new TimerTask(callback, Timestamp::now() + after, interval);
-    loop->run_in_loop(bind(&Timer::add_timer_task_in_loop, this, new_task, now));
+    auto new_task = new TimerTask(callback, base_time + after, interval);
+    loop->run_in_loop(bind(&Timer::add_timer_task_in_loop, this, new_task));
 }
 
-void Timer::add_timer_task_in_loop(TimerTask *task, const Timestamp &timestamp) {
+void Timer::add_timer_task_in_loop(TimerTask *task) {
     assert(loop->is_in_loop_thread());
-    tasks.insert(task);
-    reset_timer_fd(timestamp);
+    if (insert(task)) reset_timer_fd();
+}
+
+bool Timer::insert(TimerTask *task) {
+    assert(task != nullptr);
+    if (tasks.empty()) {
+        tasks.insert(task);
+        return true;
+    } else {
+        TimerTask *latest = tasks.peek();
+        tasks.insert(task);
+        return *task < *latest;
+    }
 }

@@ -32,12 +32,7 @@ public:
     [[nodiscard]]
     bool repeated() const;
 
-    [[nodiscard]]
-    Timestamp get_expired_time() const;
-
     bool operator<(const TimerTask &rhs) const;
-
-    bool operator==(const TimerTask &rhs) const;
 };
 
 #endif //REACTOR_TIMERTASK_H

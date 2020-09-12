@@ -18,6 +18,7 @@ private:
     EventLoop *loop;
     QuadHeap<TimerTask *> tasks;
     Channel timer_channel;
+    const Timestamp base_time;
 
     [[nodiscard]]
     int create_timer_fd() const;
@@ -26,9 +27,11 @@ private:
 
     void read_timeout_event() const;
 
-    void reset_timer_fd(const Timestamp &timestamp) const;
+    void reset_timer_fd() const;
 
-    void add_timer_task_in_loop(TimerTask *task, const Timestamp &timestamp);
+    void add_timer_task_in_loop(TimerTask *task);
+
+    bool insert(TimerTask *task);
 
 public:
     explicit Timer(EventLoop *loop);

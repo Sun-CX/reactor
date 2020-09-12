@@ -19,14 +19,6 @@ bool TimerTask::repeated() const {
     return interval.valid();
 }
 
-Timestamp TimerTask::get_expired_time() const {
-    return expire_time;
-}
-
 bool TimerTask::operator<(const TimerTask &rhs) const {
     return expire_time < rhs.expire_time;
-}
-
-bool TimerTask::operator==(const TimerTask &rhs) const {
-    return expire_time == rhs.expire_time;
 }

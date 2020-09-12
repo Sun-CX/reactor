@@ -20,7 +20,6 @@ set(LIBRARY_SOURCE
         EventLoopThread.cpp
         EventLoopThreadPool.cpp
         TimerTask.cpp
-        TimerId.cpp
         Timer.cpp
         MinHeap.h
         #        Connector.cpp

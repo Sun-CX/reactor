@@ -34,7 +34,11 @@ public:
 
     Timestamp &operator+(const Timestamp &timestamp);
 
+    Timestamp operator+(const Timestamp &timestamp) const;
+
     Timestamp &operator-(const Timestamp &timestamp);
+
+    Timestamp operator-(const Timestamp &timestamp) const;
 
     bool operator<(const Timestamp &rhs) const;
 

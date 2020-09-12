@@ -19,9 +19,17 @@ Timestamp &Timestamp::operator+(const Timestamp &timestamp) {
     return *this;
 }
 
+Timestamp Timestamp::operator+(const Timestamp &timestamp) const {
+    return Timestamp(microseconds_since_epoch + timestamp.microseconds_since_epoch);
+}
+
 Timestamp &Timestamp::operator-(const Timestamp &timestamp) {
     microseconds_since_epoch -= timestamp.microseconds_since_epoch;
     return *this;
+}
+
+Timestamp Timestamp::operator-(const Timestamp &timestamp) const {
+    return Timestamp(microseconds_since_epoch - timestamp.microseconds_since_epoch);
 }
 
 bool Timestamp::operator<(const Timestamp &rhs) const {
