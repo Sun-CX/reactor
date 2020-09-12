@@ -32,7 +32,6 @@ private:
 
     EventLoop *loop;
     const string name;
-//    const string ip_port;
     unique_ptr<Acceptor> acceptor;
     shared_ptr<EventLoopThreadPool> thread_pool;
     atomic_int started;

@@ -12,7 +12,7 @@ using std::move;
 using std::vector;
 using std::logic_error;
 
-// 要求类型 T 重载 <, == 运算符
+// 要求类型 T 重载 < 运算符
 template<class T, const int dimension>
 class MinHeap final {
 private:
@@ -114,7 +114,7 @@ T MinHeap<T, dimension>::peek() const {
 }
 
 //================================== T* 特化版本 ==================================
-// 要求类型 T 重载 <, == 运算符
+// 要求类型 T 重载 < 运算符
 template<class T, const int dimension>
 class MinHeap<T *, dimension> final {
 private:

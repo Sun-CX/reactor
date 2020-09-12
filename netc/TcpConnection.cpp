@@ -120,6 +120,7 @@ void TcpConnection::connection_established() {
 void TcpConnection::connection_destroyed() {
     assert(loop->is_in_loop_thread());
     assert(status == Disconnected);
+    printf("connection disconnected finished.\n");
 //    conn_channel->disable_all();
 //    conn_channel->remove();
 //    if (status == Connected) {
