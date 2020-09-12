@@ -4,23 +4,12 @@
 
 #include "EventLoop.h"
 #include "Exception.h"
-#include "Channel.h"
 #include "Poller.h"
-#include "TimerId.h"
 #include "Timer.h"
 #include <sys/eventfd.h>
-#include <algorithm>
 #include <cassert>
 
-#ifndef NDEBUG
-
-#include <cxxabi.h>
-
-using abi::__cxa_demangle;
-#endif
-
 using std::bind;
-using std::for_each;
 using std::placeholders::_1;
 
 thread_local EventLoop *EventLoop::loop_in_this_thread;
@@ -83,9 +72,8 @@ void EventLoop::quit() {
 
 void EventLoop::run_in_loop(const Functor &func) {
 #ifndef NDEBUG
-    printf("%s[%d]: is_in_loop_thread: %s, run_in_loop: %s\n", CurrentThread::name, CurrentThread::pid,
-           is_in_loop_thread() ? "true" : "false",
-           __cxa_demangle(func.target_type().name(), nullptr, nullptr, nullptr));
+    printf("%s[%d]: is_in_loop_thread: %s\n", CurrentThread::name, CurrentThread::pid,
+           is_in_loop_thread() ? "true" : "false");
 #endif
     is_in_loop_thread() ? func() : queue_in_loop(func);
 }
@@ -136,18 +124,6 @@ void EventLoop::read_wakeup_event() const {
            wakeup_channel->get_fd());
 }
 
-TimerId EventLoop::run_at(const TimerTask::TimerCallback &callback, Timestamp timestamp) {
-    return timer->schedule(callback, timestamp);
-}
-
-TimerId EventLoop::run_after(const TimerTask::TimerCallback &callback, double delay) {
-    return timer->schedule(callback, add_time(Timestamp::now(), delay));
-}
-
-TimerId EventLoop::run_every(const TimerTask::TimerCallback &callback, double delay) {
-    return timer->schedule(callback, add_time(Timestamp::now(), delay), delay);
-}
-
-void EventLoop::cancel(TimerId id) {
-    timer->cancel(id);
+void EventLoop::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {
+    timer->schedule(callback, after, interval);
 }

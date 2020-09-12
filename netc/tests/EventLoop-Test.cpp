@@ -9,12 +9,17 @@ static EventLoop *g_loop;
 
 void test1() {
     EventLoop loop;
+    loop.schedule([&loop] {
+        printf("wokao\n");
+        loop.quit();
+    }, 3_s);
     loop.loop();
 }
 
 void test2() {
     EventLoop loop;
     g_loop = &loop;
+
 
     Thread thread([] {
         g_loop->loop();
@@ -26,7 +31,7 @@ void test2() {
 
 int main(int argc, const char *argv[]) {
 
-//    test1();
-    test2();
+    test1();
+//    test2();
     return 0;
 }

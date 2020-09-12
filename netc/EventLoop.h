@@ -19,8 +19,6 @@ class Channel;
 
 class Poller;
 
-class TimerId;
-
 class Timer;
 
 // 创建 EventLoop 对象的线程是 IO 线程，其主要功能是运行事件循环
@@ -88,15 +86,8 @@ public:
 
     void queue_in_loop(const Functor &func);
 
-    TimerId run_at(const TimerTask::TimerCallback &callback, Timestamp timestamp);
-
-    // delay(seconds)
-    TimerId run_after(const TimerTask::TimerCallback &callback, double delay);
-
-    // delay(seconds)
-    TimerId run_every(const TimerTask::TimerCallback &callback, double delay);
-
-    void cancel(TimerId id);
+    void schedule(const TimerTask::TimerCallback &callback, const Timestamp &after,
+                  const Timestamp &interval = Timestamp());
 
     static EventLoop *event_loop_of_current_thread();
 };
