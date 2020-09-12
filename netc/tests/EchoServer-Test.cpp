@@ -17,10 +17,6 @@ private:
     EventLoop *loop;
     TcpServer server;
 
-    void on_connection(const shared_ptr<TcpConnection> &conn) const {
-        conn->send("hello\n");
-    }
-
     void on_message(const shared_ptr<TcpConnection> &conn, Buffer *buf, Timestamp timestamp) {
         string msg(buf->retrieve_all_string());
         if (msg == "exit\n") {
@@ -35,7 +31,6 @@ private:
 
 public:
     EchoServer(EventLoop *loop, const InetAddress listen_addr) : loop(loop), server(loop, listen_addr, "loop") {
-//        server.set_conn_callback(bind(&EchoServer::on_connection, this, _1));
         server.set_msg_callback(bind(&EchoServer::on_message, this, _1, _2, _3));
     }
 
