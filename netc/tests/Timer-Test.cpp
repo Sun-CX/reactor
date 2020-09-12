@@ -6,18 +6,16 @@
 #include "EventLoop.h"
 
 static int count = 0;
-static EventLoop *g_loop;
 
 int main(int argc, const char *argv[]) {
 
     EventLoop loop;
-    g_loop = &loop;
     Timer timer(&loop);
 
     printf("now: %s\n", Timestamp::now().to_string(true).c_str());
-    timer.schedule([] {
+    timer.schedule([&loop] {
         printf("hello1, now at: %s\n", Timestamp::now().to_string().c_str());
-        if (++count == 5) g_loop->quit();
+        if (++count == 5) loop.quit();
     }, 2_s, 1_s);
 
     loop.loop();
