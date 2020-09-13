@@ -45,7 +45,7 @@ void TcpConnection::read_handler() {
 
 void TcpConnection::write_handler() {
     assert(loop->is_in_loop_thread());
-    if (conn_channel->is_writing()) {
+    if (conn_channel->writing_enabled()) {
         auto n = write(conn_channel->get_fd(), output_buffer.peek(), output_buffer.readable_bytes());
         if (n > 0) {
             output_buffer.retrieve(n);
@@ -134,7 +134,7 @@ void TcpConnection::connection_destroyed() {
 
 void TcpConnection::shutdown_in_loop() {
     assert(loop->is_in_loop_thread());
-    if (!conn_channel->is_writing()) {
+    if (!conn_channel->writing_enabled()) {
         socket->shutdown_write();
     }
 }
@@ -161,7 +161,7 @@ void TcpConnection::send_in_loop(const void *data, size_t len) {
     assert(loop->is_in_loop_thread());
     ssize_t nwrite = 0;
     size_t remaining = len;
-    if (!conn_channel->is_writing() and output_buffer.readable_bytes() == 0) {
+    if (!conn_channel->writing_enabled() and output_buffer.readable_bytes() == 0) {
         nwrite = write(conn_channel->get_fd(), data, len);
         if (nwrite >= 0) {
             remaining = len - nwrite;
