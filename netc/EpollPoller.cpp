@@ -6,8 +6,9 @@
 #include "Exception.h"
 #include "Channel.h"
 #include "Timestamp.h"
-#include <cstring>
+#include <sys/epoll.h>
 #include <unistd.h>
+#include <cstring>
 
 const int EpollPoller::NEW = -1;
 const int EpollPoller::ADD = 1;
@@ -27,7 +28,12 @@ const char *EpollPoller::operation_to_string(int op) {
 }
 
 EpollPoller::EpollPoller(EventLoop *loop) : Poller(loop), epoll_fd(epoll_create1(EPOLL_CLOEXEC)), events(16) {
-    if (unlikely(epoll_fd == -1)) ERROR_EXIT("create epoll_fd error.");
+    if (unlikely(epoll_fd < 0)) ERROR_EXIT("create epoll_fd error.");
+}
+
+EpollPoller::~EpollPoller() {
+    auto status = close(epoll_fd);
+    if (unlikely(status < 0)) fprintf(stderr, "close epoll_fd %d error with errno: %d.\n", epoll_fd, errno);
 }
 
 void EpollPoller::fill_active_channels(Poller::Channels *active_channels, int num_events) const {
@@ -50,37 +56,31 @@ void EpollPoller::update(Channel *channel, int operation) {
     }
 }
 
-EpollPoller::~EpollPoller() {
-    close(epoll_fd);
-}
-
 Timestamp EpollPoller::poll(Poller::Channels *active_channels, int milliseconds) {
-    auto num_events = epoll_wait(epoll_fd, &*events.begin(), events.size(), milliseconds);
-    auto err = errno;
-    Timestamp now = Timestamp::now();
-    if (num_events > 0) {
+    auto num_events = epoll_wait(epoll_fd, events.data(), events.size(), milliseconds);
+    auto now = Timestamp::now();
+
+    if (unlikely(num_events < 0)) {
+        fprintf(stderr, "%s invoked error, errno: %d.\n", __PRETTY_FUNCTION__, errno);
+    } else if (num_events == 0) {
+        printf("epoll_wait timeout, nothing happened.\n");
+    } else {
         fill_active_channels(active_channels, num_events);
         if (num_events == events.size()) events.resize(events.size() * 2);
-    } else if (num_events == 0) {
-        printf("Nothing happened.");
-    } else {
-        fprintf(stderr, "epoll_wait invoked error.");
-        if (err == EINTR) ERROR_EXIT("epoll_wait error.");
     }
     return now;
 }
 
 void EpollPoller::update_channel(Channel *channel) {
     Poller::assert_in_loop_thread();
-    const int index = channel->get_index();
-    if (index == NEW or index == DEL) {
-        int fd = channel->get_fd();
-        if (index == NEW) channel_map[fd] = channel;
+    auto idx = channel->get_index();
+    int fd = channel->get_fd();
+    if (idx == NEW or idx == DEL) {
+        if (idx == NEW) channel_map[fd] = channel;
         channel->set_index(ADD);
         update(channel, EPOLL_CTL_ADD);
     } else {
-        int fd = channel->get_fd();
-        if (channel->has_none_events()) {
+        if (channel->none_events_watched()) {
             update(channel, EPOLL_CTL_DEL);
             channel->set_index(DEL);
         } else {
@@ -99,8 +99,4 @@ void EpollPoller::remove_channel(Channel *channel) {
         update(channel, EPOLL_CTL_DEL);
     }
     channel->set_index(NEW);
-}
-
-bool EpollPoller::has_channel(Channel *channel) {
-    return false;
 }

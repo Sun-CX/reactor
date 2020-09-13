@@ -6,14 +6,15 @@
 #define REACTOR_EPOLLPOLLER_H
 
 #include "Poller.h"
-#include <sys/epoll.h>
+
+class epoll_event;
 
 class EpollPoller final : public Poller {
 private:
-    using Events = vector<epoll_event>;
+    using EpollEvents = vector<epoll_event>;
 
-    int epoll_fd;   // epoll 文件描述符：调用 epoll_create1() 返回
-    Events events;  // 每次 epoll_wait() 调用返回的活动 fd 列表
+    const int epoll_fd;   // epoll 文件描述符：调用 epoll_create1() 返回
+    EpollEvents events;  // 每次 epoll_wait() 调用返回的活动 fd 列表
 
     void fill_active_channels(Channels *active_channels, int num_events) const;
 
@@ -28,15 +29,13 @@ private:
 public:
     explicit EpollPoller(EventLoop *loop);
 
-    virtual ~EpollPoller();
+    ~EpollPoller() override;
 
     Timestamp poll(Channels *active_channels, int milliseconds) override;
 
     void update_channel(Channel *channel) override;
 
     void remove_channel(Channel *channel) override;
-
-    bool has_channel(Channel *channel);
 };
 
 #endif //REACTOR_EPOLLPOLLER_H
