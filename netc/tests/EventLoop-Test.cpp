@@ -7,6 +7,10 @@
 
 static EventLoop *g_loop;
 
+void test() {
+    EventLoop loop;
+}
+
 void test1() {
     EventLoop loop;
     loop.schedule([&loop] {
@@ -35,7 +39,8 @@ void test2() {
 
 int main(int argc, const char *argv[]) {
 
-    test1();
+    test();
+//    test1();
 //    test2();
     return 0;
 }
