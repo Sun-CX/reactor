@@ -20,7 +20,7 @@ const int COUNT = 10 * 1000 * 1000;
 void thread_func() {
     for (int i = 0; i < COUNT; ++i) {
         MutexGuard guard(mutex);
-        vec.push_back(i);
+        vec.emplace_back(i);
     }
 }
 
@@ -47,19 +47,18 @@ int main(int argc, const char *argv[]) {
     const int max_threads = 8;
     vec.reserve(max_threads * COUNT);
 
-    Timestamp start(Timestamp::now());
+    Timestamp start = Timestamp::now();
     for (int i = 0; i < COUNT; ++i) {
         vec.push_back(i);
     }
-
-    printf("single thread time used: %f\n", time_diff(Timestamp::now(), start));
+    printf("single thread time used: %ld us.\n", (Timestamp::now() - start).time_since_epoch());
 
     for (int n_threads = 1; n_threads < max_threads; ++n_threads) {
         vector<unique_ptr<Thread>> threads;
         vec.clear();
 
-        start = Timestamp::now();
         threads.reserve(n_threads);
+        start = Timestamp::now();
 
         for (int i = 0; i < n_threads; ++i) {
             threads.emplace_back(new Thread(thread_func));
@@ -69,8 +68,7 @@ int main(int argc, const char *argv[]) {
         for (int i = 0; i < n_threads; ++i) {
             threads[i]->join();
         }
-        printf("%d thread(s) with lock time used: %f\n", n_threads, time_diff(Timestamp::now(), start));
+        printf("%d thread(s) with lock time used: %ld us.\n", n_threads, (Timestamp::now() - start).time_since_epoch());
     }
-
     return 0;
 }

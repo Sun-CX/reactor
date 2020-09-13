@@ -6,7 +6,7 @@
 
 class Fool {
 public:
-    void test() {
+    void test() const {
         throw Exception("oops");
     }
 };
@@ -17,7 +17,6 @@ void foo() {
 }
 
 int main(int argc, const char *argv[]) {
-
     try {
         foo();
     } catch (const Exception &ex) {
@@ -26,7 +25,5 @@ int main(int argc, const char *argv[]) {
     } catch (...) {
         printf("catch all...");
     }
-
     return 0;
 }
-

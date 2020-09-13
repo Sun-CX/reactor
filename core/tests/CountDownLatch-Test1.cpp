@@ -41,9 +41,6 @@ public:
             snprintf(name, sizeof(name), "work thread-%d", i);
             threads.push_back(make_unique<Thread>(bind(&Test::thread_func, this), name));
         }
-//        for_each(threads.cbegin(), threads.cend(), [](const unique_ptr<Thread> &ptr) {
-//            ptr->start();
-//        });
         for_each(threads.cbegin(), threads.cend(), bind(&Thread::start, _1));
     }
 

@@ -36,7 +36,7 @@ private:
             Timestamp now = Timestamp::now();
             if (timestamp.valid()) {
                 // 时间差，以微秒计
-                int delay = static_cast<int> (time_diff(now, timestamp) * 1000000);
+                int delay = (now - timestamp).time_since_epoch();
                 ++delays[delay];
             }
             running = timestamp.valid();

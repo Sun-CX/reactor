@@ -14,13 +14,12 @@ public:
     explicit Foo(int count = 0) : count(count) {}
 
     void increment(int n) {
-        for (int i = 0; i < n; ++i) {
-            count++;
-        }
+        for (int i = 0; i < n; ++i) count++;
         printf("CurrentThread name: %s, pid: %d\n", CurrentThread::name, CurrentThread::pid);
     }
 
-    [[nodiscard]] int get_count() const {
+    [[nodiscard]]
+    int get_count() const {
         return count;
     }
 };

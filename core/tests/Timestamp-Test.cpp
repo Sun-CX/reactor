@@ -20,22 +20,6 @@ void benchmark() {
 }
 
 int main(int argc, const char *argv[]) {
-
-//    printf("time: %s\n", Timestamp::now().to_string().c_str());
-//
-//    Timestamp t1;
-//    Timestamp t2(2000000);
-//
-//    printf("%d\n", t1 < t2);
-//    printf("diff: %f\n", time_diff(t2, t1));
-//
-//    printf("%s\n", Timestamp::now().to_fmt_string().c_str());
-//    printf("%s\n", Timestamp::now().to_fmt_string(true).c_str());
-
-//    benchmark();
-
-    Timestamp s = 1000_ms;
-    printf("%s\n", s.to_string().c_str());
-
+    benchmark();
     return 0;
 }

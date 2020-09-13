@@ -18,6 +18,7 @@ public:
         printf("%s[%d] destructing %p, name: %s\n", CurrentThread::name, CurrentThread::pid, this, name.c_str());
     }
 
+    [[nodiscard]]
     const string &getName() const {
         return name;
     }
