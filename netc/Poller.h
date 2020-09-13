@@ -7,9 +7,9 @@
 
 #include "NonCopyable.h"
 #include <vector>
-#include <map>
+#include <unordered_map>
 
-using std::map;
+using std::unordered_map;
 using std::vector;
 
 class Timestamp;
@@ -26,7 +26,7 @@ private:
     EventLoop *loop;
 protected:
     using Channels = vector<Channel *>;
-    using ChannelMap = map<int, Channel *>;
+    using ChannelMap = unordered_map<int, Channel *>;
     ChannelMap channel_map;
 
     void assert_in_loop_thread() const;
