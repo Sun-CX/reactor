@@ -6,7 +6,6 @@
 #include "Exception.h"
 #include <arpa/inet.h>
 #include <cstring>
-#include <cstdio>
 
 InetAddress::InetAddress() {
     memset(&ad4, 0, sizeof(ad4));

@@ -12,7 +12,7 @@
 
 using std::bind;
 
-Timer::Timer(EventLoop *loop) : loop(loop), tasks(), timer_channel(loop, create_timer_fd()),
+Timer::Timer(EventLoop *loop) : loop(loop), tasks(), timer_channel(this->loop, create_timer_fd()),
                                 base_time(Timestamp::now()) {
     timer_channel.set_read_callback(bind(&Timer::read_handler, this));
     timer_channel.enable_reading();
@@ -71,7 +71,16 @@ void Timer::schedule(const TimerTask::TimerCallback &callback, const Timestamp &
 
 void Timer::add_timer_task_in_loop(TimerTask *task) {
     assert(loop->is_in_loop_thread());
-    if (insert(task)) reset_timer_fd();
+    assert(base_time <= task->expire_time);
+    if (task->expire_time == base_time) {   // 立即执行
+        task->callback();
+        if (task->repeated()) {
+            task->restart(task->expire_time + task->interval);
+            if (insert(task)) reset_timer_fd();
+        } else delete task;
+    } else {    // 延期执行
+        if (insert(task)) reset_timer_fd();
+    }
 }
 
 bool Timer::insert(TimerTask *task) {

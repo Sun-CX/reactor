@@ -29,9 +29,6 @@ target_link_libraries(buffer-test netc)
 add_executable(acceptor-test Acceptor-Test.cpp)
 target_link_libraries(acceptor-test netc)
 
-add_executable(timer-test Timer-Test.cpp)
-target_link_libraries(timer-test netc)
-
 add_executable(eventloopthread-test EventLoopThread-Test.cpp)
 target_link_libraries(eventloopthread-test netc)
 

@@ -12,7 +12,11 @@ void test1() {
     loop.schedule([&loop] {
         printf("wokao\n");
         loop.quit();
-    }, 3_s);
+    }, 6_s);
+
+    loop.schedule([] {
+        printf("hello\n");
+    }, 1_s, 1_s);
     loop.loop();
 }
 

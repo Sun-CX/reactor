@@ -21,14 +21,14 @@ class Poller;
 
 class Timer;
 
-// 创建 EventLoop 对象的线程是 IO 线程，其主要功能是运行事件循环
+// 创建 EventLoop 对象的线程是 IO 线程，其主要功能是进行事件循环
 class EventLoop final : public NonCopyable {
 private:
     using Functor = function<void()>;
     using Functors = vector<Functor>;
     using Channels = vector<Channel *>;
 
-    thread_local static EventLoop *loop_in_this_thread; // 控制一个线程最多只能有一个 EventLoop
+    thread_local static EventLoop *loop_in_this_thread; // 控制一个线程中最多只能有一个 EventLoop 对象
     static const int default_poll_timeout_milliseconds;
 
     bool looping;
@@ -41,7 +41,7 @@ private:
     bool calling_pending_func;  // 是否正在执行 pending_functors
     Functors pending_functors;  // 挂起的执行任务
 
-    unique_ptr<Channel> wakeup_channel; // 用来唤醒 poll 调用，使其立即返回
+    unique_ptr<Channel> wakeup_channel; // 用于唤醒 poll 调用，使其立即返回
 
     unique_ptr<Timer> timer;
 
