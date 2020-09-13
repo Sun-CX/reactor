@@ -7,7 +7,6 @@
 
 #include "NonCopyable.h"
 #include <functional>
-#include <memory>
 
 using std::function;
 
@@ -19,10 +18,10 @@ private:
     using EventCallback  = function<void()>;
 
     EventLoop *loop;
-    const int fd;        // Channel 本身不持有 fd，由用户代码控制 fd 的生存期
-    uint32_t events;     // 关注的 IO 事件
-    uint32_t revents;    // 实际发生了的 IO 事件
-    int index;      // 当前 Channel 对象在 PollPoller::fds 中的索引
+    const int fd;       // Channel 只引用 fd，并不管理 fd 的创建和关闭
+    uint32_t events;    // 所关注的 IO 事件
+    uint32_t revents;   // 实际发生的 IO 事件
+    int index;          // 当前 Channel 对象在 PollPoller::fds 中的索引
 
 //    weak_ptr<void> tie;
 //    bool tied;
@@ -64,7 +63,7 @@ public:
     void set_revents(uint32_t ev);
 
     [[nodiscard]]
-    bool has_none_events() const;
+    bool none_events_watched() const;
 
     [[nodiscard]]
     EventLoop *loop_owner() const;
@@ -82,10 +81,10 @@ public:
     void remove();
 
     [[nodiscard]]
-    bool is_writing() const;
+    bool reading_enabled() const;
 
     [[nodiscard]]
-    bool is_reading() const;
+    bool writing_enabled() const;
 };
 
 #endif //REACTOR_CHANNEL_H

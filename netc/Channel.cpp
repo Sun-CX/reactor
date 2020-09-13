@@ -8,22 +8,25 @@
 #include <sys/epoll.h>
 
 static_assert(POLLIN == EPOLLIN and
-              POLLRDNORM == EPOLLRDNORM and
-              POLLRDBAND == EPOLLRDBAND and
               POLLPRI == EPOLLPRI and
               POLLOUT == EPOLLOUT and
-              POLLWRNORM == EPOLLWRNORM and
               POLLWRBAND == EPOLLWRBAND and
+              POLLRDNORM == EPOLLRDNORM and
+              POLLRDBAND == EPOLLRDBAND and
+              POLLWRNORM == EPOLLWRNORM and
               POLLERR == EPOLLERR and
               POLLHUP == EPOLLHUP and
               POLLMSG == EPOLLMSG and
               POLLRDHUP == EPOLLRDHUP
-
 //              POLLREMOVE == EPOLLREMOVE
 //              POLLNVAL == EPOLLNVAL
         , "POLL/EPOLL constants assert failed.");
 
 Channel::Channel(EventLoop *loop, int fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
+
+void Channel::update() {
+    loop->update_channel(this);
+}
 
 void Channel::handle_events() {
 //    event_handling = true;
@@ -35,22 +38,14 @@ void Channel::handle_events() {
         if (write_callback) write_callback();
     }
 
-//    if ((revents & POLLHUP) and !(revents & POLLIN)) {
-//        fprintf(stderr, "fd: %d, Channel::handle_event error.\n", fd);
-//        if (close_callback) close_callback();
-//        fprintf(stderr, "gan1...\n");
-//        loop->quit();
-//    }
+    if ((revents & POLLHUP) and !(revents & POLLIN)) {
+        if (close_callback) close_callback();
+    }
 
     if (revents & (POLLERR | POLLNVAL)) {
         if (error_callback) error_callback();
     }
 //    event_handling = false;
-}
-
-void Channel::update() {
-//    add_to_loop = true;
-    loop->update_channel(this);
 }
 
 uint32_t Channel::get_events() const {
@@ -61,12 +56,11 @@ void Channel::set_revents(uint32_t ev) {
     revents = ev;
 }
 
-bool Channel::has_none_events() const {
+bool Channel::none_events_watched() const {
     return events == 0;
 }
 
 void Channel::remove() {
-//    add_to_loop = false;
     loop->remove_channel(this);
 }
 
@@ -127,10 +121,10 @@ int Channel::get_fd() const {
     return fd;
 }
 
-bool Channel::is_writing() const {
-    return events & (POLLOUT | POLLWRBAND);
+bool Channel::reading_enabled() const {
+    return events & (POLLIN | POLLPRI);
 }
 
-bool Channel::is_reading() const {
-    return events & (POLLIN | POLLPRI);
+bool Channel::writing_enabled() const {
+    return events & (POLLOUT | POLLWRBAND);
 }
