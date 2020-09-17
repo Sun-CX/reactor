@@ -17,7 +17,6 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop, int num_threads, 
 
 void EventLoopThreadPool::start(const EventLoopThread::ThreadInitialCallback &callback) {
     assert(loop->is_in_loop_thread());
-//    started = true;
     char thread_name[name.size() + 8];
     for (int i = 0; i < num_threads; ++i) {
         snprintf(thread_name, sizeof(thread_name), "%s-%d", name.c_str(), i + 1);
