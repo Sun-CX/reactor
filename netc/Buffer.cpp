@@ -6,7 +6,7 @@
 #include <algorithm>
 #include <cstring>
 #include <sys/uio.h>
-#include <bits/types/struct_iovec.h>
+#include <cassert>
 
 using std::search;
 using std::copy;
@@ -15,7 +15,9 @@ const char Buffer::CRLF[] = "\r\n";
 const int Buffer::prepared_size = 8;
 const int Buffer::initial_size = 1024;
 
-Buffer::Buffer(size_t init_size) : buf(prepared_size + init_size), read_idx(prepared_size), write_idx(prepared_size) {}
+Buffer::Buffer(size_t init_size) : buf(prepared_size + init_size), read_idx(prepared_size), write_idx(prepared_size) {
+    assert(buf.size() == prepared_size + init_size);
+}
 
 size_t Buffer::readable_bytes() const {
     return write_idx - read_idx;
@@ -29,33 +31,33 @@ size_t Buffer::prepared_bytes() const {
     return read_idx;
 }
 
-const char *Buffer::peek() const {
+const unsigned char *Buffer::peek() const {
     return begin() + read_idx;
 }
 
-const char *Buffer::begin() const {
-    return &*buf.cbegin();
+const unsigned char *Buffer::begin() const {
+    return buf.data();
 }
 
-char *Buffer::begin() {
-    return &*buf.begin();
+unsigned char *Buffer::begin() {
+    return buf.data();
 }
 
-const char *Buffer::find_CRLF() const {
+const unsigned char *Buffer::find_CRLF() const {
     auto pos = search(peek(), begin_write(), CRLF, CRLF + 2);
     return pos == begin_write() ? nullptr : pos;
 }
 
-const char *Buffer::find_CRLF(const char *start) const {
+const unsigned char *Buffer::find_CRLF(const unsigned char *start) const {
     auto pos = search(start, begin_write(), CRLF, CRLF + 2);
     return pos == begin_write() ? nullptr : pos;
 }
 
-const char *Buffer::begin_write() const {
+const unsigned char *Buffer::begin_write() const {
     return begin() + write_idx;
 }
 
-char *Buffer::begin_write() {
+unsigned char *Buffer::begin_write() {
     return begin() + write_idx;
 }
 
@@ -80,7 +82,7 @@ void Buffer::retrieve_all() {
     write_idx = prepared_size;
 }
 
-void Buffer::retrieve_until(const char *end) {
+void Buffer::retrieve_until(const unsigned char *end) {
     retrieve(end - peek());
 }
 
@@ -101,7 +103,7 @@ void Buffer::retrieve_8() {
 }
 
 string Buffer::retrieve_string(size_t n) {
-    string res(peek(), n);
+    string res(reinterpret_cast<const char *>(peek()), n);
     retrieve(n);
     return res;
 }
@@ -110,7 +112,7 @@ string Buffer::retrieve_all_string() {
     return retrieve_string(readable_bytes());
 }
 
-void Buffer::append(const char *data, size_t n) {
+void Buffer::append(const unsigned char *data, size_t n) {
     if (writable_bytes() < n) enlarge_space(n);
     copy(data, data + n, begin_write());
     write_idx += n;
@@ -128,7 +130,7 @@ void Buffer::enlarge_space(size_t n) {
 }
 
 void Buffer::append(const void *data, size_t n) {
-    append(static_cast<const char *>(data), n);
+    append(static_cast<const unsigned char *>(data), n);
 }
 
 ssize_t Buffer::read_from_fd(int fd, int *err_no) {
@@ -146,9 +148,8 @@ ssize_t Buffer::read_from_fd(int fd, int *err_no) {
     if (n < 0) *err_no = errno;
     else if (n <= writable) write_idx += n;
     else {
-        write_idx = this->buf.size();
+        write_idx = buf.size();
         append(data, n - writable);
     }
     return n;
 }
-

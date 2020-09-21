@@ -13,12 +13,12 @@ using std::string;
 
 class Buffer final {
 private:
-    vector<char> buf;
+    vector<unsigned char> buf;
     size_t read_idx;
     size_t write_idx;
     static const char CRLF[];
     static const int prepared_size; // 初始预留大小
-    static const int initial_size;  // 默认初始大小（不包括预留区）
+    static const int initial_size;  // 默认初始大小（不包括预留空间）
 
     void enlarge_space(size_t n);
 
@@ -29,59 +29,67 @@ public:
      * 返回可读字节的长度
      * @return 可读字节的长度
      */
+    [[nodiscard]]
     size_t readable_bytes() const;
 
     /**
      * 返回当前可写字节的长度，当扩容后可写字节长度也相应增大
      * @return 当前可写字节的长度
      */
+    [[nodiscard]]
     size_t writable_bytes() const;
 
     /**
-     * 返回当前预留区的长度
-     * @return 预留区长度
+     * 返回当前预留区的大小
+     * @return 预留区大小
      */
+    [[nodiscard]]
     size_t prepared_bytes() const;
 
     /**
      * 返回缓冲区的起始地址
      * @return 缓冲区起始地址
      */
-    const char *begin() const;
+    [[nodiscard]]
+    const unsigned char *begin() const;
 
-    char *begin();
+    unsigned char *begin();
 
     /**
      * 返回缓冲区的可写地址
      * @return 缓冲区可写地址
      */
-    const char *begin_write() const;
+    [[nodiscard]]
+    const unsigned char *begin_write() const;
 
-    char *begin_write();
+    unsigned char *begin_write();
 
     /**
-     * 返回偷窥缓冲区数据的起始地址
+     * 返回缓冲区可偷窥数据的起始地址
      * @return 偷窥缓冲区数据的起始地址
      */
-    const char *peek() const;
+    [[nodiscard]]
+    const unsigned char *peek() const;
 
     /**
      * 返回缓冲区中回车换行符的地址
      * @return 缓冲区中回车换行符的地址
      */
-    const char *find_CRLF() const;
+    [[nodiscard]]
+    const unsigned char *find_CRLF() const;
 
     /**
      * 返回缓冲区中以 start 位置开始的回车换行符的地址
      * @param start 查找的起始地址
      * @return 缓冲区中从 start 位置开始的回车换行符的地址
      */
-    const char *find_CRLF(const char *start) const;
+    const unsigned char *find_CRLF(const unsigned char *start) const;
 
     /**
      * 返回缓冲区中换行符的地址
      * @return 缓冲区中换行符的地址
      */
+    [[nodiscard]]
     const char *find_EOL() const;
 
     /**
@@ -106,7 +114,7 @@ public:
      * 从缓冲区读取一直到 end 地址的数据
      * @param end 读取数据的 end 地址
      */
-    void retrieve_until(const char *end);
+    void retrieve_until(const unsigned char *end);
 
     void retrieve_64();
 
@@ -134,7 +142,7 @@ public:
      * @param data 待追加数据的起始地址
      * @param n 追加数据的字节长度
      */
-    void append(const char *data, size_t n);
+    void append(const unsigned char *data, size_t n);
 
     void append(const void *data, size_t n);
 
