@@ -7,24 +7,36 @@
 
 #include "Poller.h"
 
+/*
+ * typedef union epoll_data {
+ *     void *ptr;
+ *     int fd;
+ *     uint32_t u32;
+ *     uint64_t u64;
+ * } epoll_data_t;
+ *
+ * struct epoll_event {
+ *     uint32_t events;
+ *     epoll_data_t data;
+ * };
+ */
+
 class epoll_event;
 
 class EpollPoller final : public Poller {
 private:
     using EpollEvents = vector<epoll_event>;
 
-    const int epoll_fd;   // epoll 文件描述符：调用 epoll_create1() 返回
-    EpollEvents events;  // 每次 epoll_wait() 调用返回的活动 fd 列表
+    const int epoll_fd;     // epoll 文件描述符：调用 epoll_create1() 返回
+    EpollEvents events;     // 活动的 fd 列表
+
+    static const int NEW; // 新增 fd
+    static const int ADD; // 已添加
+    static const int DEL; // 已脱离 epoll 管理，但未从 channel_map 中清除
 
     void fill_active_channels(Channels *active_channels, int num_events) const;
 
     void update(Channel *channel, int operation);
-
-    static const int NEW;
-    static const int ADD;
-    static const int DEL;
-
-    static const char *operation_to_string(int op);
 
 public:
     explicit EpollPoller(EventLoop *loop);
