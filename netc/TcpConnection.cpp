@@ -18,7 +18,7 @@ TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const Ine
                              const InetAddress &peer) :
         loop(loop), name(move(name)), status(Connecting), reading(true), socket(new Socket(con_fd)),
         conn_channel(new Channel(loop, socket->get_fd())), local(local), peer(peer),
-        high_water_mark(64 * 1024 * 1024) {
+        high_water_mark(64 * 1024 * 1024), context(nullptr) {
     socket->keep_alive(true);
     conn_channel->set_read_callback(bind(&TcpConnection::read_handler, this));
     conn_channel->set_write_callback(bind(&TcpConnection::write_handler, this));
@@ -29,10 +29,10 @@ TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const Ine
 void TcpConnection::read_handler() {
     assert(loop->is_in_loop_thread());
     int saved_errno = 0;
-    ssize_t n = input_buffer.read_from_fd(conn_channel->get_fd(), &saved_errno);
+    ssize_t n = inbound.read_from_fd(conn_channel->get_fd(), &saved_errno);
     if (n > 0) {
         //TODO:fix timestamp.
-        msg_callback(shared_from_this(), &input_buffer, Timestamp());
+        msg_callback(shared_from_this(), Timestamp());
     } else if (n == 0) {
         printf("%s[%d]: read 0 from con_fd(%d).\n", CurrentThread::name, CurrentThread::pid, conn_channel->get_fd());
         close_handler();
@@ -46,10 +46,10 @@ void TcpConnection::read_handler() {
 void TcpConnection::write_handler() {
     assert(loop->is_in_loop_thread());
     if (conn_channel->writing_enabled()) {
-        auto n = write(conn_channel->get_fd(), output_buffer.peek(), output_buffer.readable_bytes());
+        auto n = write(conn_channel->get_fd(), outbound.peek(), outbound.readable_bytes());
         if (n > 0) {
-            output_buffer.retrieve(n);
-            if (output_buffer.readable_bytes() == 0) {
+            outbound.retrieve(n);
+            if (outbound.readable_bytes() == 0) {
                 conn_channel->disable_writing();
                 if (write_complete_callback) {
                     loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
@@ -73,9 +73,6 @@ void TcpConnection::close_handler() {
     conn_channel->disable_all();
     conn_channel->remove();
 
-//    shared_ptr<TcpConnection> guard_this(shared_from_this());
-    //TODO: why?
-//    conn_callback(guard_this);
     status = Disconnected;
     close_callback(shared_from_this());
 }
@@ -121,15 +118,6 @@ void TcpConnection::connection_destroyed() {
     assert(loop->is_in_loop_thread());
     assert(status == Disconnected);
     printf("connection disconnected finished.\n");
-//    conn_channel->disable_all();
-//    conn_channel->remove();
-//    if (status == Connected) {
-//        status = Disconnected;
-//        conn_channel->disable_all();
-//        conn_callback(shared_from_this());
-//        close_callback(shared_from_this());
-//        conn_channel->remove();
-//    }
 }
 
 void TcpConnection::shutdown_in_loop() {
@@ -141,6 +129,10 @@ void TcpConnection::shutdown_in_loop() {
 
 TcpConnection::~TcpConnection() {
     assert(status == Disconnected);
+}
+
+void TcpConnection::send(string &&message) {
+    send(StringPiece(message));
 }
 
 void TcpConnection::send(const StringPiece &piece) {
@@ -159,25 +151,8 @@ void TcpConnection::send_in_loop(const StringPiece &piece) {
 
 void TcpConnection::send_in_loop(const void *data, size_t len) {
     assert(loop->is_in_loop_thread());
-    ssize_t nwrite = 0;
-    size_t remaining = len;
-    if (!conn_channel->writing_enabled() and output_buffer.readable_bytes() == 0) {
-        nwrite = write(conn_channel->get_fd(), data, len);
-        if (nwrite >= 0) {
-            remaining = len - nwrite;
-            if (remaining == 0 and write_complete_callback) {
-                loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
-            }
-        } else {
-            nwrite = 0;
-            if (errno == EWOULDBLOCK) {
-                fprintf(stderr, "write error.\n");
-            }
-            if (errno == EPIPE or errno == ECONNRESET) {
-                fprintf(stderr, "special write error.\n");
-            }
-        }
-    }
+    outbound.append(data, len);
+    conn_channel->enable_writing();
 }
 
 void TcpConnection::shutdown() {
@@ -213,4 +188,12 @@ void TcpConnection::set_context(void *ctx) {
 
 void *TcpConnection::get_context() {
     return context;
+}
+
+Buffer &TcpConnection::inbound_buf() {
+    return inbound;
+}
+
+Buffer &TcpConnection::outbound_buf() {
+    return outbound;
 }

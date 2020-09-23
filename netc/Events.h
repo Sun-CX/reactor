@@ -12,11 +12,13 @@ using std::function;
 using std::shared_ptr;
 
 class TcpConnection;
+
 class Buffer;
+
 class Timestamp;
 
 using ConnectionCallback = function<void(const shared_ptr<TcpConnection> &)>;
-using MessageCallback = function<void(const shared_ptr<TcpConnection> &, Buffer *, Timestamp)>;
+using MessageCallback = function<void(const shared_ptr<TcpConnection> &, Timestamp)>;
 using WriteCompleteCallback = function<void(const shared_ptr<TcpConnection> &)>;
 using HighWaterMarkCallback = function<void(const shared_ptr<TcpConnection> &, size_t)>;
 using CloseCallback = function<void(const shared_ptr<TcpConnection> &)>;

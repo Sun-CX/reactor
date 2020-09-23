@@ -10,17 +10,16 @@
 
 using std::placeholders::_1;
 using std::placeholders::_2;
-using std::placeholders::_3;
 
 class EchoServer {
 private:
     EventLoop *loop;
     TcpServer server;
 
-    void on_message(const shared_ptr<TcpConnection> &conn, Buffer *buf, Timestamp timestamp) {
-        string msg(buf->retrieve_all_string());
+    void on_message(const shared_ptr<TcpConnection> &conn, Timestamp timestamp) {
+        string msg = conn->inbound_buf().retrieve_all_string();
         if (msg == "exit\n") {
-            conn->send("bye.\n");
+            conn->send(StringPiece("bye.\n"));
             conn->shutdown();
         }
         if (msg == "quit\n") {
@@ -32,7 +31,7 @@ private:
 public:
     EchoServer(EventLoop *loop, const InetAddress listen_addr) : loop(loop), server(loop, listen_addr, "loop", 4,
                                                                                     false) {
-        server.set_msg_callback(bind(&EchoServer::on_message, this, _1, _2, _3));
+        server.set_msg_callback(bind(&EchoServer::on_message, this, _1, _2));
     }
 
     void start() {

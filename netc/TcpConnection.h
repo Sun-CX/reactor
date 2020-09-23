@@ -36,8 +36,8 @@ private:
     const InetAddress local;
     const InetAddress peer;
     size_t high_water_mark;
-    Buffer input_buffer;
-    Buffer output_buffer;
+    Buffer inbound;     // 入站缓冲区
+    Buffer outbound;    // 出站缓冲区
     void *context;
 
     ConnectionCallback conn_callback;
@@ -83,11 +83,17 @@ public:
 
     void send(const StringPiece &piece);
 
+    void send(string &&message);
+
     void shutdown();
 
     void set_context(void *ctx);
 
     void *get_context();
+
+    Buffer &inbound_buf();
+
+    Buffer &outbound_buf();
 
     const string &get_name() const;
 
