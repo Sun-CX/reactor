@@ -31,44 +31,44 @@ size_t Buffer::prepared_bytes() const {
     return read_idx;
 }
 
-const unsigned char *Buffer::peek() const {
+const byte *Buffer::peek() const {
     return begin() + read_idx;
 }
 
-const unsigned char *Buffer::begin() const {
+const byte *Buffer::begin() const {
     return buf.data();
 }
 
-unsigned char *Buffer::begin() {
+byte *Buffer::begin() {
     return buf.data();
 }
 
-const unsigned char *Buffer::find_CRLF() const {
+const byte *Buffer::find_CRLF() const {
     auto pos = search(peek(), begin_write(), CRLF, CRLF + 2);
     return pos == begin_write() ? nullptr : pos;
 }
 
-const unsigned char *Buffer::find_CRLF(const unsigned char *start) const {
+const byte *Buffer::find_CRLF(const byte *start) const {
     auto pos = search(start, begin_write(), CRLF, CRLF + 2);
     return pos == begin_write() ? nullptr : pos;
 }
 
-const unsigned char *Buffer::begin_write() const {
+const byte *Buffer::begin_write() const {
     return begin() + write_idx;
 }
 
-unsigned char *Buffer::begin_write() {
+byte *Buffer::begin_write() {
     return begin() + write_idx;
 }
 
-const char *Buffer::find_EOL() const {
+const byte *Buffer::find_EOL() const {
     auto p = memchr(peek(), '\n', readable_bytes());
-    return static_cast<const char *>(p);
+    return static_cast<const byte *>(p);
 }
 
-const char *Buffer::find_EOL(const char *start) const {
+const byte *Buffer::find_EOL(const byte *start) const {
     auto p = memchr(start, '\n', readable_bytes());
-    return static_cast<const char *>(p);
+    return static_cast<const byte *>(p);
 }
 
 void Buffer::retrieve(size_t n) {
@@ -82,7 +82,7 @@ void Buffer::retrieve_all() {
     write_idx = prepared_size;
 }
 
-void Buffer::retrieve_until(const unsigned char *end) {
+void Buffer::retrieve_until(const byte *end) {
     retrieve(end - peek());
 }
 
@@ -112,7 +112,7 @@ string Buffer::retrieve_all_string() {
     return retrieve_string(readable_bytes());
 }
 
-void Buffer::append(const unsigned char *data, size_t n) {
+void Buffer::append(const byte *data, size_t n) {
     if (writable_bytes() < n) enlarge_space(n);
     copy(data, data + n, begin_write());
     write_idx += n;
@@ -122,19 +122,19 @@ void Buffer::enlarge_space(size_t n) {
     if (writable_bytes() + prepared_bytes() < n + prepared_size) {
         buf.resize(write_idx + n);
     } else {
-        auto read = readable_bytes();
+        auto readable = readable_bytes();
         copy(begin() + read_idx, begin() + write_idx, begin() + prepared_size);
         read_idx = prepared_size;
-        write_idx = read_idx + read;
+        write_idx = read_idx + readable;
     }
 }
 
 void Buffer::append(const void *data, size_t n) {
-    append(static_cast<const unsigned char *>(data), n);
+    append(static_cast<const byte *>(data), n);
 }
 
 ssize_t Buffer::read_from_fd(int fd, int *err_no) {
-    char data[65536];
+    byte data[65536];
     iovec vec[2];
     const size_t writable = writable_bytes();
     vec[0].iov_base = begin() + write_idx;

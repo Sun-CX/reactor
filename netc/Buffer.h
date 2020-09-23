@@ -11,9 +11,11 @@
 using std::vector;
 using std::string;
 
+using byte = unsigned char;
+
 class Buffer final {
 private:
-    vector<unsigned char> buf;
+    vector<byte> buf;
     size_t read_idx;
     size_t write_idx;
     static const char CRLF[];
@@ -51,53 +53,53 @@ public:
      * @return 缓冲区起始地址
      */
     [[nodiscard]]
-    const unsigned char *begin() const;
+    const byte *begin() const;
 
-    unsigned char *begin();
+    byte *begin();
 
     /**
      * 返回缓冲区的可写地址
      * @return 缓冲区可写地址
      */
     [[nodiscard]]
-    const unsigned char *begin_write() const;
+    const byte *begin_write() const;
 
-    unsigned char *begin_write();
+    byte *begin_write();
 
     /**
      * 返回缓冲区可偷窥数据的起始地址
      * @return 偷窥缓冲区数据的起始地址
      */
     [[nodiscard]]
-    const unsigned char *peek() const;
+    const byte *peek() const;
 
     /**
      * 返回缓冲区中回车换行符的地址
      * @return 缓冲区中回车换行符的地址
      */
     [[nodiscard]]
-    const unsigned char *find_CRLF() const;
+    const byte *find_CRLF() const;
 
     /**
      * 返回缓冲区中以 start 位置开始的回车换行符的地址
      * @param start 查找的起始地址
      * @return 缓冲区中从 start 位置开始的回车换行符的地址
      */
-    const unsigned char *find_CRLF(const unsigned char *start) const;
+    const byte *find_CRLF(const byte *start) const;
 
     /**
      * 返回缓冲区中换行符的地址
      * @return 缓冲区中换行符的地址
      */
     [[nodiscard]]
-    const char *find_EOL() const;
+    const byte *find_EOL() const;
 
     /**
      * 返回缓冲区中以 start 位置开始的换行符的地址
      * @param start 查找的起始地址
      * @return 缓冲区中以 start 位置开始的换行符的地址
      */
-    const char *find_EOL(const char *start) const;
+    const byte *find_EOL(const byte *start) const;
 
     /**
      * 从缓冲区中读取 n 个字节的数据
@@ -114,7 +116,7 @@ public:
      * 从缓冲区读取一直到 end 地址的数据
      * @param end 读取数据的 end 地址
      */
-    void retrieve_until(const unsigned char *end);
+    void retrieve_until(const byte *end);
 
     void retrieve_64();
 
@@ -142,7 +144,7 @@ public:
      * @param data 待追加数据的起始地址
      * @param n 追加数据的字节长度
      */
-    void append(const unsigned char *data, size_t n);
+    void append(const byte *data, size_t n);
 
     void append(const void *data, size_t n);
 
