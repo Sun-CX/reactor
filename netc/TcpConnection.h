@@ -38,6 +38,7 @@ private:
     size_t high_water_mark;
     Buffer input_buffer;
     Buffer output_buffer;
+    void *context;
 
     ConnectionCallback conn_callback;
     MessageCallback msg_callback;
@@ -78,9 +79,15 @@ public:
 
     void connection_destroyed();
 
+    bool connected() const;
+
     void send(const StringPiece &piece);
 
     void shutdown();
+
+    void set_context(void *ctx);
+
+    void *get_context();
 
     const string &get_name() const;
 

@@ -202,3 +202,15 @@ const InetAddress &TcpConnection::local_address() const {
 const InetAddress &TcpConnection::peer_address() const {
     return peer;
 }
+
+bool TcpConnection::connected() const {
+    return status == Connected;
+}
+
+void TcpConnection::set_context(void *ctx) {
+    context = ctx;
+}
+
+void *TcpConnection::get_context() {
+    return context;
+}
