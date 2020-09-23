@@ -50,7 +50,7 @@ private:
     void remove_connection_in_loop(const shared_ptr<TcpConnection> &con);
 
 public:
-    TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name, bool reuse_port = false);
+    TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name, int threads, bool reuse_port = false);
 
     virtual ~TcpServer();
 

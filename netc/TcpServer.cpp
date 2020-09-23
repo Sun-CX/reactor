@@ -30,10 +30,9 @@ void default_message_callback(const shared_ptr<TcpConnection> &conn, Buffer *buf
     buf->retrieve_all();
 }
 
-TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name, bool reuse_port)
-        : loop(loop), name(move(name)),
-          acceptor(new Acceptor(loop, bind_addr, reuse_port)),
-          thread_pool(new EventLoopThreadPool(loop, 5, this->name)),
+TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name, int threads, bool reuse_port)
+        : loop(loop), name(move(name)), acceptor(new Acceptor(loop, bind_addr, reuse_port)),
+          thread_pool(new EventLoopThreadPool(loop, threads, this->name)),
           conn_callback(default_connection_callback), msg_callback(default_message_callback), started(0),
           next_conn_id(0) {
     acceptor->set_new_connection_callback(bind(&TcpServer::on_new_connection, this, _1, _2));

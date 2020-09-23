@@ -30,7 +30,8 @@ private:
     }
 
 public:
-    EchoServer(EventLoop *loop, const InetAddress listen_addr) : loop(loop), server(loop, listen_addr, "loop") {
+    EchoServer(EventLoop *loop, const InetAddress listen_addr) : loop(loop), server(loop, listen_addr, "loop", 4,
+                                                                                    false) {
         server.set_msg_callback(bind(&EchoServer::on_message, this, _1, _2, _3));
     }
 

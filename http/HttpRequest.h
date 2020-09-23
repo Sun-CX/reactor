@@ -22,19 +22,29 @@ public:
     };
 private:
     using Headers = unordered_map<string, string>;
+    using Parameters = unordered_map<string, string>;
 
     Method method;
     Version version;
     string path;
+    Parameters parameters;
     Headers headers;
 public:
     explicit HttpRequest(Method method = UNKNOWN, Version version = INVALID);
 
-    void set_method(const char *start, const char *end);
+    bool set_method(const char *start, const char *end);
 
-    void set_version(const char *start, const char *end);
+    bool set_version(const char *start, const char *end);
 
     void set_path(const char *start, const char *end);
+
+    void add_header(const char *name_start, const char *name_end,
+                    const char *value_start, const char *value_end
+    );
+
+    void reset();
+
+    const string &get_header(const string &name) const;
 };
 
 #endif //REACTOR_HTTPREQUEST_H
