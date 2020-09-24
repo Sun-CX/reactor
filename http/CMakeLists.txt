@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 add_subdirectory(tests)
 
-set(LIBRARY_SOURCE HttpRequest.cpp HttpServer.cpp HttpContext.cpp)
+set(LIBRARY_SOURCE HttpRequest.cpp HttpResponse.cpp HttpServer.cpp HttpContext.cpp)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
 
 include_directories(

@@ -6,6 +6,7 @@
 #define REACTOR_HTTPCONTEXT_H
 
 #include "HttpRequest.h"
+#include "HttpResponse.h"
 
 class Buffer;
 
@@ -19,6 +20,7 @@ private:
         ParseFinished
     };
     HttpRequest request;
+    HttpResponse response;
     HttpParseStatus parse_status;
 
     // 解析请求行
@@ -29,13 +31,15 @@ private:
 public:
     HttpContext();
 
-    bool parse_request(Buffer *buf);
+    bool parse_request(Buffer &buf);
 
     bool parse_success() const;
 
     HttpRequest &get_request();
 
-    void reset();
+    HttpResponse &get_response();
+
+    void parse_response(Buffer &buf);
 };
 
 #endif //REACTOR_HTTPCONTEXT_H

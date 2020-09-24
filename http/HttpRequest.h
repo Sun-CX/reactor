@@ -5,32 +5,24 @@
 #ifndef REACTOR_HTTPREQUEST_H
 #define REACTOR_HTTPREQUEST_H
 
-#include <string>
-#include <unordered_map>
+#include "HttpConstants.h"
 
-using std::string;
-using std::unordered_map;
+using http::Method;
+using http::Version;
+using http::Headers;
+using http::Parameters;
 
 class HttpRequest final {
-public:
-    enum Method {
-        UNKNOWN, GET, HEAD, POST, PUT, DELETE, OPTIONS
-    };
-
-    enum Version {
-        INVALID, HTTP1_1, HTTP2
-    };
 private:
-    using Headers = unordered_map<string, string>;
-    using Parameters = unordered_map<string, string>;
+    friend class HttpContext;
 
     Method method;
     Version version;
     string path;
     Parameters parameters;
     Headers headers;
-public:
-    explicit HttpRequest(Method method = UNKNOWN, Version version = INVALID);
+
+    explicit HttpRequest(Method method = Method::ILLEGAL, Version version = Version::INVALID);
 
     bool set_method(const char *start, const char *end);
 
@@ -38,13 +30,15 @@ public:
 
     void set_path(const char *start, const char *end);
 
-    void add_header(const char *name_start, const char *name_end,
-                    const char *value_start, const char *value_end
-    );
+    void set_header(const char *name_start, const char *name_end,
+                    const char *value_start, const char *value_end);
 
-    void reset();
-
+public:
     const string &get_header(const string &name) const;
+
+    const string &get_parameter(const string &name) const;
+
+    Version get_version() const;
 };
 
 #endif //REACTOR_HTTPREQUEST_H

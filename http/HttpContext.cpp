@@ -7,6 +7,7 @@
 #include <algorithm>
 
 using std::find;
+using std::to_string;
 
 HttpContext::HttpContext() : parse_status(ExpectRequestLine) {}
 
@@ -47,35 +48,36 @@ bool HttpContext::parse_header(const char *begin, const char *end) {
         fprintf(stderr, "bad http request header!\n");
         return false;
     }
-    request.add_header(begin, colo, colo + 1, end);
+    request.set_header(begin, colo, colo + 1, end);
     return true;
 }
 
-bool HttpContext::parse_request(Buffer *buf) {
+bool HttpContext::parse_request(Buffer &buf) {
     bool has_more = true;
     bool ok = true;
     while (has_more) {
         if (parse_status == ExpectRequestLine) { // 解析请求行
-            auto pos = buf->find_CRLF();
+            auto pos = buf.find_CRLF();
             if (pos) {
-                ok = parse_request_line(reinterpret_cast<const char *>(buf->peek()),
+                ok = parse_request_line(reinterpret_cast<const char *>(buf.peek()),
                                         reinterpret_cast<const char *>(pos));
                 if (ok) {
-                    buf->retrieve_until(pos + 2);
+                    buf.retrieve_until(pos + 2);
                     parse_status = ExpectHeaders;
                 }
             } else has_more = false;
         } else if (parse_status == ExpectHeaders) { // 解析请求头
-            auto pos = buf->find_CRLF();
+            auto pos = buf.find_CRLF();
             if (pos) {
-                auto colon = find(buf->peek(), pos, ':');
+                auto colon = find(buf.peek(), pos, ':');
                 if (colon != pos) {
-                    parse_header(reinterpret_cast<const char *>(buf->peek()),
+                    parse_header(reinterpret_cast<const char *>(buf.peek()),
                                  reinterpret_cast<const char *>(pos));
                 } else {
+                    parse_status = ParseFinished;
                     has_more = false;
                 }
-                buf->retrieve_until(pos + 2);
+                buf.retrieve_until(pos + 2);
             } else {
                 has_more = false;
             }
@@ -94,7 +96,21 @@ HttpRequest &HttpContext::get_request() {
     return request;
 }
 
-void HttpContext::reset() {
-    parse_status = ExpectRequestLine;
-    request.reset();
+HttpResponse &HttpContext::get_response() {
+    return response;
+}
+
+void HttpContext::parse_response(Buffer &buf) {
+    string version = response.version == Version::HTTP1_1 ? "HTTP/1.1" : "HTTP/2";
+    buf.append((version + ' ').c_str(), version.size() + 1);
+    string code = to_string(response.response_code);
+    buf.append((code + ' ').c_str(), code.size() + 1);
+    buf.append((response.code_desc + "\r\n").c_str(), response.code_desc.size() + 2);
+
+    for (const auto &header : response.headers) {
+        string line = header.first + ": " + header.second + "\r\n";
+        buf.append(line.c_str(), line.size());
+    }
+    buf.append("\r\n", 2);
+    buf.append(response.response_body.c_str(), response.response_body.size());
 }

@@ -6,22 +6,18 @@
 #define REACTOR_HTTPSERVER_H
 
 #include "TcpServer.h"
-
-class HttpRequest;
-
-class HttpResponse;
+#include "HttpRequest.h"
+#include "HttpResponse.h"
 
 class HttpServer final : public NonCopyable {
 private:
-    using HttpCallback = function<void(const HttpRequest &, HttpResponse *)>;
+    using HttpCallback = function<void(const HttpRequest &, HttpResponse &)>;
     TcpServer server;
     HttpCallback http_callback;
 
     void on_connection(const shared_ptr<TcpConnection> &connection) const;
 
-    void on_message(const shared_ptr<TcpConnection> &connection, Buffer *buf, Timestamp recv_time);
-
-    void on_request(const shared_ptr<TcpConnection> &connection, const HttpRequest &request);
+    void on_message(const shared_ptr<TcpConnection> &connection, Timestamp recv_time);
 
 public:
     HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port = false);

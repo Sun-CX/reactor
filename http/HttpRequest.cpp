@@ -5,26 +5,26 @@
 #include "HttpRequest.h"
 #include <cassert>
 
-HttpRequest::HttpRequest(HttpRequest::Method method, HttpRequest::Version version) : method(method), version(version) {}
+HttpRequest::HttpRequest(Method method, Version version) : method(method), version(version) {}
 
 bool HttpRequest::set_method(const char *start, const char *end) {
-    assert(method == UNKNOWN);
+    assert(method == Method::ILLEGAL);
     string me(start, end);
-    if (me == "GET") method = GET;
-    else if (me == "HEAD") method = HEAD;
-    else if (me == "POST") method = POST;
-    else if (me == "PUT") method = PUT;
-    else if (me == "DELETE") method = DELETE;
-    else if (me == "OPTIONS") method = OPTIONS;
-    return method != UNKNOWN;
+    if (me == "GET") method = Method::GET;
+    else if (me == "HEAD") method = Method::HEAD;
+    else if (me == "POST") method = Method::POST;
+    else if (me == "PUT") method = Method::PUT;
+    else if (me == "DELETE") method = Method::DELETE;
+    else if (me == "OPTIONS") method = Method::OPTIONS;
+    return method != Method::ILLEGAL;
 }
 
 bool HttpRequest::set_version(const char *start, const char *end) {
-    assert(version == INVALID);
+    assert(version == Version::INVALID);
     string v(start, end);
-    if (v == "HTTP/1.1") version = HTTP1_1;
-    else if (v == "HTTP/2") version = HTTP2;
-    return version != INVALID;
+    if (v == "HTTP/1.1") version = Version::HTTP1_1;
+    else if (v == "HTTP/2") version = Version::HTTP2;
+    return version != Version::INVALID;
 }
 
 void HttpRequest::set_path(const char *start, const char *end) {
@@ -32,20 +32,20 @@ void HttpRequest::set_path(const char *start, const char *end) {
 }
 
 void
-HttpRequest::add_header(const char *name_start, const char *name_end, const char *value_start, const char *value_end) {
+HttpRequest::set_header(const char *name_start, const char *name_end, const char *value_start, const char *value_end) {
     string name(name_start, name_end);
     string value(value_start, value_end);
     headers[name] = value;
 }
 
-void HttpRequest::reset() {
-    method = UNKNOWN;
-    version = INVALID;
-    path = "";
-    parameters.clear();
-    headers.clear();
-}
-
 const string &HttpRequest::get_header(const string &name) const {
     return headers.at(name);
+}
+
+const string &HttpRequest::get_parameter(const string &name) const {
+    return parameters.at(name);
+}
+
+Version HttpRequest::get_version() const {
+    return version;
 }
