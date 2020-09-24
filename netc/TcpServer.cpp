@@ -72,6 +72,7 @@ void TcpServer::remove_connection(const shared_ptr<TcpConnection> &con) {
 
 void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) {
     assert(loop->is_in_loop_thread());
+    if (close_callback) close_callback(con);
     auto n = connections.erase(con->get_name());
     assert(n == 1);
     EventLoop *io_loop = con->get_loop();
@@ -98,4 +99,8 @@ void TcpServer::set_write_complete_callback(const WriteCompleteCallback &callbac
 
 void TcpServer::set_thread_initial_callback(const decltype(thread_initial_callback) &callback) {
     thread_initial_callback = callback;
+}
+
+void TcpServer::set_close_callback(const CloseCallback &callback) {
+    close_callback = callback;
 }

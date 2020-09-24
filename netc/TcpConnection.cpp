@@ -8,7 +8,6 @@
 #include "Timestamp.h"
 #include "Socket.h"
 #include "Channel.h"
-#include "StringPiece.h"
 #include <unistd.h>
 #include <cassert>
 
@@ -131,27 +130,17 @@ TcpConnection::~TcpConnection() {
     assert(status == Disconnected);
 }
 
-void TcpConnection::send(string &&message) {
-    send(StringPiece(message));
-}
-
-void TcpConnection::send(const StringPiece &piece) {
+void TcpConnection::send_outbound_bytes() {
     assert(status == Connected);
     if (loop->is_in_loop_thread()) {
-        send_in_loop(piece);
+        send_in_loop();
     } else {
-        void (TcpConnection::*fp)(const StringPiece &piece) = &TcpConnection::send_in_loop;
-        loop->run_in_loop(bind(fp, this, piece));
+        loop->run_in_loop(bind(&TcpConnection::send_in_loop, this));
     }
 }
 
-void TcpConnection::send_in_loop(const StringPiece &piece) {
-    send_in_loop(piece.data(), piece.size());
-}
-
-void TcpConnection::send_in_loop(const void *data, size_t len) {
+void TcpConnection::send_in_loop() {
     assert(loop->is_in_loop_thread());
-    outbound.append(data, len);
     conn_channel->enable_writing();
 }
 

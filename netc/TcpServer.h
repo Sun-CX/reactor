@@ -41,6 +41,7 @@ private:
     ConnectionCallback conn_callback;
     MessageCallback msg_callback;
     WriteCompleteCallback write_complete_callback;
+    CloseCallback close_callback;
     EventLoopThread::ThreadInitialCallback thread_initial_callback;
 
     void on_new_connection(int con_fd, const InetAddress &peer);
@@ -61,6 +62,8 @@ public:
     void set_msg_callback(const MessageCallback &callback);
 
     void set_write_complete_callback(const WriteCompleteCallback &callback);
+
+    void set_close_callback(const CloseCallback &callback);
 
     void set_thread_initial_callback(const decltype(thread_initial_callback) &callback);
 };
