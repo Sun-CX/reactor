@@ -37,7 +37,7 @@ void EventLoop::loop() {
     assert(is_in_loop_thread());
     printf("%s[%d]: EventLoop(%p) start loop...\n", CurrentThread::name, CurrentThread::pid, this);
     looping = true;
-    while (not exited) {
+    while (!exited) {
         active_channels.clear();
         poller->poll(&active_channels, default_poll_timeout_milliseconds);
         for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_events, _1));

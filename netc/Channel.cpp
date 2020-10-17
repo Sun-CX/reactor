@@ -29,7 +29,6 @@ void Channel::update() {
 }
 
 void Channel::handle_events() {
-//    event_handling = true;
     if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
         if (read_callback) read_callback();
     }
@@ -45,15 +44,14 @@ void Channel::handle_events() {
     if (revents & (POLLERR | POLLNVAL)) {
         if (error_callback) error_callback();
     }
-//    event_handling = false;
 }
 
 uint32_t Channel::get_events() const {
     return events;
 }
 
-void Channel::set_revents(uint32_t ev) {
-    revents = ev;
+void Channel::set_revents(uint32_t evt) {
+    revents = evt;
 }
 
 bool Channel::none_events_watched() const {

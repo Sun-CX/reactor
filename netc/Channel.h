@@ -12,28 +12,22 @@ using std::function;
 
 class EventLoop;
 
-// Channel 是对某个文件描述符 IO 事件的注册和响应的封装
+// Channel 是对文件描述符 IO 事件的注册和响应的封装
 class Channel final : public NonCopyable {
 private:
     using EventCallback  = function<void()>;
 
     EventLoop *loop;
     const int fd;       // Channel 只引用 fd，并不管理 fd 的创建和关闭
-    uint32_t events;    // 所关注的 IO 事件
-    uint32_t revents;   // 实际发生的 IO 事件
+    uint32_t events;    // 关注的 IO 事件
+    uint32_t revents;   // 发生的 IO 事件
     int index;          // 当前 Channel 对象在 PollPoller::fds 中的索引
-
-//    weak_ptr<void> tie;
-//    bool tied;
-//    bool event_handling;
-//    bool add_to_loop;
 
     EventCallback read_callback;
     EventCallback write_callback;
     EventCallback close_callback;
     EventCallback error_callback;
 
-//    void handle_event_with_guard(Timestamp timestamp);
     void update();
 
 public:
@@ -60,7 +54,7 @@ public:
     [[nodiscard]]
     uint32_t get_events() const;
 
-    void set_revents(uint32_t ev);
+    void set_revents(uint32_t evt);
 
     [[nodiscard]]
     bool none_events_watched() const;

@@ -21,7 +21,7 @@ class Poller;
 
 class Timer;
 
-// 创建 EventLoop 对象的线程是 IO 线程，其主要功能是进行事件循环
+// 每个 EventLoop 对象所在的线程是 IO 线程，其功能是运行事件循环
 class EventLoop final : public NonCopyable {
 private:
     using Functor = function<void()>;
