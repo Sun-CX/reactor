@@ -9,6 +9,7 @@
 #include "PollPoller.h"
 #include "EpollPoller.h"
 #include <cassert>
+#include <cstdlib>
 
 Poller::Poller(EventLoop *loop) : loop(loop) {}
 
@@ -23,7 +24,10 @@ bool Poller::has_channel(Channel *channel) const {
 }
 
 Poller *Poller::default_poller(EventLoop *loop) {
-//    return new PollPoller(loop);
-    return new EpollPoller(loop);
+    if (getenv("REACTOR_USE_EPOLL") != nullptr) {
+        return new EpollPoller(loop);
+    } else {
+        return new PollPoller(loop);
+    }
 }
 
