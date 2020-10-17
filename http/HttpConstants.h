@@ -16,7 +16,7 @@ namespace http {
         INVALID, HTTP1_1, HTTP2
     };
     enum Method {
-        ILLEGAL, GET, HEAD, POST, PUT, DELETE, OPTIONS
+        ILLEGAL, OPTIONS, HEAD, GET, POST, PUT, DELETE, TRACE, CONNECT
     };
     using Headers = unordered_map<string, string>;
     using Parameters = unordered_map<string, string>;
