@@ -56,6 +56,7 @@ public:
 
     explicit StringArg(const string &str) : str(str.c_str()) {}
 
+    [[nodiscard]]
     const char *c_str() const { return str; }
 };
 
@@ -69,17 +70,19 @@ public:
 
     StringPiece(const char *str) : ptr(str), length(static_cast<int>(strlen(str))) {}
 
-    StringPiece(const unsigned char *str) : ptr(reinterpret_cast<const char *>(str)),
-                                            length(static_cast<int>(strlen(ptr))) {}
+    StringPiece(const unsigned char *str) : ptr(reinterpret_cast<const char *>(str)), length(static_cast<int>(strlen(ptr))) {}
 
     StringPiece(const string &str) : ptr(str.data()), length(static_cast<int>(str.size())) {}
 
     StringPiece(const char *offset, int len) : ptr(offset), length(len) {}
 
+    [[nodiscard]]
     const char *data() const { return ptr; }
 
+    [[nodiscard]]
     int size() const { return length; }
 
+    [[nodiscard]]
     bool empty() const { return length == 0; }
 
     void clear() { ptr = nullptr, length = 0; }
@@ -116,6 +119,7 @@ public:
     STRINGPIECE_BINARY_PREDICATE(>, >);
 #undef STRINGPIECE_BINARY_PREDICATE
 
+    [[nodiscard]]
     int compare(const StringPiece &piece) const {
         int r = memcmp(ptr, piece.ptr, length < piece.length ? length : piece.length);
         if (r == 0) {
@@ -125,10 +129,12 @@ public:
         return r;
     }
 
+    [[nodiscard]]
     string as_string() const { return string(data(), size()); }
 
     void copy_to_string(string *target) const { target->assign(ptr, length); }
 
+    [[nodiscard]]
     bool starts_with(const StringPiece &piece) const {
         return length >= piece.length and memcmp(ptr, piece.ptr, piece.length) == 0;
     }

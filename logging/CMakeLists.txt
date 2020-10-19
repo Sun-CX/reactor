@@ -1,9 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
-project(logging)
 
-set(LIBRARY_SOURCE Logger.cpp LogStream.cpp StringPiece.h TimeZone.cpp)
+set(LIBRARY_SOURCE StringPiece.h TimeZone.cpp LogStream.cpp Logger.cpp)
+include_directories(${PROJECT_SOURCE_DIR}/core)
 
-include_directories(../core)
 add_subdirectory(tests)
 
 add_library(logging SHARED ${LIBRARY_SOURCE})

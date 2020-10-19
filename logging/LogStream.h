@@ -5,11 +5,11 @@
 #ifndef REACTOR_LOGSTREAM_H
 #define REACTOR_LOGSTREAM_H
 
+#include "NonCopyable.h"
+#include "StringPiece.h"
 #include <cstddef>
 #include <string>
 #include <algorithm>
-#include "NonCopyable.h"
-#include "StringPiece.h"
 
 using std::string;
 using std::reverse;
@@ -18,7 +18,7 @@ const int small_buffer = 1024 * 4;              // 4KB
 const int large_buffer = small_buffer * 1024;   // 4MB
 using byte = unsigned char;
 
-template<int size>
+template<const int size>
 class FixedBuffer final : public NonCopyable {
 private:
     char data[size];
@@ -26,6 +26,7 @@ private:
 
     void (*cookie)();
 
+    [[nodiscard]]
     const char *end() const {
         return data + sizeof(data);
     }
@@ -55,12 +56,16 @@ public:
         }
     }
 
+    [[nodiscard]]
     int available() const { return static_cast<int>(end() - cur); }
 
+    [[nodiscard]]
     const char *get_data() const { return data; }
 
+    [[nodiscard]]
     int length() const { return static_cast<int >(cur - data); }
 
+    [[nodiscard]]
     char *current() const { return cur; }
 
     void add(size_t len) { cur += len; }
@@ -72,12 +77,20 @@ public:
     //for gdb used only!
     const char *debug_data();
 
+    [[nodiscard]]
     string to_string() const { return string(data, length()); }
 
+    [[nodiscard]]
     StringPiece to_string_piece() const {
         return StringPiece(data, length());
     }
 };
+
+template<const int size>
+void FixedBuffer<size>::cookie_start() {}
+
+template<const int size>
+void FixedBuffer<size>::cookie_end() {}
 
 class Formatter final : public NonCopyable {
 private:
@@ -87,8 +100,10 @@ public:
     template<class T>
     Formatter(const char *fmt, T x);
 
+    [[nodiscard]]
     const char *data() const;
 
+    [[nodiscard]]
     int length() const;
 };
 
@@ -188,6 +203,7 @@ public:
 
     void append(const char *data, int len);
 
+    [[nodiscard]]
     const Buffer &get_buffer() const;
 
     void reset_buffer();
