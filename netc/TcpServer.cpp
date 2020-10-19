@@ -4,7 +4,6 @@
 
 #include "TcpServer.h"
 #include "Timestamp.h"
-#include "Buffer.h"
 #include "Acceptor.h"
 #include "EventLoop.h"
 #include "InetAddress.h"
@@ -27,7 +26,6 @@ void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
 
 // 如果客户端代码没有设置消息到来回调，则调用此默认消息回调
 void default_message_callback(const shared_ptr<TcpConnection> &conn, Timestamp s) {
-//    buf->retrieve_all();
     conn->inbound_buf().retrieve_all();
 }
 
@@ -48,7 +46,7 @@ TcpServer::~TcpServer() {
     }
 }
 
-// 新的连接到来，构造 TcpConnection 对象，存入 connections 中
+// 新的连接到来，构造 TcpConnection 对象，并保存在 connections 中
 void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
     assert(loop->is_in_loop_thread());
     auto io_loop = thread_pool->get_next_loop();
@@ -67,21 +65,22 @@ void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
 }
 
 void TcpServer::remove_connection(const shared_ptr<TcpConnection> &con) {
+    assert(con->get_status() == TcpConnection::STATUS::Disconnecting);
     loop->run_in_loop(bind(&TcpServer::remove_connection_in_loop, this, con));
 }
 
 void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) {
     assert(loop->is_in_loop_thread());
-    if (close_callback) close_callback(con);
     auto n = connections.erase(con->get_name());
     assert(n == 1);
+    con->set_status(TcpConnection::STATUS::Disconnected);
     EventLoop *io_loop = con->get_loop();
     io_loop->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
 }
 
 void TcpServer::start() {
     thread_pool->start(thread_initial_callback);
-    assert(not acceptor->is_listening());
+    assert(!acceptor->is_listening());
     loop->run_in_loop(bind(&Acceptor::listen, acceptor.get()));
 }
 
@@ -99,8 +98,4 @@ void TcpServer::set_write_complete_callback(const WriteCompleteCallback &callbac
 
 void TcpServer::set_thread_initial_callback(const decltype(thread_initial_callback) &callback) {
     thread_initial_callback = callback;
-}
-
-void TcpServer::set_close_callback(const CloseCallback &callback) {
-    close_callback = callback;
 }

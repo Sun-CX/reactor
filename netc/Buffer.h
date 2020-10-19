@@ -148,6 +148,8 @@ public:
 
     void append(const void *data, size_t n);
 
+    void append(const string &msg);
+
     ssize_t read_from_fd(int fd, int *err_no);
 };
 

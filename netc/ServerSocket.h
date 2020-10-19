@@ -38,7 +38,7 @@ public:
      * @param peer_addr 对端地址
      * @return 已连接套接字
      */
-    int accept(InetAddress *peer_addr) const;
+    int accept(InetAddress &peer_addr) const;
 
     void tcp_no_delay(bool on) const;
 

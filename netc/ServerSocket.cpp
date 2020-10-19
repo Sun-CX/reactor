@@ -34,12 +34,12 @@ void ServerSocket::listen() const {
     if (unlikely(status != 0)) ERROR_EXIT("socket listen error.");
 }
 
-int ServerSocket::accept(InetAddress *peer_addr) const {
+int ServerSocket::accept(InetAddress &peer_addr) const {
     sockaddr_in addr;
     memset(&addr, 0, sizeof(addr));
     socklen_t len = sizeof(addr);
     int con_fd = ::accept4(listen_fd, reinterpret_cast<sockaddr *>(&addr), &len, SOCK_NONBLOCK | SOCK_CLOEXEC);
-    peer_addr->set_sockaddr(addr);
+    peer_addr.set_sockaddr(addr);
     return con_fd;
 }
 

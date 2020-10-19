@@ -83,7 +83,7 @@ void EventLoop::queue_in_loop(const Functor &func) {
         MutexGuard guard(mutex);
         pending_functors.push_back(func);
     }
-    if (not is_in_loop_thread() or calling_pending_func) wakeup();
+    if (!is_in_loop_thread() or calling_pending_func) wakeup();
 }
 
 void EventLoop::execute_pending_functors() {

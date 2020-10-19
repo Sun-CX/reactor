@@ -37,17 +37,14 @@ private:
     unique_ptr<Poller> poller;  // poller 生命周期与 EventLoop 对象相同
     Channels active_channels;
 
-    Mutex mutex;
+    Mutex mutex;                // 互斥锁，用来保证 pending_functors 安全
     bool calling_pending_func;  // 是否正在执行 pending_functors
     Functors pending_functors;  // 挂起的执行任务
 
     unique_ptr<Channel> wakeup_channel; // 用于唤醒 poll 调用，使其立即返回
 
-    unique_ptr<Timer> timer;
+    unique_ptr<Timer> timer;            // 定时器
 
-//    bool event_handling;
-//    int64_t iteration;
-//    Timestamp poll_return_time;
     void wakeup() const;
 
     [[nodiscard]]

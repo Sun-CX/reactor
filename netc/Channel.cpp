@@ -28,20 +28,28 @@ void Channel::update() {
     loop->update_channel(this);
 }
 
+void Channel::remove() {
+    loop->remove_channel(this);
+}
+
 void Channel::handle_events() {
     if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
+        printf("************** POLLIN | POLLPRI | POLLRDHUP(%d) **************\n", fd);
         if (read_callback) read_callback();
     }
 
     if (revents & POLLOUT) {
+        printf("************** POLLOUT(%d) **************\n",fd);
         if (write_callback) write_callback();
     }
 
-    if ((revents & POLLHUP) and !(revents & POLLIN)) {
+    if(revents & POLLHUP and !(revents & POLLIN)){
+        printf("************** POLLHUP and !POLLIN(%d) **************\n",fd);
         if (close_callback) close_callback();
     }
 
     if (revents & (POLLERR | POLLNVAL)) {
+        printf("************** POLLERR | POLLNVAL(%d) **************\n",fd);
         if (error_callback) error_callback();
     }
 }
@@ -56,10 +64,6 @@ void Channel::set_revents(uint32_t evt) {
 
 bool Channel::none_events_watched() const {
     return events == 0;
-}
-
-void Channel::remove() {
-    loop->remove_channel(this);
 }
 
 EventLoop *Channel::loop_owner() const {
@@ -99,6 +103,18 @@ void Channel::disable_all() {
     update();
 }
 
+int Channel::get_fd() const {
+    return fd;
+}
+
+bool Channel::reading_enabled() const {
+    return events & (POLLIN | POLLPRI);
+}
+
+bool Channel::writing_enabled() const {
+    return events & (POLLOUT | POLLWRBAND);
+}
+
 void Channel::set_read_callback(const Channel::EventCallback &callback) {
     read_callback = callback;
 }
@@ -113,16 +129,4 @@ void Channel::set_close_callback(const Channel::EventCallback &callback) {
 
 void Channel::set_error_callback(const Channel::EventCallback &callback) {
     error_callback = callback;
-}
-
-int Channel::get_fd() const {
-    return fd;
-}
-
-bool Channel::reading_enabled() const {
-    return events & (POLLIN | POLLPRI);
-}
-
-bool Channel::writing_enabled() const {
-    return events & (POLLOUT | POLLWRBAND);
 }

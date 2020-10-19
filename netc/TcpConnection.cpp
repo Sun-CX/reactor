@@ -13,6 +13,8 @@
 
 using std::bind;
 
+const char *TcpConnection::STATUS_STR[4] = {"Connecting", "Connected", "Disconnecting", "Disconnected"};
+
 TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local,
                              const InetAddress &peer) :
         loop(loop), name(move(name)), status(Connecting), reading(true), socket(new Socket(con_fd)),
@@ -44,35 +46,33 @@ void TcpConnection::read_handler() {
 
 void TcpConnection::write_handler() {
     assert(loop->is_in_loop_thread());
-    if (conn_channel->writing_enabled()) {
-        auto n = write(conn_channel->get_fd(), outbound.peek(), outbound.readable_bytes());
-        if (n > 0) {
-            outbound.retrieve(n);
-            if (outbound.readable_bytes() == 0) {
-                conn_channel->disable_writing();
-                if (write_complete_callback) {
-                    loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
-                }
-                if (status == Disconnecting) {
-                    shutdown_in_loop();
-                }
+    auto n = write(conn_channel->get_fd(), outbound.peek(), outbound.readable_bytes());
+    if (n > 0) {
+        outbound.retrieve(n);
+        if (outbound.readable_bytes() == 0) {
+            conn_channel->disable_writing();
+            if (write_complete_callback) {
+                loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
             }
-        } else {
-            fprintf(stderr, "write error.\n");
+            if (status == Disconnecting) {
+                shutdown_in_loop();
+            }
         }
     } else {
-        printf("Connection fd: %d is down, no more writing...\n", conn_channel->get_fd());
+        fprintf(stderr, "write error.\n");
     }
 }
 
 void TcpConnection::close_handler() {
+    printf("%s[%d]: con_fd %d closed, current status: %s\n", CurrentThread::name, CurrentThread::pid,
+           conn_channel->get_fd(), STATUS_STR[status]);
     assert(loop->is_in_loop_thread());
+    // 当 peer 主动断开连接时，状态为 Connected
+    // 当 host 主动断开连接时，状态为 Disconnecting
     assert(status == Connected or status == Disconnecting);
-    printf("%s[%d]: con_fd %d closed.\n", CurrentThread::name, CurrentThread::pid, conn_channel->get_fd());
+    if (status == Connected) status = Disconnecting;
     conn_channel->disable_all();
     conn_channel->remove();
-
-    status = Disconnected;
     close_callback(shared_from_this());
 }
 
@@ -96,10 +96,6 @@ void TcpConnection::set_write_complete_callback(const WriteCompleteCallback &cal
     write_complete_callback = callback;
 }
 
-void TcpConnection::set_high_water_mark_callback(const HighWaterMarkCallback &callback) {
-    high_water_mark_callback = callback;
-}
-
 void TcpConnection::set_close_callback(const CloseCallback &callback) {
     close_callback = callback;
 }
@@ -107,8 +103,6 @@ void TcpConnection::set_close_callback(const CloseCallback &callback) {
 void TcpConnection::connection_established() {
     assert(loop->is_in_loop_thread() and status == Connecting);
     status = Connected;
-    //TODO:fix tie
-
     conn_channel->enable_reading();
     conn_callback(shared_from_this());
 }
@@ -116,7 +110,7 @@ void TcpConnection::connection_established() {
 void TcpConnection::connection_destroyed() {
     assert(loop->is_in_loop_thread());
     assert(status == Disconnected);
-    printf("connection disconnected finished.\n");
+    printf("connection disconnected.\n");
 }
 
 void TcpConnection::shutdown_in_loop() {
@@ -131,20 +125,16 @@ TcpConnection::~TcpConnection() {
 }
 
 void TcpConnection::send_outbound_bytes() {
-    assert(status == Connected);
-    if (loop->is_in_loop_thread()) {
-        send_in_loop();
-    } else {
-        loop->run_in_loop(bind(&TcpConnection::send_in_loop, this));
-    }
-}
-
-void TcpConnection::send_in_loop() {
-    assert(loop->is_in_loop_thread());
+    printf("-------------- send_outbound_bytes(%s) --------------\n", CurrentThread::name);
+    printf("Current status: %s\n", STATUS_STR[status]);
+    assert(loop->is_in_loop_thread() and status == Connected);
     conn_channel->enable_writing();
 }
 
 void TcpConnection::shutdown() {
+    assert(status == Connected);
+    printf("-------------- shutdown(%s) --------------\n", CurrentThread::name);
+    printf("Current status: %s\n", STATUS_STR[status]);
     if (status == Connected) {
         status = Disconnecting;
         loop->run_in_loop(bind(&TcpConnection::shutdown_in_loop, this));
@@ -171,18 +161,26 @@ bool TcpConnection::connected() const {
     return status == Connected;
 }
 
-void TcpConnection::set_context(void *ctx) {
-    context = ctx;
-}
-
-void *TcpConnection::get_context() {
-    return context;
-}
-
 Buffer &TcpConnection::inbound_buf() {
     return inbound;
 }
 
 Buffer &TcpConnection::outbound_buf() {
     return outbound;
+}
+
+void TcpConnection::set_status(STATUS state) {
+    status = state;
+}
+
+TcpConnection::STATUS TcpConnection::get_status() const {
+    return status;
+}
+
+const any &TcpConnection::get_context() const {
+    return context;
+}
+
+void TcpConnection::set_context(const any &ctx) {
+    context = ctx;
 }

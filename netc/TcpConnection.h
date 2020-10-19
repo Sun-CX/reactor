@@ -9,9 +9,11 @@
 #include "InetAddress.h"
 #include "Events.h"
 #include "Buffer.h"
+#include <any>
 
 using std::unique_ptr;
 using std::enable_shared_from_this;
+using std::any;
 
 class EventLoop;
 
@@ -20,10 +22,12 @@ class Channel;
 class Socket;
 
 class TcpConnection final : public NonCopyable, public enable_shared_from_this<TcpConnection> {
-private:
+public:
     enum STATUS {
         Connecting, Connected, Disconnecting, Disconnected
     };
+private:
+    static const char *STATUS_STR[4];
 
     EventLoop *loop;
     const string name;
@@ -36,13 +40,12 @@ private:
     size_t high_water_mark;
     Buffer inbound;     // 入站缓冲区
     Buffer outbound;    // 出站缓冲区
-    void *context;
+    any context;
 
     ConnectionCallback conn_callback;
     MessageCallback msg_callback;
     CloseCallback close_callback;
     WriteCompleteCallback write_complete_callback;
-    HighWaterMarkCallback high_water_mark_callback;
 
     void read_handler();
 
@@ -54,7 +57,7 @@ private:
 
     void shutdown_in_loop();
 
-    void send_in_loop();
+//    void send_in_loop();
 
 //    void send_in_loop(const StringPiece &piece);
 
@@ -71,8 +74,6 @@ public:
 
     void set_write_complete_callback(const WriteCompleteCallback &callback);
 
-    void set_high_water_mark_callback(const HighWaterMarkCallback &callback);
-
     void set_close_callback(const CloseCallback &callback);
 
     void connection_established();
@@ -81,16 +82,20 @@ public:
 
     bool connected() const;
 
+    void set_status(STATUS status);
+
+    STATUS get_status() const;
+
 //    void send(const StringPiece &piece);
-//
+
 //    void send(const void *begin, size_t n);
     void send_outbound_bytes();
 
     void shutdown();
 
-    void set_context(void *ctx);
+    const any &get_context() const;
 
-    void *get_context();
+    void set_context(const any &ctx);
 
     Buffer &inbound_buf();
 

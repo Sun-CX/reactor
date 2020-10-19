@@ -112,12 +112,6 @@ string Buffer::retrieve_all_string() {
     return retrieve_string(readable_bytes());
 }
 
-void Buffer::append(const byte *data, size_t n) {
-    if (writable_bytes() < n) enlarge_space(n);
-    copy(data, data + n, begin_write());
-    write_idx += n;
-}
-
 void Buffer::enlarge_space(size_t n) {
     if (writable_bytes() + prepared_bytes() < n + prepared_size) {
         buf.resize(write_idx + n);
@@ -129,8 +123,18 @@ void Buffer::enlarge_space(size_t n) {
     }
 }
 
+void Buffer::append(const byte *data, size_t n) {
+    if (writable_bytes() < n) enlarge_space(n);
+    copy(data, data + n, begin_write());
+    write_idx += n;
+}
+
 void Buffer::append(const void *data, size_t n) {
     append(static_cast<const byte *>(data), n);
+}
+
+void Buffer::append(const string &msg) {
+    append(msg.c_str(), msg.size());
 }
 
 ssize_t Buffer::read_from_fd(int fd, int *err_no) {
