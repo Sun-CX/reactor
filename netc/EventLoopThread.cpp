@@ -8,11 +8,10 @@
 using std::bind;
 
 EventLoopThread::EventLoopThread(EventLoopThread::ThreadInitialCallback callback, string name) :
-        loop(nullptr), exiting(false), thread(bind(&EventLoopThread::thread_func, this), move(name)),
+        loop(nullptr), thread(bind(&EventLoopThread::thread_func, this), move(name)),
         mutex(), condition(mutex), initial_callback(move(callback)) {}
 
 EventLoopThread::~EventLoopThread() {
-    exiting = true;
     if (loop != nullptr) {
         loop->quit();
         thread.join();

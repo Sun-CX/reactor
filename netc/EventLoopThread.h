@@ -19,7 +19,6 @@ private:
     using ThreadInitialCallback = function<void(EventLoop *)>;
 
     EventLoop *loop;
-    bool exiting;
     Thread thread;
     Mutex mutex;
     Condition condition;
