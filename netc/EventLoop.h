@@ -28,7 +28,7 @@ private:
     using Functors = vector<Functor>;
     using Channels = vector<Channel *>;
 
-    thread_local static EventLoop *loop_in_this_thread; // 控制一个线程中最多只能有一个 EventLoop 对象
+    static thread_local EventLoop *loop_in_this_thread; // 控制一个线程中最多只能有一个 EventLoop 对象
     static const int default_poll_timeout_milliseconds;
 
     bool looping;

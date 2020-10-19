@@ -41,6 +41,7 @@ void EventLoop::loop() {
         active_channels.clear();
         poller->poll(&active_channels, default_poll_timeout_milliseconds);
         for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_events, _1));
+        // IO 事件处理完毕之后再执行的动作
         execute_pending_functors();
     }
     looping = false;
