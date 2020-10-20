@@ -18,7 +18,7 @@ void LogStream::format_value(T x, size_t (*format_type)(char *, T)) {
     }
 }
 
-void LogStream::append(const char *data, int len) {
+void LogStream::append(const char *data, size_t len) {
     buffer.append(data, len);
 }
 
@@ -31,13 +31,13 @@ void LogStream::reset_buffer() {
 }
 
 LogStream &LogStream::operator<<(bool x) {
-    if (x) buffer.append("true", 4);
-    else buffer.append("false", 5);
+    if (x) append("true", 4);
+    else append("false", 5);
     return *this;
 }
 
 LogStream &LogStream::operator<<(char x) {
-    buffer.append(&x, 1);
+    append(&x, 1);
     return *this;
 }
 
@@ -136,11 +136,11 @@ LogStream &LogStream::operator<<(const void *ptr) {
     return *this;
 }
 
-LogStream &LogStream::operator<<(const char *str) {
-    if (str == nullptr) {
+LogStream &LogStream::operator<<(const char *s) {
+    if (s == nullptr) {
         buffer.append("(null)", 6);
     } else {
-        buffer.append(str, strlen(str));
+        buffer.append(s, strlen(s));
     }
     return *this;
 }

@@ -123,9 +123,9 @@ private:
         return ls;
     }
 
-public:
+    void append(const char *data, size_t len);
 
-    void append(const char *data, int len);
+public:
 
     [[nodiscard]]
     const Buffer &get_buffer() const;
@@ -162,7 +162,7 @@ public:
 
     LogStream &operator<<(const void *ptr);
 
-    LogStream &operator<<(const char *str);
+    LogStream &operator<<(const char *s);
 
     LogStream &operator<<(const unsigned char *bytes);
 
