@@ -2,7 +2,7 @@
 // Created by suncx on 2020/8/14.
 //
 
-#include "LogStream.h"
+#include "Logger.h"
 
 void test1() {
     char str[32];
@@ -16,7 +16,12 @@ void test1() {
 
 int main(int argc, const char *argv[]) {
 
-    test1();
-    
+//    test1();
+//
+//    char s[] = "hello";
+//    String str(s, 5);
+
+    LOG_TRACE << "sdas" << 234;
+
     return 0;
 }

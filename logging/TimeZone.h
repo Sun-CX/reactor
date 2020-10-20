@@ -5,13 +5,12 @@
 #ifndef REACTOR_TIMEZONE_H
 #define REACTOR_TIMEZONE_H
 
-#include <ctime>
-#include <memory>
-#include <vector>
-#include <string>
 #include "NonCopyable.h"
 #include "Exception.h"
 #include "LogStream.h"
+#include <ctime>
+#include <memory>
+#include <vector>
 
 using std::shared_ptr;
 using std::vector;
@@ -83,8 +82,8 @@ public:
         return be32toh(x);
     }
 
-    byte read_byte() {
-        byte x = 0;
+    unsigned char read_byte() {
+        unsigned char x = 0;
         auto n_read = fread(&x, 1, sizeof(x), p_file);
         if (n_read != sizeof(x)) throw logic_error("bad int data!");
         // 大端字节序换成本机字节序
@@ -162,8 +161,8 @@ bool read_timezone_file(const char *tz_file, Data *data) {
 
     for (int i = 0; i < tzh_typecnt; ++i) {
         int32_t gmtoff = file.read_int32();
-        byte isdst = file.read_byte();
-        byte ab = file.read_byte();
+        unsigned char isdst = file.read_byte();
+        unsigned char ab = file.read_byte();
         data->local_times.emplace_back(gmtoff, isdst, ab);
     }
 

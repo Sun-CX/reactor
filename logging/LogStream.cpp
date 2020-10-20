@@ -3,10 +3,12 @@
 //
 
 #include "LogStream.h"
+#include "Logger.h"
 
 const char Converter::digits[] = "9876543210123456789";
 const char Converter::hex_digits[] = "0123456789ABCDEF";
 const char *Converter::zero = Converter::digits + 9;
+const int LogStream::max_size = 32;
 
 template<class T>
 void LogStream::format_value(T x, size_t (*format_type)(char *, T)) {
@@ -43,8 +45,8 @@ LogStream &LogStream::operator<<(signed char x) {
     return *this << static_cast<char>(x);
 }
 
-LogStream &LogStream::operator<<(byte x) {
-    format_value<byte>(x, [](char *buf, byte x) -> size_t {
+LogStream &LogStream::operator<<(unsigned char x) {
+    format_value<unsigned char>(x, [](char *buf, unsigned char x) -> size_t {
         buf[0] = '0';
         buf[1] = 'b';
         auto len = Converter::itoa_bin(buf + 2, x);
@@ -143,7 +145,7 @@ LogStream &LogStream::operator<<(const char *str) {
     return *this;
 }
 
-LogStream &LogStream::operator<<(const byte *bytes) {
+LogStream &LogStream::operator<<(const unsigned char *bytes) {
     return *this << reinterpret_cast<const char *>(bytes);
 }
 
@@ -159,6 +161,16 @@ LogStream &LogStream::operator<<(const StringPiece &piece) {
 
 LogStream &LogStream::operator<<(const LogStream::Buffer &buf) {
     return *this << buf.to_string_piece();
+}
+
+LogStream &LogStream::operator<<(const String &str) {
+    append(str.get_data(), str.len());
+    return *this;
+}
+
+LogStream &LogStream::operator<<(const SourceFile &file) {
+    append(file.data, file.size);
+    return *this;
 }
 
 template<class T>
