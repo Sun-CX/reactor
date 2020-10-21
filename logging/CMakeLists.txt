@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.15)
 
-set(LIBRARY_SOURCE StringPiece.h TimeZone.cpp LogStream.cpp String.cpp FixedBuffer.h Logger.cpp)
+set(LIBRARY_SOURCE Logger.cpp)
 include_directories(${PROJECT_SOURCE_DIR}/core)
 link_directories(${PROJECT_BINARY_DIR}/lib)
 

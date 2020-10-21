@@ -83,7 +83,7 @@ public:
 
 extern Logger::LogLevel G_LOG_LEVEL;
 
-Logger::LogLevel init_logger_level() noexcept;
+extern Logger::LogLevel init_logger_level() noexcept;
 
 #define LOG_TRACE if(G_LOG_LEVEL <= Logger::LogLevel::INFO)\
 Logger(__FILE__, __LINE__, Logger::TRACE, __func__ ).stream()

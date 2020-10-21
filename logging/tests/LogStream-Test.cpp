@@ -2,21 +2,23 @@
 // Created by suncx on 2020/8/14.
 //
 
-#include "Logger.h"
+#include <cstdio>
+#include "ConsoleStream.h"
 
-void test1() {
-    char str[32];
-    auto l = Converter::itoa_dec(str, -120);
-    printf("length: %lu, content: %s\n", l, str);
-    l = Converter::itoa_hex(str, 16);
-    printf("length: %lu, content: %s\n", l, str);
-    l = Converter::itoa_bin(str, 32);
-    printf("length: %lu, content: %s\n", l, str);
-}
+#define RED "\e[0;31m"
+#define NONE "\e[0m"
+#define GREEN "\e[0;32m"
+#define L_GREEN "\e[1;32m"
+#define BRIGHT_YELLOW  "\e[1;33m"
 
 int main(int argc, const char *argv[]) {
 
-    LOG_TRACE << "sdas" << 234 << false;
+
+    LOG << false;
+    INFO << true << "asjkdcasjkn";
+    ERROR << true;
+
+//    console.log() << false;
 
     return 0;
 }
