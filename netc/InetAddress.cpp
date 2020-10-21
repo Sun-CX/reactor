@@ -4,6 +4,7 @@
 
 #include "InetAddress.h"
 #include "Exception.h"
+#include "ConsoleStream.h"
 #include <arpa/inet.h>
 #include <cstring>
 
@@ -38,7 +39,7 @@ InetAddress InetAddress::get_local_address(int fd) {
     InetAddress value;
     socklen_t len = sizeof(value.ad4);
     auto status = getsockname(fd, reinterpret_cast<sockaddr *>(&value.ad4), &len);
-    if (unlikely(status == -1)) ERROR_EXIT("error occurred.");
+    if (unlikely(status == -1)) FATAL << "getsockname error!";
     return value;
 }
 

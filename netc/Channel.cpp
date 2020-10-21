@@ -4,6 +4,7 @@
 
 #include "Channel.h"
 #include "EventLoop.h"
+#include "ConsoleStream.h"
 #include <poll.h>
 #include <sys/epoll.h>
 
@@ -34,22 +35,22 @@ void Channel::remove() {
 
 void Channel::handle_events() {
     if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
-        printf("************** POLLIN | POLLPRI | POLLRDHUP(%d) **************\n", fd);
+        INFO << "************** POLLIN | POLLPRI | POLLRDHUP(" << fd << ") **************";
         if (read_callback) read_callback();
     }
 
     if (revents & POLLOUT) {
-        printf("************** POLLOUT(%d) **************\n",fd);
+        INFO << "************** POLLOUT(" << fd << ") **************";
         if (write_callback) write_callback();
     }
 
-    if(revents & POLLHUP and !(revents & POLLIN)){
-        printf("************** POLLHUP and !POLLIN(%d) **************\n",fd);
+    if (revents & POLLHUP and !(revents & POLLIN)) {
+        INFO << "************** POLLHUP and !POLLIN(" << fd << ") **************";
         if (close_callback) close_callback();
     }
 
     if (revents & (POLLERR | POLLNVAL)) {
-        printf("************** POLLERR | POLLNVAL(%d) **************\n",fd);
+        INFO << "************** POLLERR | POLLNVAL(" << fd << ") **************";
         if (error_callback) error_callback();
     }
 }

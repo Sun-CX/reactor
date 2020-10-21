@@ -9,6 +9,7 @@
 #include "InetAddress.h"
 #include "TcpConnection.h"
 #include "EventLoopThreadPool.h"
+#include "ConsoleStream.h"
 #include <cassert>
 
 using std::make_shared;
@@ -19,9 +20,8 @@ using std::placeholders::_2;
 
 // 如果客户端代码没有设置连接回调，则调用此默认连接回调
 void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
-    printf("%s[%d]: new client connected: %s <------------------- %s\n", CurrentThread::name, CurrentThread::pid,
-           conn->local_address().to_string().c_str(),
-           conn->peer_address().to_string().c_str());
+    INFO << "new client connected: " << conn->local_address().to_string() << " <------------------- "
+         << conn->peer_address().to_string();
 }
 
 // 如果客户端代码没有设置消息到来回调，则调用此默认消息回调

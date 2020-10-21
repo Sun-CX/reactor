@@ -6,6 +6,7 @@
 #include "Timestamp.h"
 #include "Exception.h"
 #include "Channel.h"
+#include "ConsoleStream.h"
 #include <poll.h>
 #include <cassert>
 
@@ -17,9 +18,9 @@ Timestamp PollPoller::poll(Channels *active_channels, int milliseconds) {
     auto num_events = ::poll(fds.data(), fds.size(), milliseconds);
     auto now = Timestamp::now();
     if (unlikely(num_events < 0)) { // error
-        fprintf(stderr, "%s invoked error, errno: %d.\n", __PRETTY_FUNCTION__, errno);
+        FATAL << "poll error, errno = " << errno;
     } else if (num_events == 0) {   // timeout
-        printf("poll timeout, nothing happened.\n");
+        INFO << "poll timeout...";
     } else {
         fill_active_channels(active_channels, num_events);
     }

@@ -8,6 +8,7 @@
 #include "Timestamp.h"
 #include "Socket.h"
 #include "Channel.h"
+#include "ConsoleStream.h"
 #include <unistd.h>
 #include <cassert>
 
@@ -35,11 +36,11 @@ void TcpConnection::read_handler() {
         //TODO:fix timestamp.
         msg_callback(shared_from_this(), Timestamp());
     } else if (n == 0) {
-        printf("%s[%d]: read 0 from con_fd(%d).\n", CurrentThread::name, CurrentThread::pid, conn_channel->get_fd());
+        LOG << "read 0 bytes from con_fd " << conn_channel->get_fd() << ", prepare to close connection.";
         close_handler();
     } else {
         errno = saved_errno;
-        fprintf(stderr, "read_handler from TcpConnection error.");
+        ERROR << "read from inbound buffer error, prepare to close connection.";
         error_handler();
     }
 }
@@ -58,14 +59,13 @@ void TcpConnection::write_handler() {
                 shutdown_in_loop();
             }
         }
-    } else {
-        fprintf(stderr, "write error.\n");
-    }
+    } else
+        ERROR << "write outbound data error!";
+
 }
 
 void TcpConnection::close_handler() {
-    printf("%s[%d]: con_fd %d closed, current status: %s\n", CurrentThread::name, CurrentThread::pid,
-           conn_channel->get_fd(), STATUS_STR[status]);
+    LOG << "con_fd " << conn_channel->get_fd() << " is closing, current status: " << STATUS_STR[status];
     assert(loop->is_in_loop_thread());
     // 当 peer 主动断开连接时，状态为 Connected
     // 当 host 主动断开连接时，状态为 Disconnecting
@@ -80,8 +80,9 @@ void TcpConnection::error_handler() {
     int opt;
     socklen_t len = sizeof(opt);
     auto n = getsockopt(conn_channel->get_fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
-    if (unlikely(n < 0)) fprintf(stderr, "TcpConnection::error_handler, errno: %d\n", errno);
-    else fprintf(stderr, "TcpConnection::error_handler, errno: %d\n", opt);
+    if (unlikely(n < 0)) ERROR << "getsockopt error! errno = " << errno;
+    else
+        ERROR << "TcpConnection::error_handler! errno: " << opt;
 }
 
 void TcpConnection::set_connection_callback(const ConnectionCallback &callback) {
@@ -110,14 +111,12 @@ void TcpConnection::connection_established() {
 void TcpConnection::connection_destroyed() {
     assert(loop->is_in_loop_thread());
     assert(status == Disconnected);
-    printf("connection disconnected.\n");
+    LOG << "connection disconnected.";
 }
 
 void TcpConnection::shutdown_in_loop() {
     assert(loop->is_in_loop_thread());
-    if (!conn_channel->writing_enabled()) {
-        socket->shutdown_write();
-    }
+    if (!conn_channel->writing_enabled()) socket->shutdown_write();
 }
 
 TcpConnection::~TcpConnection() {
@@ -125,16 +124,16 @@ TcpConnection::~TcpConnection() {
 }
 
 void TcpConnection::send_outbound_bytes() {
-    printf("-------------- send_outbound_bytes(%s) --------------\n", CurrentThread::name);
-    printf("Current status: %s\n", STATUS_STR[status]);
+    LOG << "-------------- send_outbound_bytes --------------";
+    LOG << "current status: " << STATUS_STR[status];
     assert(loop->is_in_loop_thread() and status == Connected);
     conn_channel->enable_writing();
 }
 
 void TcpConnection::shutdown() {
     assert(status == Connected);
-    printf("-------------- shutdown(%s) --------------\n", CurrentThread::name);
-    printf("Current status: %s\n", STATUS_STR[status]);
+    LOG << "-------------- shutdown --------------";
+    LOG << "current status: " << STATUS_STR[status];
     if (status == Connected) {
         status = Disconnecting;
         loop->run_in_loop(bind(&TcpConnection::shutdown_in_loop, this));

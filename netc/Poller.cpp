@@ -8,13 +8,14 @@
 #include "EventLoop.h"
 #include "PollPoller.h"
 #include "EpollPoller.h"
+#include "ConsoleStream.h"
 #include <cassert>
 #include <cstdlib>
 
 Poller::Poller(EventLoop *loop) : loop(loop) {}
 
 void Poller::assert_in_loop_thread() const {
-    if (unlikely(!loop->is_in_loop_thread())) ERROR_EXIT("assert_in_loop_thread failed.");
+    if (unlikely(!loop->is_in_loop_thread())) FATAL << "assert_in_loop_thread failed.";
 }
 
 bool Poller::has_channel(Channel *channel) const {
@@ -30,4 +31,3 @@ Poller *Poller::default_poller(EventLoop *loop) {
         return new PollPoller(loop);
     }
 }
-

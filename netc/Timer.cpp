@@ -6,6 +6,7 @@
 #include "Exception.h"
 #include "CurrentThread.h"
 #include "EventLoop.h"
+#include "ConsoleStream.h"
 #include <sys/timerfd.h>
 #include <cstring>
 #include <cassert>
@@ -21,14 +22,15 @@ Timer::Timer(EventLoop *loop) : loop(loop), timer_channel(this->loop, create_tim
 Timer::~Timer() {
     timer_channel.disable_all();
     timer_channel.remove();
-    auto status = close(timer_channel.get_fd());
-    if (unlikely(status < 0)) fprintf(stderr, "timer_fd close error!\n");
+    auto status = ::close(timer_channel.get_fd());
+    if (unlikely(status < 0))
+        ERROR << "timer_fd " << timer_channel.get_fd() << " close error!";
 }
 
 int Timer::create_timer_fd() const {
     auto fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);
-    if (unlikely(fd < 0)) ERROR_EXIT("timerfd_create error.");
-    printf("%s[%d]: create timerfd: %d\n", CurrentThread::name, CurrentThread::pid, fd);
+    if (unlikely(fd < 0)) FATAL << "timerfd_create error!";
+    INFO << "create timer_fd: " << fd;
     return fd;
 }
 
@@ -53,7 +55,7 @@ void Timer::read_handler() {
 void Timer::read_timeout_event() const {
     uint64_t exp;
     auto n = read(timer_channel.get_fd(), &exp, sizeof(exp));
-    if (unlikely(n != sizeof(exp))) ERROR_EXIT("read timer_fd error.");
+    if (unlikely(n != sizeof(exp))) FATAL << "read timer_fd error!";
 }
 
 void Timer::reset_timer_fd() const {
@@ -61,7 +63,7 @@ void Timer::reset_timer_fd() const {
     memset(&new_val, 0, sizeof(new_val));
     new_val.it_value = tasks.peek()->expire_time.to_timespec();
     auto ret = timerfd_settime(timer_channel.get_fd(), TFD_TIMER_ABSTIME, &new_val, nullptr);
-    if (unlikely(ret < 0)) ERROR_EXIT("timerfd_settime error.");
+    if (unlikely(ret < 0)) FATAL << "timerfd_settime error!";
 }
 
 void Timer::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {

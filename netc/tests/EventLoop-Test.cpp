@@ -9,6 +9,7 @@ static EventLoop *g_loop;
 
 void test() {
     EventLoop loop;
+    EventLoop loop1;
 }
 
 void test1() {
@@ -28,7 +29,6 @@ void test2() {
     EventLoop loop;
     g_loop = &loop;
 
-
     Thread thread([] {
         g_loop->loop();
     });
@@ -39,8 +39,9 @@ void test2() {
 
 int main(int argc, const char *argv[]) {
 
-//    test();
-    test1();
+    test();
+//    test1();
 //    test2();
+
     return 0;
 }

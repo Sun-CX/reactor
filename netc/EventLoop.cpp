@@ -6,6 +6,7 @@
 #include "Exception.h"
 #include "Poller.h"
 #include "Timer.h"
+#include "ConsoleStream.h"
 #include <sys/eventfd.h>
 #include <cassert>
 
@@ -18,8 +19,9 @@ const int EventLoop::default_poll_timeout_milliseconds = -1;   // 默认永不�
 EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid), poller(Poller::default_poller(this)),
                          mutex(), calling_pending_func(false), wakeup_channel(new Channel(this, create_event_fd())),
                          timer(new Timer(this)) {
-    if (unlikely(loop_in_this_thread != nullptr)) ERROR_EXIT("Current thread already has a event loop!");
-    else loop_in_this_thread = this;
+    if (unlikely(loop_in_this_thread != nullptr)) {
+        FATAL << "this thread already has an event loop object(" << loop_in_this_thread << ')';
+    } else loop_in_this_thread = this;
 
     wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup_event, this));
     wakeup_channel->enable_reading();
@@ -28,14 +30,15 @@ EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid),
 EventLoop::~EventLoop() {
     wakeup_channel->disable_all();
     wakeup_channel->remove();
-    auto status = close(wakeup_channel->get_fd());
-    if (unlikely(status < 0)) fprintf(stderr, "event_fd close error!\n");
+    auto status = ::close(wakeup_channel->get_fd());
+    if (unlikely(status < 0))
+        ERROR << "eventfd " << wakeup_channel->get_fd() << " close error!";
     loop_in_this_thread = nullptr;
 }
 
 void EventLoop::loop() {
     assert(is_in_loop_thread());
-    printf("%s[%d]: EventLoop(%p) start loop...\n", CurrentThread::name, CurrentThread::pid, this);
+    LOG << "EventLoop(" << this << ") start loop...";
     looping = true;
     while (!exited) {
         active_channels.clear();
@@ -72,10 +75,7 @@ void EventLoop::quit() {
 }
 
 void EventLoop::run_in_loop(const Functor &func) {
-#ifndef NDEBUG
-    printf("%s[%d]: is_in_loop_thread: %s\n", CurrentThread::name, CurrentThread::pid,
-           is_in_loop_thread() ? "true" : "false");
-#endif
+    LOG << __func__ << " invoked, is_in_loop_thread: " << is_in_loop_thread();
     is_in_loop_thread() ? func() : queue_in_loop(func);
 }
 
@@ -104,25 +104,24 @@ EventLoop *EventLoop::event_loop_of_current_thread() {
 
 int EventLoop::create_event_fd() const {
     int fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
-    if (unlikely(fd < 0)) ERROR_EXIT("eventfd created failed.");
-    printf("%s[%d]: create eventfd: %d\n", CurrentThread::name, CurrentThread::pid, fd);
+    if (unlikely(fd < 0)) FATAL << "create eventfd failed.";
+    INFO << "create eventfd: " << fd;
     return fd;
 }
 
 void EventLoop::wakeup() const {
     uint64_t one = 1;
     auto n = write(wakeup_channel->get_fd(), &one, sizeof(one));
-    if (unlikely(n != sizeof(one))) ERROR_EXIT("write error.");
-    printf("%s[%d]: wakeup invoked, write something into eventfd %d.\n", CurrentThread::name, CurrentThread::pid,
-           wakeup_channel->get_fd());
+    if (unlikely(n != sizeof(one))) FATAL << "write to eventfd " << wakeup_channel->get_fd() << " error!";
+    INFO << "write event to eventfd " << wakeup_channel->get_fd();
 }
 
 void EventLoop::read_wakeup_event() const {
     uint64_t one;
     auto n = read(wakeup_channel->get_fd(), &one, sizeof(one));
-    if (unlikely(n != sizeof(one))) ERROR_EXIT("read error.");
-    printf("%s[%d]: receive event, read something from eventfd %d.\n", CurrentThread::name, CurrentThread::pid,
-           wakeup_channel->get_fd());
+    if (unlikely(n != sizeof(one)))
+        FATAL << "read from eventfd " << wakeup_channel->get_fd() << " error!";//ERROR_EXIT("read error.");
+    INFO << "receive event from eventfd " << wakeup_channel->get_fd();
 }
 
 void EventLoop::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {

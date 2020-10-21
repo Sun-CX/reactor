@@ -6,6 +6,7 @@
 #include "Exception.h"
 #include "InetAddress.h"
 #include "EventLoop.h"
+#include "ConsoleStream.h"
 #include <fcntl.h>
 #include <cassert>
 
@@ -14,7 +15,7 @@ using std::bind;
 Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
         loop(loop), server_socket(), accept_channel(loop, server_socket.fd()),
         listening(false), idle_fd(open("/dev/null", O_CLOEXEC)) {
-    printf("%s[%d]: create idle_fd: %d\n", CurrentThread::name, CurrentThread::pid, idle_fd);
+    INFO << "create idle_fd: " << idle_fd;
     server_socket.reuse_addr(true);
     server_socket.reuse_port(reuse_port);
     server_socket.bind(addr);
@@ -24,9 +25,8 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
 Acceptor::~Acceptor() {
     accept_channel.disable_all();
     accept_channel.remove();
-    auto status = close(idle_fd);
-    if (unlikely(status < 0))
-        fprintf(stderr, "%s[%d]: close idle_fd %d error.\n", CurrentThread::name, CurrentThread::pid, idle_fd);
+    auto status = ::close(idle_fd);
+    if (unlikely(status < 0)) ERROR << "close idle fd " << idle_fd << " error!";
 }
 
 void Acceptor::read_handler() {
@@ -34,7 +34,7 @@ void Acceptor::read_handler() {
     InetAddress peer_addr;
     int con_fd = server_socket.accept(peer_addr);
     if (con_fd >= 0) {// success
-        printf("%s[%d]: accept new con_fd %d.\n", CurrentThread::name, CurrentThread::pid, con_fd);
+        INFO << "accept new connection, con_fd: " << con_fd;
         callback(con_fd, peer_addr);
     } else {// error
         if (errno == EMFILE) {
@@ -42,9 +42,8 @@ void Acceptor::read_handler() {
             idle_fd = server_socket.accept(peer_addr);
             close(idle_fd);
             idle_fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
-        } else {
-            fprintf(stderr, "con_fd error.\n");
-        }
+        } else
+            ERROR << "accept new connection error!";
     }
 }
 
