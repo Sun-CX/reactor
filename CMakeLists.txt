@@ -4,7 +4,7 @@ project(reactor CXX)
 set(CMAKE_CXX_STANDARD 17)
 
 add_subdirectory(core)
-add_subdirectory(logging)
+#add_subdirectory(logging)
 add_subdirectory(netc)
 add_subdirectory(http)
 
