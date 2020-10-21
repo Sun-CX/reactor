@@ -48,3 +48,6 @@ target_link_libraries(fixedthreadpool-test reactor-core)
 
 add_executable(threadlocal-test ThreadLocal-Test.cpp)
 target_link_libraries(threadlocal-test reactor-core)
+
+add_executable(consolestream-test ConsoleStream-Test.cpp)
+target_link_libraries(consolestream-test reactor-core)
