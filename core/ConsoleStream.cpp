@@ -7,12 +7,13 @@
 #include "CurrentThread.h"
 #include <cstdio>
 
-ConsoleStream::ConsoleStream(const char *style) : style(style) {
+ConsoleStream::ConsoleStream(const char *style, bool terminate) : style(style), terminate(terminate) {
     printf("%s%s[%d]: ", style, CurrentThread::name, CurrentThread::pid);
 }
 
 ConsoleStream::~ConsoleStream() {
     printf(NONE"\n");
+    if (terminate) abort();
 }
 
 const ConsoleStream &ConsoleStream::operator<<(bool x) const {
@@ -122,3 +123,6 @@ const ConsoleStream &ConsoleStream::operator<<(const char *s) const {
     return *this;
 }
 
+const ConsoleStream &ConsoleStream::operator<<(const string &s) const {
+    return *this << s.c_str();
+}

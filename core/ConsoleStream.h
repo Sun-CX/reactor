@@ -6,16 +6,20 @@
 #define REACTOR_CONSOLESTREAM_H
 
 #include "NonCopyable.h"
+#include <string>
 
 #define NONE "\e[0m"
 #define RED "\e[0;31m"
 #define GREEN "\e[0;32m"
 
+using std::string;
+
 class ConsoleStream final : public NonCopyable {
 private:
     const char *style;
+    const bool terminate;
 public:
-    explicit ConsoleStream(const char *style = "");
+    explicit ConsoleStream(const char *style = "", bool terminate = false);
 
     virtual ~ConsoleStream();
 
@@ -50,10 +54,12 @@ public:
     const ConsoleStream &operator<<(const void *ptr) const;
 
     const ConsoleStream &operator<<(const char *s) const;
+
+    const ConsoleStream &operator<<(const string &s) const;
 };
 
 #define LOG ConsoleStream()
 #define INFO ConsoleStream(GREEN)
 #define ERROR ConsoleStream(RED)
-
+#define FATAL ConsoleStream(RED, true)
 #endif //REACTOR_CONSOLESTREAM_H
