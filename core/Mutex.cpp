@@ -4,22 +4,23 @@
 
 #include "Mutex.h"
 #include "Exception.h"
+#include "ConsoleStream.h"
 
 Mutex::Mutex() : pid(0) {
     auto status = pthread_mutex_init(&mutex, nullptr);
-    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(status != 0)) FATAL << "mutex init error!";
 }
 
 void Mutex::lock() {
     auto status = pthread_mutex_lock(&mutex);
-    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(status != 0)) FATAL << "mutex lock error!";
     pid = CurrentThread::pid;
 }
 
 void Mutex::unlock() {
     pid = 0;
     auto status = pthread_mutex_unlock(&mutex);
-    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(status != 0)) FATAL << "mutex unlock error!";
 }
 
 pthread_mutex_t *Mutex::get_mutex() {
@@ -31,13 +32,13 @@ bool Mutex::is_locked_by_cur_thread() const {
 }
 
 void Mutex::assert_locked_by_cur_thread() const {
-    if (!is_locked_by_cur_thread()) ERROR_EXIT("assert error.");
+    if (!is_locked_by_cur_thread()) FATAL << "lock assert failed!";
 }
 
 Mutex::~Mutex() {
-    if (unlikely(pid != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(pid != 0)) FATAL << "one thread holds this mutex, destroy error!";
     auto status = pthread_mutex_destroy(&mutex);
-    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(status != 0)) FATAL << "mutex destroy error!";
 }
 
 MutexGuard::MutexGuard(Mutex &mutex) : mutex(mutex) {

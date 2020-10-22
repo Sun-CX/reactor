@@ -5,6 +5,7 @@
 #include "Thread.h"
 #include "Exception.h"
 #include "CurrentThread.h"
+#include "ConsoleStream.h"
 #include <sys/prctl.h>
 #include <syscall.h>
 #include <cstring>
@@ -17,7 +18,7 @@ atomic_int Thread::thread_count;
 pre_main void set_startup_process_tsd() {
     const char *main_thread_name = "main-thread";
     int status = prctl(PR_SET_NAME, main_thread_name);
-    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(status != 0)) FATAL << "prctl error!";
     strcpy(CurrentThread::name, main_thread_name);
     CurrentThread::pid = getpid();
 }
@@ -29,13 +30,13 @@ Thread::Thread(Thread::thread_func func, string name) : func(move(func)), name(m
 
 void Thread::start() {
     int status = pthread_create(&tid, nullptr, thread_routine, this);
-    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(status != 0)) FATAL << "thread create error!";
 }
 
 void *Thread::thread_routine(void *arg) {
     auto th = static_cast<Thread *>(arg);
     int status = pthread_setname_np(th->tid, th->name.c_str());
-    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(status != 0)) FATAL << "set thread name error!";
     th->pid = syscall(SYS_gettid);
 
     strcpy(CurrentThread::name, th->name.c_str());
@@ -47,7 +48,7 @@ void *Thread::thread_routine(void *arg) {
 
 void Thread::join() {
     int status = pthread_join(tid, nullptr);
-    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(status != 0)) FATAL << "thread join error!";
 }
 
 const string &Thread::get_name() const {

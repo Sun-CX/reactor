@@ -7,6 +7,7 @@
 
 #include "NonCopyable.h"
 #include "Exception.h"
+#include "ConsoleStream.h"
 #include <pthread.h>
 
 using std::shared_ptr;
@@ -27,7 +28,7 @@ public:
 
     static shared_ptr<T> instance() {
         auto status = pthread_once(&once, Singleton::init);
-        if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+        if (unlikely(status != 0)) FATAL << "pthread_once invoked error!";
         return ptr;
     }
 };

@@ -7,6 +7,7 @@
 
 #include "NonCopyable.h"
 #include "Exception.h"
+#include "ConsoleStream.h"
 #include <pthread.h>
 
 template<class T>
@@ -21,7 +22,7 @@ private:
 public:
     ThreadLocal() {
         int status = pthread_key_create(&key, ThreadLocal::destructor);
-        if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+        if (unlikely(status != 0)) FATAL << "pthread create key error!";
     }
 
     T &get_value() {
@@ -29,7 +30,7 @@ public:
         if (ptr == nullptr) {
             T *q = new T();
             int status = pthread_setspecific(key, q);
-            if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+            if (unlikely(status != 0)) FATAL << "pthread set key error!";
             ptr = q;
         }
         return *ptr;
@@ -37,7 +38,7 @@ public:
 
     virtual ~ThreadLocal() {
         int status = pthread_key_delete(key);
-        if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+        if (unlikely(status != 0)) FATAL << "pthread delete key error!";
     }
 };
 

@@ -4,6 +4,7 @@
 
 #include "Timestamp.h"
 #include "Exception.h"
+#include "ConsoleStream.h"
 
 const int Timestamp::factors[] = {1, 1000, 1000 * 1000};
 
@@ -59,7 +60,7 @@ bool Timestamp::operator!=(const Timestamp &rhs) const {
 Timestamp Timestamp::now() {
     timespec ts;
     auto status = clock_gettime(CLOCK_REALTIME, &ts);
-    if (unlikely(status != 0)) ERROR_EXIT("error occurred.");
+    if (unlikely(status != 0)) FATAL << "get clock time error!";
     return Timestamp(ts.tv_sec * factors[second] + ts.tv_nsec / 1000);
 }
 
