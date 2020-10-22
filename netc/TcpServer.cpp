@@ -19,13 +19,13 @@ using std::placeholders::_1;
 using std::placeholders::_2;
 
 // 如果客户端代码没有设置连接回调，则调用此默认连接回调
-void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
-    INFO << "new client connected: " << conn->local_address().to_string() << " <------------------- "
-         << conn->peer_address().to_string();
+static void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
+    LOG << "new client connected: " << conn->local_address().to_string() << " <------------------- "
+        << conn->peer_address().to_string();
 }
 
 // 如果客户端代码没有设置消息到来回调，则调用此默认消息回调
-void default_message_callback(const shared_ptr<TcpConnection> &conn, Timestamp s) {
+static void default_message_callback(const shared_ptr<TcpConnection> &conn, Timestamp s) {
     conn->inbound_buf().retrieve_all();
 }
 
@@ -39,13 +39,12 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
 
 TcpServer::~TcpServer() {
     assert(loop->is_in_loop_thread());
-    INFO << "############################ ~TcpServer ############################";
+    INFO << "---------------------- ~TcpServer ----------------------";
     for (auto &e:connections) {
-//        e.second->get_loop()->run_in_loop(bind(&TcpConnection::connection_destroyed, e.second));
         shared_ptr<TcpConnection> conn = e.second;
         e.second.reset();
-        assert(e.second == nullptr and conn.use_count() == 1);
-        conn->get_loop()->run_in_loop(bind(&TcpConnection::connection_destroyed, conn));
+        assert(e.second == nullptr);
+        conn->get_loop()->run_in_loop(bind(&TcpConnection::quit, conn));
     }
 }
 
@@ -64,26 +63,25 @@ void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
     conn->set_write_complete_callback(write_complete_callback);
     conn->set_close_callback(bind(&TcpServer::remove_connection, this, _1));
     connections[conn_name] = conn;
-    io_loop->run_in_loop(bind(&TcpConnection::connection_established, conn));
+    io_loop->queue_in_loop(bind(&TcpConnection::connection_established, conn));
 }
 
 void TcpServer::remove_connection(const shared_ptr<TcpConnection> &con) {
-    assert(con->get_status() == TcpConnection::STATUS::Disconnecting);
-    loop->run_in_loop(bind(&TcpServer::remove_connection_in_loop, this, con));
+    loop->queue_in_loop(bind(&TcpServer::remove_connection_in_loop, this, con));
 }
 
 void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) {
     assert(loop->is_in_loop_thread());
     auto n = connections.erase(con->get_name());
     assert(n == 1);
-//    con->set_status(TcpConnection::STATUS::Disconnected);
     con->get_loop()->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
 }
 
 void TcpServer::start() {
-    thread_pool->start(thread_initial_callback);
+    assert(loop->is_in_loop_thread());
     assert(!acceptor->is_listening());
-    loop->run_in_loop(bind(&Acceptor::listen, acceptor.get()));
+    thread_pool->start(thread_initial_callback);
+    acceptor->listen();
 }
 
 void TcpServer::set_conn_callback(const ConnectionCallback &callback) {

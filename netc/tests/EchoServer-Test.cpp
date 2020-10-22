@@ -18,7 +18,6 @@ private:
     void on_message(const shared_ptr<TcpConnection> &conn, Timestamp timestamp) {
         string msg = conn->inbound_buf().retrieve_all_string();
         if (msg == "exit\n") {
-            printf("****************** EXIT ******************\n");
             conn->outbound_buf().append("bye.\n");
             conn->send_outbound_bytes();
             conn->set_write_complete_callback([](const shared_ptr<TcpConnection> &con) {
@@ -27,16 +26,19 @@ private:
             return;
         }
         if (msg == "quit\n") {
-            loop->quit();
+            conn->outbound_buf().append(msg);
+            conn->send_outbound_bytes();
+            conn->set_write_complete_callback([this](const shared_ptr<TcpConnection> &con) {
+                loop->quit();
+            });
+            return;
         }
         conn->outbound_buf().append(msg);
         conn->send_outbound_bytes();
     }
 
 public:
-    EchoServer(EventLoop *loop, const InetAddress listen_addr, int threads) : loop(loop),
-                                                                              server(loop, listen_addr, "echo-svr",
-                                                                                     threads, true) {
+    EchoServer(EventLoop *loop, const InetAddress listen_addr, int threads) : loop(loop), server(loop, listen_addr, "echo-svr", threads, true) {
         server.set_msg_callback(bind(&EchoServer::on_message, this, _1, _2));
     }
 
@@ -47,8 +49,8 @@ public:
 
 int main(int argc, const char *argv[]) {
     EventLoop loop;
-    InetAddress addr(true, 8080);
-    EchoServer server(&loop, addr, 3);
+    InetAddress addr("192.168.0.100", 8080);
+    EchoServer server(&loop, addr, 2);
     server.start();
     loop.loop();
     return 0;

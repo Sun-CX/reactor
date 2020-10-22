@@ -8,11 +8,11 @@
 #include "Events.h"
 #include "EventLoopThread.h"
 #include <string>
-#include <map>
+#include <unordered_map>
 #include <atomic>
 
 using std::string;
-using std::map;
+using std::unordered_map;
 using std::atomic_int;
 using std::unique_ptr;
 
@@ -28,7 +28,7 @@ class InetAddress;
 
 class TcpServer final : public NonCopyable {
 private:
-    using ConnectionMap = map<string, shared_ptr<TcpConnection>>;
+    using ConnectionMap = unordered_map<string, shared_ptr<TcpConnection>>;
 
     EventLoop *loop;
     const string name;

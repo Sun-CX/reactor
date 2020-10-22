@@ -4,14 +4,16 @@
 
 #include "EventLoopThread.h"
 #include "EventLoop.h"
+#include "ConsoleStream.h"
 
 using std::bind;
 
 EventLoopThread::EventLoopThread(EventLoopThread::ThreadInitialCallback callback, string name) :
-        loop(nullptr), thread(bind(&EventLoopThread::thread_func, this), move(name)),
-        mutex(), condition(mutex), initial_callback(move(callback)) {}
+        loop(nullptr), thread(bind(&EventLoopThread::thread_func, this), move(name)), mutex(),
+        condition(mutex), initial_callback(move(callback)) {}
 
 EventLoopThread::~EventLoopThread() {
+    INFO << "---------------------- ~EventLoopThread ----------------------";
     if (loop != nullptr) {
         loop->quit();
         thread.join();
@@ -27,8 +29,10 @@ void EventLoopThread::thread_func() {
         condition.notify();
     }
     loop->loop();
-    MutexGuard guard(mutex);
-    loop = nullptr;
+    {
+        MutexGuard guard(mutex);
+        loop = nullptr;
+    }
 }
 
 EventLoop *EventLoopThread::start() {

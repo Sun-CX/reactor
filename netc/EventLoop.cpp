@@ -28,6 +28,7 @@ EventLoop::EventLoop() : looping(false), exited(false), thread_name(CurrentThrea
 }
 
 EventLoop::~EventLoop() {
+    INFO << "---------------------- ~EventLoop ----------------------";
     wakeup_channel->disable_all();
     wakeup_channel->remove();
     auto status = ::close(wakeup_channel->get_fd());
@@ -38,8 +39,8 @@ EventLoop::~EventLoop() {
 
 void EventLoop::loop() {
     assert(is_in_loop_thread());
-    LOG << "EventLoop(" << this << ") start loop...";
     looping = true;
+    LOG << "EventLoop(" << this << ") start loop...";
     while (!exited) {
         active_channels.clear();
         poller->poll(&active_channels, default_poll_timeout_milliseconds);
@@ -48,6 +49,7 @@ void EventLoop::loop() {
         execute_pending_functors();
     }
     looping = false;
+    LOG << "EventLoop(" << this << ") stop loop...";
 }
 
 void EventLoop::update_channel(Channel *channel) {

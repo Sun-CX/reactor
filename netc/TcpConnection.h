@@ -22,12 +22,11 @@ class Channel;
 class Socket;
 
 class TcpConnection final : public NonCopyable, public enable_shared_from_this<TcpConnection> {
-public:
+private:
     enum STATUS {
         Connecting, Connected, Disconnecting, Disconnected
     };
-private:
-    static const char *STATUS_STR[4];
+    static const char *STATUS_STRING[4];
 
     EventLoop *loop;
     const string name;
@@ -37,7 +36,6 @@ private:
     unique_ptr<Channel> conn_channel;
     const InetAddress local;
     const InetAddress peer;
-//    size_t high_water_mark;
     Buffer inbound;     // 入站缓冲区
     Buffer outbound;    // 出站缓冲区
     any context;
@@ -55,7 +53,7 @@ private:
 
     void error_handler();
 
-    void shutdown_in_loop();
+    void quit_in_loop();
 
 //    void send_in_loop();
 
@@ -68,30 +66,15 @@ public:
 
     virtual ~TcpConnection();
 
-    void set_connection_callback(const ConnectionCallback &callback);
-
-    void set_message_callback(const MessageCallback &callback);
-
-    void set_write_complete_callback(const WriteCompleteCallback &callback);
-
-    void set_close_callback(const CloseCallback &callback);
-
     void connection_established();
 
     void connection_destroyed();
 
-    bool connected() const;
-
-    void set_status(STATUS status);
-
-    STATUS get_status() const;
-
-//    void send(const StringPiece &piece);
-
-//    void send(const void *begin, size_t n);
     void send_outbound_bytes();
 
     void shutdown();
+
+    void quit();
 
     const any &get_context() const;
 
@@ -108,6 +91,14 @@ public:
     const InetAddress &peer_address() const;
 
     EventLoop *get_loop() const;
+
+    void set_connection_callback(const ConnectionCallback &callback);
+
+    void set_message_callback(const MessageCallback &callback);
+
+    void set_write_complete_callback(const WriteCompleteCallback &callback);
+
+    void set_close_callback(const CloseCallback &callback);
 };
 
 #endif //REACTOR_TCPCONNECTION_H
