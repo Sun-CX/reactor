@@ -19,8 +19,7 @@ const char *TcpConnection::STATUS_STR[4] = {"Connecting", "Connected", "Disconne
 TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local,
                              const InetAddress &peer) :
         loop(loop), name(move(name)), status(Connecting), reading(true), socket(new Socket(con_fd)),
-        conn_channel(new Channel(loop, socket->get_fd())), local(local), peer(peer),
-        high_water_mark(64 * 1024 * 1024), context(nullptr) {
+        conn_channel(new Channel(loop, socket->get_fd())), local(local), peer(peer), context(nullptr) {
     socket->keep_alive(true);
     conn_channel->set_read_callback(bind(&TcpConnection::read_handler, this));
     conn_channel->set_write_callback(bind(&TcpConnection::write_handler, this));
@@ -61,7 +60,6 @@ void TcpConnection::write_handler() {
         }
     } else
         ERROR << "write outbound data error!";
-
 }
 
 void TcpConnection::close_handler() {
@@ -109,8 +107,8 @@ void TcpConnection::connection_established() {
 }
 
 void TcpConnection::connection_destroyed() {
-    assert(loop->is_in_loop_thread());
-    assert(status == Disconnected);
+    assert(loop->is_in_loop_thread() and status == Disconnecting);
+    status = Disconnected;
     LOG << "connection disconnected.";
 }
 

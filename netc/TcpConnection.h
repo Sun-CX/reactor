@@ -37,7 +37,7 @@ private:
     unique_ptr<Channel> conn_channel;
     const InetAddress local;
     const InetAddress peer;
-    size_t high_water_mark;
+//    size_t high_water_mark;
     Buffer inbound;     // 入站缓冲区
     Buffer outbound;    // 出站缓冲区
     any context;

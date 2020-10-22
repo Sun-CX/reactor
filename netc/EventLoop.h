@@ -33,6 +33,7 @@ private:
 
     bool looping;
     atomic_bool exited;         // 循环是否退出（跨线程读写，原子保护）
+    const char *thread_name;    // EventLoop 对象创建时所在线程的线程名称
     const pid_t pid;            // EventLoop 对象创建时所在的线程 ID
     unique_ptr<Poller> poller;  // poller 生命周期与 EventLoop 对象相同
     Channels active_channels;

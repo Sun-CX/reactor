@@ -16,9 +16,9 @@ using std::placeholders::_1;
 thread_local EventLoop *EventLoop::loop_in_this_thread;
 const int EventLoop::default_poll_timeout_milliseconds = -1;   // 默认永不超时
 
-EventLoop::EventLoop() : looping(false), exited(false), pid(CurrentThread::pid), poller(Poller::default_poller(this)),
-                         mutex(), calling_pending_func(false), wakeup_channel(new Channel(this, create_event_fd())),
-                         timer(new Timer(this)) {
+EventLoop::EventLoop() : looping(false), exited(false), thread_name(CurrentThread::name), pid(CurrentThread::pid),
+                         poller(Poller::default_poller(this)), mutex(), calling_pending_func(false),
+                         wakeup_channel(new Channel(this, create_event_fd())), timer(new Timer(this)) {
     if (unlikely(loop_in_this_thread != nullptr)) {
         FATAL << "this thread already has an event loop object(" << loop_in_this_thread << ')';
     } else loop_in_this_thread = this;
@@ -75,11 +75,12 @@ void EventLoop::quit() {
 }
 
 void EventLoop::run_in_loop(const Functor &func) {
-    LOG << __func__ << " invoked, is_in_loop_thread: " << is_in_loop_thread();
+    LOG << __func__ << " invoked, loop in: " << thread_name << "[" << pid << "]";
     is_in_loop_thread() ? func() : queue_in_loop(func);
 }
 
 void EventLoop::queue_in_loop(const Functor &func) {
+    LOG << __func__ << " invoked, loop in: " << thread_name << "[" << pid << "]";
     {
         MutexGuard guard(mutex);
         pending_functors.push_back(func);

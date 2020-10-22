@@ -39,9 +39,12 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
 
 TcpServer::~TcpServer() {
     assert(loop->is_in_loop_thread());
+    INFO << "############################ ~TcpServer ############################";
     for (auto &e:connections) {
-        shared_ptr<TcpConnection> conn(e.second);
+//        e.second->get_loop()->run_in_loop(bind(&TcpConnection::connection_destroyed, e.second));
+        shared_ptr<TcpConnection> conn = e.second;
         e.second.reset();
+        assert(e.second == nullptr and conn.use_count() == 1);
         conn->get_loop()->run_in_loop(bind(&TcpConnection::connection_destroyed, conn));
     }
 }
@@ -73,9 +76,8 @@ void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) 
     assert(loop->is_in_loop_thread());
     auto n = connections.erase(con->get_name());
     assert(n == 1);
-    con->set_status(TcpConnection::STATUS::Disconnected);
-    EventLoop *io_loop = con->get_loop();
-    io_loop->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
+//    con->set_status(TcpConnection::STATUS::Disconnected);
+    con->get_loop()->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
 }
 
 void TcpServer::start() {

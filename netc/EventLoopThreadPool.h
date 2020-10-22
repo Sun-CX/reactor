@@ -19,7 +19,7 @@ class EventLoop;
 class EventLoopThreadPool final : public NonCopyable {
 private:
     EventLoop *loop;
-    const string name;
+    const string prefix;
     const int num_threads;
     int next;
     vector<unique_ptr<EventLoopThread>> threads;
