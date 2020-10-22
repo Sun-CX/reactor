@@ -27,7 +27,7 @@ void service(const HttpRequest &request, HttpResponse &response) {
 
 int main(int argc, const char *argv[]) {
     EventLoop loop;
-    InetAddress addr(true, 8080);
+    InetAddress addr("127.0.0.1", 8080);
     HttpServer httpServer(&loop, addr, "http-svr", 3, true);
     httpServer.set_http_callback(service);
     httpServer.start();
