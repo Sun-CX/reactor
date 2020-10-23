@@ -12,7 +12,7 @@ more improvements:
 
 ## Startup
 
-### An TCP echo-server 
+### A TCP echo-server
 
 ```cpp
 #include "EventLoop.h"
