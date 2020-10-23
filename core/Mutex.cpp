@@ -6,7 +6,7 @@
 #include "Exception.h"
 #include "ConsoleStream.h"
 
-Mutex::Mutex() : pid(0) {
+Mutex::Mutex() noexcept : pid(0) {
     auto status = pthread_mutex_init(&mutex, nullptr);
     if (unlikely(status != 0)) FATAL << "mutex init error!";
 }

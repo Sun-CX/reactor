@@ -26,7 +26,7 @@ private:
     };
 
 public:
-    Mutex();
+    Mutex() noexcept;
 
     virtual ~Mutex();
 
