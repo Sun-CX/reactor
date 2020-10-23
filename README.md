@@ -62,7 +62,7 @@ public:
 
 int main(int argc, const char *argv[]) {
     EventLoop loop;
-    InetAddress addr("192.168.0.100", 8080);
+    InetAddress addr("127.0.0.1", 8080);
     EchoServer server(&loop, addr, 10);
     server.start();
     loop.loop();
