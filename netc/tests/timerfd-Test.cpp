@@ -4,6 +4,10 @@
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
+#include <memory>
+
+using std::shared_ptr;
+using std::make_shared;
 
 void test1() {
     auto timer_fd = timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
@@ -43,24 +47,17 @@ void test1() {
     close(timer_fd);
 }
 
+static void echo(const shared_ptr<int> &ptr) {
+    printf("echo: use_count: %ld, value: %d\n", ptr.use_count(), *ptr);
+}
+
 int main(int argc, const char *argv[]) {
-//    auto start = std::chrono::system_clock::now();
-//
-//    printf("now: %ld\n", start.time_since_epoch().count());
-//
-//    sleep(30);
-//    timeval val;
-//    gettimeofday(&val, nullptr);
-//    printf("now: %ld\n", val.tv_sec * 1000000 + val.tv_usec);
-//    printf("now: %ld\n", Timestamp::now().time_since_epoch());
+//    test1();
 
-    test1();
-
-//    auto now = Timestamp::now();
-//    printf("seconds: %ld, nsec: %ld\n", now.time_since_epoch() / (1000 * 1000),
-//           now.time_since_epoch() % (1000 * 1000) * 1000);
-//
-//    auto s = now.to_timespec();
-//    printf("sec: %ld, nsec: %ld\n", s.tv_sec, s.tv_nsec);
+//    auto p = make_shared<int>(6);
+    shared_ptr<int> p(new int(6));
+    printf("main, use_count: %ld\n", p.use_count());
+    echo(p);
+    printf("main, use_count: %ld\n", p.use_count());
     return 0;
 }

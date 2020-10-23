@@ -26,7 +26,7 @@ private:
             return;
         }
         if (msg == "quit\n") {
-            conn->outbound_buf().append(msg);
+            conn->outbound_buf().append("server is closing...");
             conn->send_outbound_bytes();
             conn->set_write_complete_callback([this](const shared_ptr<TcpConnection> &con) {
                 loop->quit();
@@ -42,15 +42,13 @@ public:
         server.set_msg_callback(bind(&EchoServer::on_message, this, _1, _2));
     }
 
-    void start() {
-        server.start();
-    }
+    void start() { server.start(); }
 };
 
 int main(int argc, const char *argv[]) {
     EventLoop loop;
     InetAddress addr("192.168.0.100", 8080);
-    EchoServer server(&loop, addr, 2);
+    EchoServer server(&loop, addr, 8);
     server.start();
     loop.loop();
     return 0;
