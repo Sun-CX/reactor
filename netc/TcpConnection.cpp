@@ -58,7 +58,7 @@ void TcpConnection::write_handler() {
         outbound.retrieve(n);
         if (outbound.readable_bytes() == 0) {
             conn_channel->disable_writing();
-            if (write_complete_callback) write_complete_callback(shared_from_this());
+            if (write_complete_callback) loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
         }
     } else
         ERROR << "write outbound data error!";
@@ -118,16 +118,11 @@ void TcpConnection::shutdown() {
     }
 }
 
-void TcpConnection::quit() {
+void TcpConnection::force_close() {
+    assert(loop->is_in_loop_thread());
     assert(status == Connected);
     LOG << "-------------- quit --------------";
     status = Disconnecting;
-    loop->run_in_loop(bind(&TcpConnection::quit_in_loop, this));
-}
-
-void TcpConnection::quit_in_loop() {
-    assert(loop->is_in_loop_thread());
-    assert(status == Disconnecting);
     conn_channel->disable_all();
     conn_channel->remove();
     connection_destroyed();

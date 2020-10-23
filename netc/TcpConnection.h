@@ -53,8 +53,6 @@ private:
 
     void error_handler();
 
-    void quit_in_loop();
-
 //    void send_in_loop();
 
 //    void send_in_loop(const StringPiece &piece);
@@ -74,7 +72,7 @@ public:
 
     void shutdown();
 
-    void quit();
+    void force_close();
 
     const any &get_context() const;
 

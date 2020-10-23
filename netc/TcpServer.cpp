@@ -41,10 +41,12 @@ TcpServer::~TcpServer() {
     assert(loop->is_in_loop_thread());
     INFO << "---------------------- ~TcpServer ----------------------";
     for (auto &e:connections) {
-        shared_ptr<TcpConnection> conn = e.second;
+        shared_ptr<TcpConnection> conn(e.second);
+//        INFO << "conn use count: " << conn.use_count();
         e.second.reset();
+//        INFO << "conn use count: " << conn.use_count();
         assert(e.second == nullptr);
-        conn->get_loop()->run_in_loop(bind(&TcpConnection::quit, conn));
+        conn->get_loop()->queue_in_loop(bind(&TcpConnection::force_close, conn));
     }
 }
 
