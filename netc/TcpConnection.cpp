@@ -19,7 +19,7 @@ const char *TcpConnection::STATUS_STRING[4] = {"Connecting", "Connected", "Disco
 TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local,
                              const InetAddress &peer) :
         loop(loop), name(move(name)), status(Connecting), reading(true), socket(new Socket(con_fd)),
-        conn_channel(new Channel(loop, socket->get_fd())), local(local), peer(peer), context(nullptr) {
+        conn_channel(new Channel(loop, socket->get_fd())), local(local), peer(peer) {
     INFO << "++++++++++++++++++++++ TcpConnection ++++++++++++++++++++++";
     socket->keep_alive(true);
     conn_channel->set_read_callback(bind(&TcpConnection::read_handler, this));
