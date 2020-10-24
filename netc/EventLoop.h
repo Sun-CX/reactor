@@ -43,7 +43,6 @@ private:
     Functors pending_functors;  // 挂起的执行任务
 
     unique_ptr<Channel> wakeup_channel; // 用于唤醒 poll 调用，使其立即返回
-
     unique_ptr<Timer> timer;            // 定时器
 
     void wakeup() const;
@@ -53,7 +52,7 @@ private:
 
     void read_wakeup_event() const;
 
-    // 让 IO 线程也能执行一些计算任务
+    // 让 IO 线程执行一些计算任务
     void execute_pending_functors();
 
 public:
