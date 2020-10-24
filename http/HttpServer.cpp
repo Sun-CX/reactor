@@ -6,47 +6,41 @@
 #include "Timestamp.h"
 #include "TcpConnection.h"
 #include "HttpContext.h"
-#include <cassert>
 
 using std::placeholders::_1;
 using std::placeholders::_2;
+using std::any_cast;
 
-void default_http_callback(const HttpRequest &request, HttpResponse &response) {
+static void default_http_callback(const HttpRequest &request, HttpResponse &response) {
     printf("TODO...\n");
 }
 
-HttpServer::HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port)
-        : server(loop, addr, move(name), threads, reuse_port),
-          http_callback(default_http_callback) {
+HttpServer::HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port) :
+        server(loop, addr, move(name), threads, reuse_port), http_callback(default_http_callback) {
     server.set_conn_callback(bind(&HttpServer::on_connection, this, _1));
     server.set_msg_callback(bind(&HttpServer::on_message, this, _1, _2));
-    server.set_close_callback([](const shared_ptr<TcpConnection> &connection) {
-        delete static_cast<HttpContext *>(connection->get_context());
-    });
 }
 
 void HttpServer::on_connection(const shared_ptr<TcpConnection> &connection) const {
-    assert(connection->connected());
-    connection->set_context(new HttpContext());
+    connection->set_context(HttpContext());
 }
 
 void HttpServer::on_message(const shared_ptr<TcpConnection> &connection, Timestamp recv_time) {
-    auto context = static_cast<HttpContext *>(connection->get_context());
-    auto parse_success = context->parse_request(connection->inbound_buf());
+    auto context = any_cast<HttpContext>(connection->get_context());
+    auto parse_success = context.parse_request(connection->inbound_buf());
 
-    auto version = context->get_request().get_version();
-    context->get_response().set_version(version);
-    context->get_response().set_header("Server", "reactor");
-    context->get_response().set_header("Date", Timestamp::now().to_string());
+    auto version = context.get_request().get_version();
+    context.get_response().set_version(version);
+    context.get_response().set_header("Server", "reactor");
+    context.get_response().set_header("Date", Timestamp::now().to_string());
 
     if (!parse_success) {
-        context->get_response().set_response_status(400, "Bad Request");
+        context.get_response().set_response_status(400, "Bad Request");
     } else {
-        http_callback(context->get_request(), context->get_response());
+        http_callback(context.get_request(), context.get_response());
     }
-    context->parse_response(connection->outbound_buf());
+    context.parse_response(connection->outbound_buf());
     connection->send_outbound_bytes();
-    connection->shutdown();
 }
 
 void HttpServer::start() {

@@ -71,8 +71,7 @@ bool HttpContext::parse_request(Buffer &buf) {
             if (pos) {
                 auto colon = find(buf.peek(), pos, ':');
                 if (colon != pos) {
-                    parse_header(reinterpret_cast<const char *>(buf.peek()),
-                                 reinterpret_cast<const char *>(pos));
+                    parse_header(reinterpret_cast<const char *>(buf.peek()), reinterpret_cast<const char *>(pos));
                 } else {
                     parse_status = ParseFinished;
                     has_more = false;
