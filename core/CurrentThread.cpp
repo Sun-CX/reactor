@@ -4,7 +4,7 @@
 
 #include "CurrentThread.h"
 
-thread_local char CurrentThread::name[32];
+thread_local char CurrentThread::name[16];
 
 thread_local pid_t CurrentThread::pid;
 

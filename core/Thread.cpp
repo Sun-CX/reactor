@@ -15,7 +15,7 @@ using std::to_string;
 
 atomic_int Thread::thread_count;
 
-pre_main void set_startup_process_tsd() {
+pre_main void init_main_thread_title() {
     const char *main_thread_name = "main-thread";
     int status = prctl(PR_SET_NAME, main_thread_name);
     if (unlikely(status != 0)) FATAL << "prctl error!";
