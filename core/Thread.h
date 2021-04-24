@@ -6,12 +6,11 @@
 #define REACTOR_THREAD_H
 
 #include "NonCopyable.h"
+#include "GnuExt.h"
 #include <atomic>
 #include <string>
 #include <pthread.h>
 #include <functional>
-
-#define pre_main __attribute__((constructor))
 
 using std::atomic_uint;
 using std::function;
