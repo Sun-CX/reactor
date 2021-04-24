@@ -13,7 +13,7 @@
 using std::move;
 using std::to_string;
 
-atomic_int Thread::thread_count;
+atomic_uint Thread::thread_count;
 
 pre_main void main_thread_initialize() {
     const char *main_thread_name = "main-thread";

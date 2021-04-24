@@ -13,7 +13,7 @@
 
 #define pre_main __attribute__((constructor))
 
-using std::atomic_int;
+using std::atomic_uint;
 using std::function;
 using std::string;
 
@@ -26,7 +26,7 @@ private:
     pthread_t tid;      // POSIX 虚拟线程 ID
     pid_t pid;          // kernel 线程（LWP）真实 ID
 
-    static atomic_int thread_count;
+    static atomic_uint thread_count;
 
     static void *thread_routine(void *arg);
 
