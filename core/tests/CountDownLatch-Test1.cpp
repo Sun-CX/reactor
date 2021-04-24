@@ -8,6 +8,7 @@
 #include <memory>
 #include <functional>
 #include <algorithm>
+#include <unistd.h>
 
 using std::vector;
 using std::unique_ptr;
@@ -29,8 +30,8 @@ private:
 
     void thread_func() {
         latch.wait();
-        printf("tid: %d, %s started...\n", CurrentThread::pid, CurrentThread::name);
-        printf("tid: %d, %s stopped...\n", CurrentThread::pid, CurrentThread::name);
+        printf("tid: %d, %s started...\n", CurrentThread::id, CurrentThread::name);
+        printf("tid: %d, %s stopped...\n", CurrentThread::id, CurrentThread::name);
     }
 
 public:
@@ -54,11 +55,11 @@ public:
 };
 
 int main(int argc, const char *argv[]) {
-    printf("pid: %d, tid: %d\n", getpid(), CurrentThread::pid);
+    printf("pid: %d, tid: %d\n", getpid(), CurrentThread::id);
 
     Test t(3);
 //    sleep(3);
-    printf("pid: %d, tid: %d, %s running...\n", getpid(), CurrentThread::pid, CurrentThread::name);
+    printf("pid: %d, tid: %d, %s running...\n", getpid(), CurrentThread::id, CurrentThread::name);
     printf("main thread allow rush...\n");
     t.run();
     t.join_all();

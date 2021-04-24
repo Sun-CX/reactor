@@ -14,7 +14,7 @@ private:
     friend class Condition;
 
     pthread_mutex_t mutex;
-    pid_t pid;              // 持有锁的线程 ID，为 0 表示没有线程持有锁
+    pid_t pid;              // 当前持有锁的线程 ID，为 0 表示没有线程持有锁
 
     class ConditionWaitGuard final : public NonCopyable {
     private:
@@ -22,24 +22,20 @@ private:
     public:
         explicit ConditionWaitGuard(Mutex &mut);
 
-        virtual ~ConditionWaitGuard();
+        ~ConditionWaitGuard();
     };
 
+    pthread_mutex_t *get_mutex();
 public:
     Mutex() noexcept;
 
-    virtual ~Mutex();
+    ~Mutex();
 
     void lock();
 
     void unlock();
 
-    [[nodiscard]]
     bool is_locked_by_cur_thread() const;
-
-    void assert_locked_by_cur_thread() const;
-
-    pthread_mutex_t *get_mutex();
 };
 
 class MutexGuard final : public NonCopyable {
@@ -48,7 +44,7 @@ private:
 public:
     explicit MutexGuard(Mutex &mutex);
 
-    virtual ~MutexGuard();
+    ~MutexGuard();
 };
 
 #endif //REACTOR_MUTEX_H

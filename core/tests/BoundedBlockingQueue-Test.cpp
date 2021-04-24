@@ -26,17 +26,17 @@ private:
     vector<unique_ptr<Thread>> threads;
 
     void thread_func() {
-        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
+        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::id);
         latch.count_down();
         bool running = true;
         while (running) {
             string d = queue.pop_front();
             printf("%s[%d]: consume data: %s, size = %zu\n", CurrentThread::name,
-                   CurrentThread::pid, d.c_str(), queue.size());
+                   CurrentThread::id, d.c_str(), queue.size());
 
             running = d != "stop";
         }
-        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::pid);
+        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::id);
     }
 
 public:
@@ -59,7 +59,7 @@ public:
             snprintf(buf, sizeof(buf), "hello %d", i + 1);
             queue.push_back(buf);
             printf("%s[%d] push_back: %s, queue size: %zu\n", CurrentThread::name,
-                   CurrentThread::pid,
+                   CurrentThread::id,
                    buf, queue.size());
         }
     }

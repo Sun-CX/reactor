@@ -6,6 +6,7 @@
 #include <memory>
 #include <map>
 #include <functional>
+#include <unistd.h>
 #include "Thread.h"
 #include "Timestamp.h"
 #include "BlockingQueue.h"
@@ -27,7 +28,7 @@ private:
     CountDownLatch latch;
 
     void thread_func() {
-        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
+        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::id);
         latch.count_down();
         map<int, int> delays;
         bool running = true;
@@ -42,10 +43,10 @@ private:
             running = timestamp.valid();
         }
 
-        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::pid);
+        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::id);
 
         for (const auto &delay:delays) {
-            printf("%s[%d] delay: %d, count: %d\n", CurrentThread::name, CurrentThread::pid,
+            printf("%s[%d] delay: %d, count: %d\n", CurrentThread::name, CurrentThread::id,
                    delay.first, delay.second);
         }
     }

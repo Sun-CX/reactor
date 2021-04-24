@@ -12,6 +12,12 @@ Mutex::Mutex() noexcept : pid(0) {
     if (unlikely(status != 0)) FATAL << "mutex init error!";
 }
 
+Mutex::~Mutex() {
+    if (unlikely(pid != 0)) FATAL << "one thread holds this mutex, destroy error!";
+    auto status = pthread_mutex_destroy(&mutex);
+    if (unlikely(status != 0)) FATAL << "mutex destroy error!";
+}
+
 void Mutex::lock() {
     auto status = pthread_mutex_lock(&mutex);
     if (unlikely(status != 0)) FATAL << "mutex lock error!";
@@ -30,16 +36,6 @@ pthread_mutex_t *Mutex::get_mutex() {
 
 bool Mutex::is_locked_by_cur_thread() const {
     return pid == CurrentThread::id;
-}
-
-void Mutex::assert_locked_by_cur_thread() const {
-    if (!is_locked_by_cur_thread()) FATAL << "lock assert failed!";
-}
-
-Mutex::~Mutex() {
-    if (unlikely(pid != 0)) FATAL << "one thread holds this mutex, destroy error!";
-    auto status = pthread_mutex_destroy(&mutex);
-    if (unlikely(status != 0)) FATAL << "mutex destroy error!";
 }
 
 MutexGuard::MutexGuard(Mutex &mutex) : mutex(mutex) {

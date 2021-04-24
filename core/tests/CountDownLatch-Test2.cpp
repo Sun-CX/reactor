@@ -7,6 +7,7 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <unistd.h>
 
 using std::vector;
 using std::unique_ptr;
@@ -27,9 +28,9 @@ private:
     vector<unique_ptr<Thread>> threads;
 
     void thread_func() {
-        printf("tid: %d, %s started...\n", CurrentThread::pid, CurrentThread::name);
+        printf("tid: %d, %s started...\n", CurrentThread::id, CurrentThread::name);
 //        sleep(3);
-        printf("tid: %d, %s stopped...\n", CurrentThread::pid, CurrentThread::name);
+        printf("tid: %d, %s stopped...\n", CurrentThread::id, CurrentThread::name);
         latch.count_down();
     }
 
@@ -54,12 +55,12 @@ public:
 };
 
 int main(int argc, const char *argv[]) {
-    printf("pid: %d, tid: %d\n", getpid(), CurrentThread::pid);
+    printf("pid: %d, tid: %d\n", getpid(), CurrentThread::id);
 
     Demo demo(3);
     demo.wait();
 
-    printf("pid: %d, tid: %d %s running...\n", getpid(), CurrentThread::pid, CurrentThread::name);
+    printf("pid: %d, tid: %d %s running...\n", getpid(), CurrentThread::id, CurrentThread::name);
 
     demo.join_all();
 

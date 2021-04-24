@@ -3,7 +3,6 @@
 //
 
 #include "Thread.h"
-#include "CurrentThread.h"
 #include "FixedThreadPool.h"
 #include "CountDownLatch.h"
 #include <functional>
@@ -11,11 +10,11 @@
 using std::bind;
 
 static void print() {
-    printf("%s[%d] execute print...\n", CurrentThread::name, CurrentThread::pid);
+    printf("%s[%d] execute print...\n", CurrentThread::name, CurrentThread::id);
 }
 
 static void print_str(const string &str) {
-    printf("%s[%d] execute task: %s\n", CurrentThread::name, CurrentThread::pid, str.c_str());
+    printf("%s[%d] execute task: %s\n", CurrentThread::name, CurrentThread::id, str.c_str());
 //    usleep(100 * 1000);
 }
 

@@ -8,6 +8,7 @@
 #include <cstring>
 #include <vector>
 #include <functional>
+#include <unistd.h>
 
 using std::vector;
 using std::unique_ptr;
@@ -25,16 +26,16 @@ private:
     vector<unique_ptr<Thread>> threads;
 
     void thread_func() {
-        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::pid);
+        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::id);
         latch.count_down();
         bool running = true;
         while (running) {
             string d = queue.de_queue();
             printf("%s[%d]: consume data: %s, size = %zu\n", CurrentThread::name,
-                   CurrentThread::pid, d.c_str(), queue.size());
+                   CurrentThread::id, d.c_str(), queue.size());
             running = d != "stop";
         }
-        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::pid);
+        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::id);
     }
 
 public:
@@ -56,7 +57,7 @@ public:
             memset(buf, 0, sizeof(buf));
             snprintf(buf, sizeof(buf), "hello %d", i + 1);
             queue.en_queue(buf);
-            printf("%s[%d] enque: %s, queue size: %zu\n", CurrentThread::name, CurrentThread::pid,
+            printf("%s[%d] enque: %s, queue size: %zu\n", CurrentThread::name, CurrentThread::id,
                    buf, queue.size());
         }
     }
@@ -86,7 +87,7 @@ void test_move() {
 
 int main(int argc, const char *argv[]) {
 
-    printf("thread thread_name: %s, pid: %d, tid: %d\n", CurrentThread::name, getpid(), CurrentThread::pid);
+    printf("thread thread_name: %s, pid: %d, tid: %d\n", CurrentThread::name, getpid(), CurrentThread::id);
 
     Test t(5);   // 5 个消费者消费数据
     t.run(100);     // 主线程生产 100 条数据
