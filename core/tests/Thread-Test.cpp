@@ -3,7 +3,6 @@
 //
 
 #include "Thread.h"
-#include "CurrentThread.h"
 
 using std::bind;
 
@@ -15,17 +14,16 @@ public:
 
     void increment(int n) {
         for (int i = 0; i < n; ++i) count++;
-        printf("CurrentThread name: %s, pid: %d\n", CurrentThread::name, CurrentThread::pid);
+        printf("CurrentThread thread_name: %s, tid: %d\n", CurrentThread::name, CurrentThread::id);
     }
 
-    [[nodiscard]]
     int get_count() const {
         return count;
     }
 };
 
 int main(int argc, const char *argv[]) {
-    printf("main thread name: %s, main thread pid: %d\n", CurrentThread::name, CurrentThread::pid);
+    printf("main thread thread_name: %s, main thread pid: %d\n", CurrentThread::name, CurrentThread::id);
 
     Foo foo;
 
@@ -38,8 +36,8 @@ int main(int argc, const char *argv[]) {
     t1.join();
     t2.join();
 
-    printf("t1 name: %s, pid: %d\n", t1.get_name().c_str(), t1.get_tid());
-    printf("t2 name: %s, pid: %d\n", t2.get_name().c_str(), t2.get_tid());
+    printf("t1 thread_name: %s, tid: %d\n", t1.name().c_str(), t1.getid());
+    printf("t2 thread_name: %s, tid: %d\n", t2.name().c_str(), t2.getid());
 
     printf("count: %d\n", foo.get_count());
 

@@ -15,7 +15,7 @@ public:
     }
 
     virtual ~Test() {
-        printf("%s[%d] destructing %p, name: %s\n", CurrentThread::name, CurrentThread::pid, this, name.c_str());
+        printf("%s[%d] destructing %p, thread_name: %s\n", CurrentThread::name, CurrentThread::pid, this, name.c_str());
     }
 
     [[nodiscard]]
@@ -32,10 +32,10 @@ ThreadLocal<Test> local1;
 ThreadLocal<Test> local2;
 
 static void print() {
-    printf("%s[%d] obj1 %p, name: %s\n", CurrentThread::name, CurrentThread::pid, &local1.get_value(),
+    printf("%s[%d] obj1 %p, thread_name: %s\n", CurrentThread::name, CurrentThread::pid, &local1.get_value(),
            local1.get_value().getName().c_str());
 
-    printf("%s[%d] obj2 %p, name: %s\n", CurrentThread::name, CurrentThread::pid, &local2.get_value(),
+    printf("%s[%d] obj2 %p, thread_name: %s\n", CurrentThread::name, CurrentThread::pid, &local2.get_value(),
            local2.get_value().getName().c_str());
 }
 

@@ -86,7 +86,7 @@ void test_move() {
 
 int main(int argc, const char *argv[]) {
 
-    printf("thread name: %s, pid: %d, tid: %d\n", CurrentThread::name, getpid(), CurrentThread::pid);
+    printf("thread thread_name: %s, pid: %d, tid: %d\n", CurrentThread::name, getpid(), CurrentThread::pid);
 
     Test t(5);   // 5 个消费者消费数据
     t.run(100);     // 主线程生产 100 条数据

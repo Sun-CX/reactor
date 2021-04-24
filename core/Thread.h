@@ -6,7 +6,6 @@
 #define REACTOR_THREAD_H
 
 #include "NonCopyable.h"
-#include "GnuExt.h"
 #include <atomic>
 #include <string>
 #include <pthread.h>
@@ -18,10 +17,10 @@ using std::string;
 
 class Thread final : public NonCopyable {
 private:
-    using thread_func = function<void()>;
+    using runnable = function<void()>;
 
-    thread_func func;
-    string name;
+    runnable func;
+    string thread_name;
     pthread_t tid;      // POSIX 虚拟线程 ID
     pid_t pid;          // kernel 线程（LWP）真实 ID
 
@@ -30,17 +29,26 @@ private:
     static void *thread_routine(void *arg);
 
 public:
-    explicit Thread(thread_func func, string name = "");
+    explicit Thread(runnable func, string name = "");
 
     void start();
 
     void join();
 
     [[nodiscard]]
-    const string &get_name() const;
+    const string &name() const;
 
     [[nodiscard]]
-    pid_t get_tid() const;
+    pid_t getid() const;
+};
+
+class CurrentThread final : public NonCopyable {
+public:
+    CurrentThread() = delete;
+
+    /* 线程名最长为 16 字节（包括末尾 '\0' 符） */
+    thread_local static char name[16];
+    thread_local static pid_t id;
 };
 
 #endif //REACTOR_THREAD_H

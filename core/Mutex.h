@@ -5,7 +5,7 @@
 #ifndef REACTOR_MUTEX_H
 #define REACTOR_MUTEX_H
 
-#include "CurrentThread.h"
+#include "NonCopyable.h"
 #include <pthread.h>
 
 class Mutex final : public NonCopyable {

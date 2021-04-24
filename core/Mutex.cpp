@@ -3,6 +3,7 @@
 //
 
 #include "Mutex.h"
+#include "Thread.h"
 #include "Exception.h"
 #include "ConsoleStream.h"
 
@@ -14,7 +15,7 @@ Mutex::Mutex() noexcept : pid(0) {
 void Mutex::lock() {
     auto status = pthread_mutex_lock(&mutex);
     if (unlikely(status != 0)) FATAL << "mutex lock error!";
-    pid = CurrentThread::pid;
+    pid = CurrentThread::id;
 }
 
 void Mutex::unlock() {
@@ -28,7 +29,7 @@ pthread_mutex_t *Mutex::get_mutex() {
 }
 
 bool Mutex::is_locked_by_cur_thread() const {
-    return pid == CurrentThread::pid;
+    return pid == CurrentThread::id;
 }
 
 void Mutex::assert_locked_by_cur_thread() const {
@@ -54,5 +55,5 @@ Mutex::ConditionWaitGuard::ConditionWaitGuard(Mutex &mut) : mut(mut) {
 }
 
 Mutex::ConditionWaitGuard::~ConditionWaitGuard() {
-    mut.pid = CurrentThread::pid;
+    mut.pid = CurrentThread::id;
 }

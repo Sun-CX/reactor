@@ -4,11 +4,11 @@
 
 #include "ConsoleStream.h"
 #include "Converter.h"
-#include "CurrentThread.h"
+#include "Thread.h"
 #include <cstdio>
 
 ConsoleStream::ConsoleStream(const char *style, bool terminate) : style(style), terminate(terminate) {
-    printf("%s%s[%d]: ", style, CurrentThread::name, CurrentThread::pid);
+    printf("%s%s[%d]: ", style, CurrentThread::name, CurrentThread::id);
 }
 
 ConsoleStream::~ConsoleStream() {
