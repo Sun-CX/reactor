@@ -20,7 +20,7 @@ add_executable(mutex-test Mutex-Test.cpp)
 target_link_libraries(mutex-test asan reactor-core)
 
 add_executable(countdownlatch-test-1 CountDownLatch-Test1.cpp)
-target_link_libraries(countdownlatch-test-1 reactor-core)
+target_link_libraries(countdownlatch-test-1 asan reactor-core)
 
 add_executable(countdownlatch-test-2 CountDownLatch-Test2.cpp)
 target_link_libraries(countdownlatch-test-2 reactor-core)

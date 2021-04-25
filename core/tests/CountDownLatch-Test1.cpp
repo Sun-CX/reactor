@@ -30,14 +30,17 @@ private:
 
     void thread_func() {
         latch.wait();
-        printf("tid: %d, %s started...\n", CurrentThread::id, CurrentThread::name);
-        printf("tid: %d, %s stopped...\n", CurrentThread::id, CurrentThread::name);
+        printf("id: %d, %s started...\n", CurrentThread::id, CurrentThread::name);
+
+        CurrentThread::sleep(2000);
+
+        printf("id: %d, %s stopped...\n", CurrentThread::id, CurrentThread::name);
     }
 
 public:
     explicit Test(int n_threads) : latch(1) {
         threads.reserve(n_threads);
-        char name[32];
+        char name[16];
         for (int i = 0; i < n_threads; ++i) {
             snprintf(name, sizeof(name), "work thread-%d", i);
             threads.push_back(make_unique<Thread>(bind(&Test::thread_func, this), name));
@@ -55,7 +58,7 @@ public:
 };
 
 int main(int argc, const char *argv[]) {
-    printf("pid: %d, tid: %d\n", getpid(), CurrentThread::id);
+    printf("pid: %d, id: %d\n", getpid(), CurrentThread::id);
 
     Test t(3);
 //    sleep(3);
