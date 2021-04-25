@@ -8,7 +8,7 @@ link_directories(${PROJECT_BINARY_DIR}/lib)
 add_executable(noncopyable-test NonCopyable-Test.cpp)
 
 add_executable(thread-test Thread-Test.cpp)
-target_link_libraries(thread-test reactor-core)
+target_link_libraries(thread-test asan reactor-core)
 
 add_executable(exception-test Exception-Test.cpp)
 target_link_libraries(exception-test reactor-core)

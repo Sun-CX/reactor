@@ -24,16 +24,23 @@ void Condition::wait() {
 }
 
 bool Condition::timed_wait(long seconds, long microseconds) {
+
+    if (seconds < 0 or microseconds < 0 or microseconds > 999999) {
+        FATAL << "condition wait timeout value out of range.";
+    }
+
     timespec ts;
     auto status = clock_gettime(CLOCK_REALTIME, &ts);
     if (unlikely(status != 0)) FATAL << "clock gettime error!";
+
     ts.tv_sec += seconds;
     ts.tv_nsec += microseconds * 1000;
+
     Mutex::ConditionWaitGuard guard(mutex);
     /**
      * 如果到达超时时间条件仍未出现，将返回 ETIMEDOUT 错误
      */
-    return ETIMEDOUT == pthread_cond_timedwait(&cond, mutex.get_mutex(), &ts);
+    return pthread_cond_timedwait(&cond, mutex.get_mutex(), &ts) == ETIMEDOUT;
 }
 
 void Condition::notify() {

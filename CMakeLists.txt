@@ -8,6 +8,8 @@ add_subdirectory(core)
 add_subdirectory(netc)
 add_subdirectory(http)
 
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
+
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     message(FATAL_ERROR "${PROJECT_NAME} only supports Linux OS for now.")
 endif ()

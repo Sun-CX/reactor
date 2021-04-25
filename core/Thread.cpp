@@ -28,7 +28,7 @@ attr_constructor void main_thread_initialize() {
 Thread::Thread(Thread::runnable func, string name) : func(move(func)), thread_name(move(name)),
                                                      tid(0), pid(0), latch(1) {
     // 对于 Linux 来说，进程 ID 为 0 是非法值，操作系统第一个进程 systemd 的 pid 是 1
-    if (this->thread_name.empty()) this->thread_name = "thread-" + to_string(++thread_count);
+    if (thread_name.empty()) thread_name = "thread-" + to_string(++thread_count);
 }
 
 void Thread::start() {

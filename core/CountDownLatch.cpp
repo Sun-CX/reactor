@@ -3,8 +3,12 @@
 //
 
 #include "CountDownLatch.h"
+#include "ConsoleStream.h"
 
-CountDownLatch::CountDownLatch(int count) : mutex(), cond(mutex), count(count) {}
+CountDownLatch::CountDownLatch(int count) : mutex(), cond(mutex) {
+    if (count < 0) FATAL << "illegal argument count: " << count;
+    this->count = count;
+}
 
 void CountDownLatch::wait() {
     MutexGuard guard(mutex);
@@ -15,7 +19,7 @@ void CountDownLatch::wait() {
 
 void CountDownLatch::count_down() {
     MutexGuard guard(mutex);
-    --count;
+    count--;
     if (count == 0) cond.notify_all();
 }
 
