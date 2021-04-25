@@ -13,6 +13,8 @@ using std::unique_ptr;
 
 static Mutex mutex;
 
+static int count = 0;
+
 vector<int> vec;
 
 const int COUNT = 10 * 1000 * 1000;
@@ -20,11 +22,9 @@ const int COUNT = 10 * 1000 * 1000;
 void thread_func() {
     for (int i = 0; i < COUNT; ++i) {
         MutexGuard guard(mutex);
-        vec.emplace_back(i);
+        vec.push_back(i);
     }
 }
-
-int count = 0;
 
 int foo() {
     MutexGuard guard(mutex);
@@ -53,7 +53,7 @@ int main(int argc, const char *argv[]) {
     }
     printf("single thread time used: %ld us.\n", (Timestamp::now() - start).time_since_epoch());
 
-    for (int n_threads = 1; n_threads < max_threads; ++n_threads) {
+    for (int n_threads = 1; n_threads <= max_threads; ++n_threads) {
         vector<unique_ptr<Thread>> threads;
         vec.clear();
 
@@ -68,7 +68,10 @@ int main(int argc, const char *argv[]) {
         for (int i = 0; i < n_threads; ++i) {
             threads[i]->join();
         }
-        printf("%d thread(s) with lock time used: %ld us.\n", n_threads, (Timestamp::now() - start).time_since_epoch());
+        printf("%d thread(s) with mutex lock time used: %ld us.\n", n_threads,
+               (Timestamp::now() - start).time_since_epoch());
     }
+
+    printf("vec size: %zu\n", vec.size());
     return 0;
 }
