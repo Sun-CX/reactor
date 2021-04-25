@@ -6,6 +6,7 @@
 #define REACTOR_THREAD_H
 
 #include "NonCopyable.h"
+#include "CountDownLatch.h"
 #include <atomic>
 #include <string>
 #include <pthread.h>
@@ -23,6 +24,7 @@ private:
     string thread_name;
     pthread_t tid;      // POSIX 虚拟线程 ID
     pid_t pid;          // kernel 线程（LWP）真实 ID
+    CountDownLatch latch;
 
     static atomic_uint thread_count;
 
@@ -51,6 +53,8 @@ public:
     thread_local static pid_t id;
 
     static bool is_main_thread();
+
+    static int sleep(long ms, int ns = 0);
 };
 
 #endif //REACTOR_THREAD_H

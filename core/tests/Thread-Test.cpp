@@ -14,7 +14,8 @@ public:
 
     void increment(int n) {
         for (int i = 0; i < n; ++i) count++;
-        printf("CurrentThread thread_name: %s, tid: %d\n", CurrentThread::name, CurrentThread::id);
+        printf("CurrentThread name: %s, id: %d, is main thread: %d\n", CurrentThread::name,
+               CurrentThread::id, CurrentThread::is_main_thread());
     }
 
     int get_count() const {
@@ -23,7 +24,12 @@ public:
 };
 
 int main(int argc, const char *argv[]) {
-    printf("main thread thread_name: %s, main thread pid: %d\n", CurrentThread::name, CurrentThread::id);
+
+//    CurrentThread::sleep(1000 * 5);
+
+    printf("main thread name: %s, main thread id: %d, is main thread: %d\n", CurrentThread::name,
+           CurrentThread::id,
+           CurrentThread::is_main_thread());
 
     Foo foo;
 
@@ -33,11 +39,11 @@ int main(int argc, const char *argv[]) {
     t1.start();
     t2.start();
 
+    printf("t1 thread name: %s, id: %d\n", t1.name().c_str(), t1.getid());
+    printf("t2 thread name: %s, id: %d\n", t2.name().c_str(), t2.getid());
+
     t1.join();
     t2.join();
-
-    printf("t1 thread_name: %s, tid: %d\n", t1.name().c_str(), t1.getid());
-    printf("t2 thread_name: %s, tid: %d\n", t2.name().c_str(), t2.getid());
 
     printf("count: %d\n", foo.get_count());
 
