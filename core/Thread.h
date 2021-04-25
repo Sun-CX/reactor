@@ -35,13 +35,13 @@ public:
 
     void join();
 
-    [[nodiscard]]
     const string &name() const;
 
-    [[nodiscard]]
     pid_t getid() const;
 };
 
+/* Note: Do Not rewrite CurrentThread::name and CurrentThread::id by caller code. */
+/* Readonly for caller code! */
 class CurrentThread final : public NonCopyable {
 public:
     CurrentThread() = delete;
@@ -49,6 +49,8 @@ public:
     /* 线程名最长为 16 字节（包括末尾 '\0' 符） */
     thread_local static char name[16];
     thread_local static pid_t id;
+
+    static bool is_main_thread();
 };
 
 #endif //REACTOR_THREAD_H

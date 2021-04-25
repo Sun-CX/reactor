@@ -68,3 +68,7 @@ pid_t Thread::getid() const {
 thread_local char CurrentThread::name[16];
 
 thread_local pid_t CurrentThread::id;
+
+bool CurrentThread::is_main_thread() {
+    return id == getpid();
+}
