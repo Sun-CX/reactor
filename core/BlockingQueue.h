@@ -2,8 +2,8 @@
 // Created by suncx on 2020/8/10.
 //
 
-#ifndef REACTOR_BLOCKINGQUEUE_BENCH_TEST_H
-#define REACTOR_BLOCKINGQUEUE_BENCH_TEST_H
+#ifndef REACTOR_BLOCKINGQUEUE_H
+#define REACTOR_BLOCKINGQUEUE_H
 
 #include "Condition.h"
 #include <deque>
@@ -20,7 +20,7 @@ using std::move;
  * 若想从根本上规避这个隐患，请使用有界阻塞队列 BoundedBlockingQueue
  */
 template<class T>
-class BlockingQueue {
+class BlockingQueue : public NonCopyable {
 private:
     mutable Mutex mutex;
     Condition cond;
@@ -56,4 +56,4 @@ public:
     }
 };
 
-#endif //REACTOR_BLOCKINGQUEUE_BENCH_TEST_H
+#endif //REACTOR_BLOCKINGQUEUE_H
