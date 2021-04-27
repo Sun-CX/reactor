@@ -98,7 +98,7 @@ ConsoleStream::ConsoleStream(const char *src_file, int line, const char *style, 
 }
 
 ConsoleStream::~ConsoleStream() {
-    *this << NONE"\n";
+    *this << STYLE_RESET"\n";
     fwrite(buffer.data(), 1, buffer.size(), stdout);
     if (terminate) {
         fflush(stdout);

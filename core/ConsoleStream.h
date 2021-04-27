@@ -8,10 +8,6 @@
 #include "NonCopyable.h"
 #include <string>
 
-#define NONE "\e[0m"
-#define RED "\e[0;31m"
-#define GREEN "\e[0;32m"
-
 using std::string;
 
 #define BUF_SIZE 2048
@@ -94,8 +90,21 @@ public:
     ConsoleStream &operator<<(const string &s);
 };
 
-#define LOG ConsoleStream(__FILE__, __LINE__)
-#define INFO ConsoleStream(__FILE__, __LINE__, GREEN)
-#define ERROR ConsoleStream(__FILE__, __LINE__, RED)
-#define FATAL ConsoleStream(__FILE__, __LINE__, RED, true)
+/* SGR style def */
+#define STYLE_RESET "\e[0m"
+
+#define STYLE_TRACE "\e[38;5;252m"
+#define STYLE_DEBUG "\e[1;38;5;252m"
+#define STYLE_INFO "\e[38;5;44m"
+#define STYLE_WARN "\e[38;5;190m"
+#define STYLE_ERROR "\e[38;5;160m"
+#define STYLE_FATAL "\e[1;38;5;160m"
+
+#define TRACE ConsoleStream(__FILE__, __LINE__, STYLE_TRACE)
+#define DEBUG ConsoleStream(__FILE__, __LINE__, STYLE_DEBUG)
+#define INFO ConsoleStream(__FILE__, __LINE__, STYLE_INFO)
+#define WARN ConsoleStream(__FILE__, __LINE__, STYLE_WARN)
+#define ERROR ConsoleStream(__FILE__, __LINE__, STYLE_ERROR)
+#define FATAL ConsoleStream(__FILE__, __LINE__, STYLE_FATAL, true)
+
 #endif //REACTOR_CONSOLESTREAM_H
