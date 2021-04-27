@@ -14,52 +14,88 @@
 
 using std::string;
 
+#define BUF_SIZE 2048
+
 class ConsoleStream final : public NonCopyable {
 private:
-    const char *style;
+
+    static const char digits[];
+    static const char hex_digits[];
+    static const char *zero;
+
+    template<typename T>
+    size_t itoba(char *buf, T x) const;
+
+    template<typename T>
+    size_t itoda(char *buf, T x) const;
+
+    template<typename T>
+    size_t itoha(char *buf, T x) const;
+
+    template<size_t N>
+    class LogBuffer final {
+    private:
+        char buf[N];
+        char *cur;
+
+        size_t avail() const;
+
+    public:
+        LogBuffer();
+
+        void append(const void *src, size_t len);
+
+        const char *data() const;
+
+        size_t size() const;
+    };
+
+    using Buffer = LogBuffer<BUF_SIZE>;
+
+    Buffer buffer;
     const bool terminate;
 public:
-    explicit ConsoleStream(const char *style = "", bool terminate = false);
+    explicit ConsoleStream(const char *src_file, int line, const char *style = "", bool terminate = false);
 
     virtual ~ConsoleStream();
 
-    const ConsoleStream &operator<<(bool x) const;
+    ConsoleStream &operator<<(bool x);
 
-    const ConsoleStream &operator<<(char x) const;
+    ConsoleStream &operator<<(char x);
 
-    const ConsoleStream &operator<<(signed char x) const;
+    ConsoleStream &operator<<(signed char x);
 
-    const ConsoleStream &operator<<(unsigned char x) const;
+    ConsoleStream &operator<<(unsigned char x);
 
-    const ConsoleStream &operator<<(short x) const;
+    ConsoleStream &operator<<(short x);
 
-    const ConsoleStream &operator<<(unsigned short x) const;
+    ConsoleStream &operator<<(unsigned short x);
 
-    const ConsoleStream &operator<<(int x) const;
+    ConsoleStream &operator<<(int x);
 
-    const ConsoleStream &operator<<(unsigned int x) const;
+    ConsoleStream &operator<<(unsigned int x);
 
-    const ConsoleStream &operator<<(long x) const;
+    ConsoleStream &operator<<(long x);
 
-    const ConsoleStream &operator<<(unsigned long x) const;
+    ConsoleStream &operator<<(unsigned long x);
 
-    const ConsoleStream &operator<<(long long x) const;
+    ConsoleStream &operator<<(long long x);
 
-    const ConsoleStream &operator<<(unsigned long long x) const;
+    ConsoleStream &operator<<(unsigned long long x);
 
-    const ConsoleStream &operator<<(float x) const;
+    ConsoleStream &operator<<(float x);
 
-    const ConsoleStream &operator<<(double x) const;
+    ConsoleStream &operator<<(double x);
 
-    const ConsoleStream &operator<<(const void *ptr) const;
+    ConsoleStream &operator<<(const void *ptr);
 
-    const ConsoleStream &operator<<(const char *s) const;
+    ConsoleStream &operator<<(const char *s);
 
-    const ConsoleStream &operator<<(const string &s) const;
+    ConsoleStream &operator<<(const string &s);
 };
 
-#define LOG ConsoleStream()
-#define INFO ConsoleStream(GREEN)
-#define ERROR ConsoleStream(RED)
-#define FATAL ConsoleStream(RED, true)
+#define LOG ConsoleStream(__FILE__, __LINE__)
+#define INFO ConsoleStream(__FILE__, __LINE__, GREEN)
+#define ERROR ConsoleStream(__FILE__, __LINE__, RED)
+#define FATAL ConsoleStream(__FILE__, __LINE__, RED, true)
 #endif //REACTOR_CONSOLESTREAM_H
