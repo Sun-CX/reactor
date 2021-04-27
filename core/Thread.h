@@ -42,8 +42,7 @@ public:
     pid_t getid() const;
 };
 
-/* Note: Do Not rewrite CurrentThread::name and CurrentThread::id by caller code. */
-/* Readonly for caller code! */
+/* Note: Do Not rewrite CurrentThread::name and CurrentThread::id. Readonly for caller! */
 class CurrentThread final : public NonCopyable {
 public:
     CurrentThread() = delete;
