@@ -4,7 +4,7 @@
 
 #include "Mutex.h"
 #include "Thread.h"
-#include "Exception.h"
+#include "GnuExt.h"
 #include "ConsoleStream.h"
 
 Mutex::Mutex() noexcept : pid(0) {

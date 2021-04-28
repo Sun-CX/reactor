@@ -4,7 +4,6 @@
 
 #include "Thread.h"
 #include "GnuExt.h"
-#include "Exception.h"
 #include "ConsoleStream.h"
 #include <sys/prctl.h>
 #include <syscall.h>
@@ -14,7 +13,7 @@
 using std::move;
 using std::to_string;
 
-atomic_uint Thread::thread_count;
+atomic_uint Thread::thread_count(0);
 
 attr_constructor void main_thread_initialize() {
     const char *main_proc_name = "main-thread";
@@ -79,13 +78,11 @@ bool CurrentThread::is_main_thread() {
 
 int CurrentThread::sleep(long ms, int ns) {
     if (ms < 0 or ns < 0 or ns > 999999) {
-        FATAL << "sleep time is negative.";
+        FATAL << "sleep time out of range.";
     }
 
     timespec time;
-
     time.tv_sec = ms / 1000;
-
     time.tv_nsec = ms % 1000 * 1000 * 1000 + ns;
 
     return nanosleep(&time, nullptr);

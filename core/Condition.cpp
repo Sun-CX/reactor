@@ -3,53 +3,49 @@
 //
 
 #include "Condition.h"
-#include "Exception.h"
+#include "GnuExt.h"
 #include "ConsoleStream.h"
 
 Condition::Condition(Mutex &mutex) : mutex(mutex) {
-    auto status = pthread_cond_init(&cond, nullptr);
-    if (unlikely(status != 0)) FATAL << "condition init error!";
+    int status = pthread_cond_init(&cond, nullptr);
+    if (unlikely(status != 0)) FATAL << "condition-variable init error.";
 }
 
 Condition::~Condition() {
-    auto status = pthread_cond_destroy(&cond);
-    if (unlikely(status != 0)) FATAL << "condition destroy error!";
+    int status = pthread_cond_destroy(&cond);
+    if (unlikely(status != 0)) FATAL << "condition-variable destroy error.";
 }
 
 void Condition::wait() {
     int status;
     Mutex::ConditionWaitGuard guard(mutex);
     status = pthread_cond_wait(&cond, mutex.get_mutex());
-    if (unlikely(status != 0)) FATAL << "condition wait error!";
+    if (unlikely(status != 0)) FATAL << "condition-variable wait error.";
 }
 
 bool Condition::timed_wait(long seconds, long microseconds) {
-
     if (seconds < 0 or microseconds < 0 or microseconds > 999999) {
-        FATAL << "condition wait timeout value out of range.";
+        FATAL << "condition-variable wait timeout value out of range.";
     }
 
     timespec ts;
-    auto status = clock_gettime(CLOCK_REALTIME, &ts);
-    if (unlikely(status != 0)) FATAL << "clock gettime error!";
+    int status = clock_gettime(CLOCK_REALTIME, &ts);
+    if (unlikely(status != 0)) FATAL << "clock_gettime error.";
 
     ts.tv_sec += seconds;
     ts.tv_nsec += microseconds * 1000;
 
     Mutex::ConditionWaitGuard guard(mutex);
-    /**
-     * 如果到达超时时间条件仍未出现，将返回 ETIMEDOUT 错误
-     */
     return pthread_cond_timedwait(&cond, mutex.get_mutex(), &ts) == ETIMEDOUT;
 }
 
 void Condition::notify() {
-    auto status = pthread_cond_signal(&cond);
-    if (unlikely(status != 0)) FATAL << "condition signal error!";
+    int status = pthread_cond_signal(&cond);
+    if (unlikely(status != 0)) FATAL << "condition-variable signal error.";
 }
 
 void Condition::notify_all() {
-    auto status = pthread_cond_broadcast(&cond);
-    if (unlikely(status != 0)) FATAL << "condition broadcast error!";
+    int status = pthread_cond_broadcast(&cond);
+    if (unlikely(status != 0)) FATAL << "condition-variable broadcast error.";
 }
 

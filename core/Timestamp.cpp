@@ -3,7 +3,7 @@
 //
 
 #include "Timestamp.h"
-#include "Exception.h"
+#include "GnuExt.h"
 #include "ConsoleStream.h"
 
 const int Timestamp::factors[] = {1, 1000, 1000 * 1000};

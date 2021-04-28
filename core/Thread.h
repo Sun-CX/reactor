@@ -5,11 +5,9 @@
 #ifndef REACTOR_THREAD_H
 #define REACTOR_THREAD_H
 
-#include "NonCopyable.h"
 #include "CountDownLatch.h"
 #include <atomic>
 #include <string>
-#include <pthread.h>
 #include <functional>
 
 using std::atomic_uint;

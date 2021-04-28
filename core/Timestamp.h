@@ -20,16 +20,12 @@ public:
 
     explicit Timestamp(int64_t time_since_epoch = 0, TimeUint unit = microsecond);
 
-    [[nodiscard]]
     bool valid() const;
 
-    [[nodiscard]]
     string to_string(bool show_microsecond = false) const;
 
-    [[nodiscard]]
     timespec to_timespec() const;
 
-    [[nodiscard]]
     int64_t time_since_epoch() const;
 
     Timestamp &operator+(const Timestamp &timestamp);
