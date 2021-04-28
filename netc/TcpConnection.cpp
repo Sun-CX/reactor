@@ -3,7 +3,7 @@
 //
 
 #include "TcpConnection.h"
-#include "Exception.h"
+#include "GnuExt.h"
 #include "EventLoop.h"
 #include "Timestamp.h"
 #include "Socket.h"
@@ -42,7 +42,7 @@ void TcpConnection::read_handler() {
         //TODO:fix timestamp.
         msg_callback(shared_from_this(), Timestamp());
     } else if (n == 0) {
-        LOG << "read 0 bytes from con_fd " << conn_channel->get_fd() << ", prepare to close connection.";
+        INFO << "read 0 bytes from con_fd " << conn_channel->get_fd() << ", prepare to close connection.";
         close_handler();
     } else {
         errno = saved_errno;
@@ -69,7 +69,7 @@ void TcpConnection::close_handler() {
     // 当 peer 主动断开连接时，状态为 Connected
     // 当 host 主动断开连接时，状态为 Disconnecting
     assert(status == Connected or status == Disconnecting);
-    LOG << "con_fd " << conn_channel->get_fd() << " is closing, current status: " << STATUS_STRING[status];
+    INFO << "con_fd " << conn_channel->get_fd() << " is closing, current status: " << STATUS_STRING[status];
     if (status == Connected) status = Disconnecting;
     conn_channel->disable_all();
     conn_channel->remove();
@@ -99,7 +99,7 @@ void TcpConnection::connection_destroyed() {
     assert(loop->is_in_loop_thread());
     assert(status == Disconnecting);
     status = Disconnected;
-    LOG << "connection disconnected.";
+    INFO << "connection disconnected.";
 }
 
 void TcpConnection::send_outbound_bytes() {
@@ -111,7 +111,7 @@ void TcpConnection::send_outbound_bytes() {
 void TcpConnection::shutdown() {
     assert(loop->is_in_loop_thread());
     assert(status == Connected);
-    LOG << "-------------- shutdown --------------";
+    INFO << "-------------- shutdown --------------";
     if (!conn_channel->writing_enabled()) {
         socket->shutdown_write();
         status = Disconnecting;
@@ -121,7 +121,7 @@ void TcpConnection::shutdown() {
 void TcpConnection::force_close() {
     assert(loop->is_in_loop_thread());
     assert(status == Connected);
-    LOG << "-------------- quit --------------";
+    INFO << "-------------- quit --------------";
     status = Disconnecting;
     conn_channel->disable_all();
     conn_channel->remove();

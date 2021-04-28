@@ -20,7 +20,7 @@ using std::placeholders::_2;
 
 // 如果客户端代码没有设置连接回调，则调用此默认连接回调
 static void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
-    LOG << "new client connected: " << conn->local_address().to_string() << " <------------------- "
+    INFO << "new client connected: " << conn->local_address().to_string() << " <------------------- "
         << conn->peer_address().to_string();
 }
 

@@ -6,7 +6,8 @@
 #include "Exception.h"
 #include "Channel.h"
 #include "Timestamp.h"
-#include "CurrentThread.h"
+#include "GnuExt.h"
+#include "Thread.h"
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <cstring>
@@ -19,7 +20,7 @@ const int EpollPoller::DEL = 1;
 EpollPoller::EpollPoller(EventLoop *loop) : Poller(loop), epoll_fd(epoll_create1(EPOLL_CLOEXEC)) {
     if (unlikely(epoll_fd < 0)) ERROR_EXIT("create epoll_fd error.");
     events.reserve(16);
-    printf("%s[%d]: create epoll_fd: %d\n", CurrentThread::name, CurrentThread::pid, epoll_fd);
+    printf("%s[%d]: create epoll_fd: %d\n", CurrentThread::name, CurrentThread::id, epoll_fd);
 }
 
 EpollPoller::~EpollPoller() {

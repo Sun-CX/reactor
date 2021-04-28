@@ -3,7 +3,7 @@
 //
 
 #include "InetAddress.h"
-#include "Exception.h"
+#include "GnuExt.h"
 #include "ConsoleStream.h"
 #include <arpa/inet.h>
 #include <cstring>

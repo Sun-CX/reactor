@@ -28,7 +28,7 @@ private:
     using Functors = vector<Functor>;
     using Channels = vector<Channel *>;
 
-    static thread_local EventLoop *loop_in_this_thread; // 控制一个线程中最多只能有一个 EventLoop 对象
+    static thread_local EventLoop *current_thread_loop; // 控制一个线程中最多只能有一个 EventLoop 对象
     static const int default_poll_timeout_milliseconds;
 
     bool looping;
@@ -38,7 +38,7 @@ private:
     unique_ptr<Poller> poller;  // poller 生命周期与 EventLoop 对象相同
     Channels active_channels;
 
-    Mutex mutex;                // 互斥锁，用来保证 pending_functors 安全
+    Mutex mutex;                // 互斥锁，用来保证 pending_functors
     bool calling_pending_func;  // 是否正在执行 pending_functors
     Functors pending_functors;  // 挂起的执行任务
 

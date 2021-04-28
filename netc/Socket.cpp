@@ -3,7 +3,7 @@
 //
 
 #include "Socket.h"
-#include "Exception.h"
+#include "GnuExt.h"
 #include "ConsoleStream.h"
 #include <unistd.h>
 #include <sys/socket.h>

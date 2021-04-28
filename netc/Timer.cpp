@@ -4,17 +4,18 @@
 
 #include "Timer.h"
 #include "Exception.h"
-#include "CurrentThread.h"
+#include "Thread.h"
 #include "EventLoop.h"
 #include "ConsoleStream.h"
+#include "GnuExt.h"
 #include <sys/timerfd.h>
 #include <cstring>
 #include <cassert>
+#include <unistd.h>
 
 using std::bind;
 
-Timer::Timer(EventLoop *loop) : loop(loop), timer_channel(this->loop, create_timer_fd()),
-                                base_time(Timestamp::now()) {
+Timer::Timer(EventLoop *loop) : loop(loop), timer_channel(this->loop, create_timer_fd()), base_time(Timestamp::now()) {
     timer_channel.set_read_callback(bind(&Timer::read_handler, this));
     timer_channel.enable_reading();
 }

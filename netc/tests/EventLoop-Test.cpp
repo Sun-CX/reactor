@@ -9,7 +9,7 @@ static EventLoop *g_loop;
 
 void test() {
     EventLoop loop;
-    EventLoop loop1;
+//    EventLoop loop1;
 }
 
 void test1() {
@@ -39,9 +39,9 @@ void test2() {
 
 int main(int argc, const char *argv[]) {
 
-    test();
+//    test();
 //    test1();
-//    test2();
+    test2();
 
     return 0;
 }

@@ -3,25 +3,29 @@
 //
 
 #include "EventLoop.h"
-#include "Exception.h"
+#include "Thread.h"
+#include "GnuExt.h"
 #include "Poller.h"
 #include "Timer.h"
 #include "ConsoleStream.h"
 #include <sys/eventfd.h>
 #include <cassert>
+#include <unistd.h>
+#include <algorithm>
 
 using std::bind;
 using std::placeholders::_1;
+using std::for_each;
 
-thread_local EventLoop *EventLoop::loop_in_this_thread;
+thread_local EventLoop *EventLoop::current_thread_loop = nullptr;
 const int EventLoop::default_poll_timeout_milliseconds = -1;   // 默认永不超时
 
-EventLoop::EventLoop() : looping(false), exited(false), thread_name(CurrentThread::name), pid(CurrentThread::pid),
+EventLoop::EventLoop() : looping(false), exited(false), thread_name(CurrentThread::name), pid(CurrentThread::id),
                          poller(Poller::default_poller(this)), mutex(), calling_pending_func(false),
                          wakeup_channel(new Channel(this, create_event_fd())), timer(new Timer(this)) {
-    if (unlikely(loop_in_this_thread != nullptr)) {
-        FATAL << "this thread already has an event loop object(" << loop_in_this_thread << ')';
-    } else loop_in_this_thread = this;
+    if (unlikely(current_thread_loop != nullptr)) {
+        FATAL << "current thread already has an event loop object(" << current_thread_loop << ')';
+    } else current_thread_loop = this;
 
     wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup_event, this));
     wakeup_channel->enable_reading();
@@ -34,13 +38,13 @@ EventLoop::~EventLoop() {
     auto status = ::close(wakeup_channel->get_fd());
     if (unlikely(status < 0))
         ERROR << "eventfd " << wakeup_channel->get_fd() << " close error!";
-    loop_in_this_thread = nullptr;
+    current_thread_loop = nullptr;
 }
 
 void EventLoop::loop() {
     assert(is_in_loop_thread());
     looping = true;
-    LOG << "EventLoop(" << this << ") start loop...";
+    INFO << "EventLoop(" << this << ") start loop...";
     while (!exited) {
         active_channels.clear();
         poller->poll(&active_channels, default_poll_timeout_milliseconds);
@@ -49,7 +53,7 @@ void EventLoop::loop() {
         execute_pending_functors();
     }
     looping = false;
-    LOG << "EventLoop(" << this << ") stop loop...";
+    INFO << "EventLoop(" << this << ") stop loop...";
 }
 
 void EventLoop::update_channel(Channel *channel) {
@@ -68,7 +72,7 @@ bool EventLoop::has_channel(Channel *channel) {
 }
 
 bool EventLoop::is_in_loop_thread() const {
-    return pid == CurrentThread::pid;
+    return pid == CurrentThread::id;
 }
 
 void EventLoop::quit() {
@@ -77,12 +81,12 @@ void EventLoop::quit() {
 }
 
 void EventLoop::run_in_loop(const Functor &func) {
-    LOG << __func__ << " invoked, loop in: " << thread_name << "[" << pid << "]";
+    INFO << __func__ << " invoked, loop in: " << thread_name << "[" << pid << "]";
     is_in_loop_thread() ? func() : queue_in_loop(func);
 }
 
 void EventLoop::queue_in_loop(const Functor &func) {
-    LOG << __func__ << " invoked, loop in: " << thread_name << "[" << pid << "]";
+    INFO << __func__ << " invoked, loop in: " << thread_name << "[" << pid << "]";
     {
         MutexGuard guard(mutex);
         pending_functors.push_back(func);
@@ -102,7 +106,7 @@ void EventLoop::execute_pending_functors() {
 }
 
 EventLoop *EventLoop::event_loop_of_current_thread() {
-    return loop_in_this_thread;
+    return current_thread_loop;
 }
 
 int EventLoop::create_event_fd() const {

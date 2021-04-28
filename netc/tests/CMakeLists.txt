@@ -13,7 +13,7 @@ add_executable(channel-test Channel-Test.cpp)
 target_link_libraries(channel-test netc)
 
 add_executable(eventloop-test EventLoop-Test.cpp)
-target_link_libraries(eventloop-test netc)
+target_link_libraries(eventloop-test asan netc)
 
 add_executable(timerfd-test timerfd-Test.cpp)
 

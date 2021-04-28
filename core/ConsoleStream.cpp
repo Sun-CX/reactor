@@ -129,7 +129,7 @@ ConsoleStream &ConsoleStream::operator<<(unsigned char x) {
     buf[0] = '0';
     buf[1] = 'x';
 
-    size_t n = itoha<unsigned char>(buf, x);
+    size_t n = itoha<unsigned char>(buf + 2, x);
     buffer.append(buf, n + 2);
     return *this;
 }
@@ -208,7 +208,7 @@ ConsoleStream &ConsoleStream::operator<<(const void *ptr) {
     buf[0] = '0';
     buf[1] = 'x';
 
-    size_t n = itoha<uintptr_t>(buf, reinterpret_cast<uintptr_t >(ptr));
+    size_t n = itoha<uintptr_t>(buf + 2, reinterpret_cast<uintptr_t>(ptr));
     buffer.append(buf, n + 2);
     return *this;
 }
