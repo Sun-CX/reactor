@@ -34,6 +34,7 @@ private:
         char buf[N];
         char *cur;
 
+        [[nodiscard]]
         size_t avail() const;
 
     public:
@@ -41,8 +42,10 @@ private:
 
         void append(const void *src, size_t len);
 
+        [[nodiscard]]
         const char *data() const;
 
+        [[nodiscard]]
         size_t size() const;
     };
 
@@ -92,7 +95,6 @@ public:
 
 /* SGR style def */
 #define STYLE_RESET "\e[0m"
-
 #define STYLE_TRACE "\e[38;5;252m"
 #define STYLE_DEBUG "\e[1;38;5;252m"
 #define STYLE_INFO "\e[38;5;44m"
