@@ -26,6 +26,7 @@ private:
     };
 
     pthread_mutex_t *get_mutex();
+
 public:
     Mutex() noexcept;
 
@@ -35,6 +36,7 @@ public:
 
     void unlock();
 
+    [[nodiscard]]
     bool is_locked_by_cur_thread() const;
 };
 
