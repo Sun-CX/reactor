@@ -5,8 +5,7 @@
 #ifndef REACTOR_THREADLOCAL_H
 #define REACTOR_THREADLOCAL_H
 
-#include "NonCopyable.h"
-#include "Exception.h"
+#include "GnuExt.h"
 #include "ConsoleStream.h"
 #include <pthread.h>
 
@@ -22,7 +21,7 @@ private:
 public:
     ThreadLocal() {
         int status = pthread_key_create(&key, ThreadLocal::destructor);
-        if (unlikely(status != 0)) FATAL << "pthread create key error!";
+        if (unlikely(status != 0)) FATAL << "pthread create key error.";
     }
 
     T &get_value() {
@@ -30,15 +29,15 @@ public:
         if (ptr == nullptr) {
             T *q = new T();
             int status = pthread_setspecific(key, q);
-            if (unlikely(status != 0)) FATAL << "pthread set key error!";
+            if (unlikely(status != 0)) FATAL << "pthread set key error.";
             ptr = q;
         }
         return *ptr;
     }
 
-    virtual ~ThreadLocal() {
+    ~ThreadLocal() {
         int status = pthread_key_delete(key);
-        if (unlikely(status != 0)) FATAL << "pthread delete key error!";
+        if (unlikely(status != 0)) FATAL << "pthread delete key error.";
     }
 };
 

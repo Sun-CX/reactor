@@ -5,8 +5,7 @@
 #ifndef REACTOR_SINGLETON_H
 #define REACTOR_SINGLETON_H
 
-#include "NonCopyable.h"
-#include "Exception.h"
+#include "GnuExt.h"
 #include "ConsoleStream.h"
 #include <pthread.h>
 
