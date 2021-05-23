@@ -15,17 +15,21 @@ private:
     static const int factors[];
 public:
     enum TimeUint {
-        microsecond, millisecond, second
+        MICROSECOND, MILLISECOND, SECOND
     };
 
-    explicit Timestamp(int64_t time_since_epoch = 0, TimeUint unit = microsecond);
+    explicit Timestamp(int64_t time_since_epoch = 0, TimeUint unit = MICROSECOND);
 
+    [[nodiscard]]
     bool valid() const;
 
+    [[nodiscard]]
     string to_string(bool show_microsecond = false) const;
 
+    [[nodiscard]]
     timespec to_timespec() const;
 
+    [[nodiscard]]
     int64_t time_since_epoch() const;
 
     Timestamp &operator+(const Timestamp &timestamp);

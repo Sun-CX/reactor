@@ -61,17 +61,17 @@ Timestamp Timestamp::now() {
     timespec ts;
     auto status = clock_gettime(CLOCK_REALTIME, &ts);
     if (unlikely(status != 0)) FATAL << "get clock time error!";
-    return Timestamp(ts.tv_sec * factors[second] + ts.tv_nsec / 1000);
+    return Timestamp(ts.tv_sec * factors[SECOND] + ts.tv_nsec / 1000);
 }
 
 string Timestamp::to_string(bool show_microsecond) const {
     char buf[32];
-    time_t seconds = microseconds_since_epoch / factors[second];
+    time_t seconds = microseconds_since_epoch / factors[SECOND];
     tm tm_time;
     localtime_r(&seconds, &tm_time);
 
     if (show_microsecond) {
-        auto ms = microseconds_since_epoch % factors[second];
+        auto ms = microseconds_since_epoch % factors[SECOND];
         snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d.%06ld",
                  tm_time.tm_year + 1900,
                  tm_time.tm_mon + 1,
@@ -98,17 +98,17 @@ int64_t Timestamp::time_since_epoch() const {
 }
 
 timespec Timestamp::to_timespec() const {
-    return {microseconds_since_epoch / factors[second], microseconds_since_epoch % factors[second] * 1000};
+    return {microseconds_since_epoch / factors[SECOND], microseconds_since_epoch % factors[SECOND] * 1000};
 }
 
 Timestamp operator ""_s(unsigned long long x) {
-    return Timestamp(x, Timestamp::TimeUint::second);
+    return Timestamp(x, Timestamp::TimeUint::SECOND);
 }
 
 Timestamp operator ""_ms(unsigned long long x) {
-    return Timestamp(x, Timestamp::TimeUint::millisecond);
+    return Timestamp(x, Timestamp::TimeUint::MILLISECOND);
 }
 
 Timestamp operator ""_us(unsigned long long x) {
-    return Timestamp(x, Timestamp::TimeUint::microsecond);
+    return Timestamp(x, Timestamp::TimeUint::MICROSECOND);
 }
