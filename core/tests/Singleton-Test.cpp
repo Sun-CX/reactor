@@ -3,21 +3,22 @@
 //
 
 #include <iostream>
-#include <string>
 #include <memory>
-#include <thread>
 #include "Singleton.h"
+#include "Thread.h"
 
 using std::shared_ptr;
+using std::cout;
+using std::endl;
 
 class Student {
 private:
-    std::string name;
+    string name;
 };
 
 void get_instance() {
-    std::shared_ptr<Student> student = Singleton<Student>::instance();
-    std::cout << student.get() << std::endl;
+    shared_ptr<Student> student = Singleton<Student>::instance();
+    cout << student.get() << endl;
 }
 
 int main(int argc, const char *argv[]) {
@@ -25,10 +26,10 @@ int main(int argc, const char *argv[]) {
     printf("equal? %d\n", make_singleton<Student>() == make_singleton<Student>());
 
     shared_ptr<Student> student = Singleton<Student>::instance();
-    std::cout << student.get() << std::endl;
+    cout << student.get() << endl;
 
-    std::thread another_thread([] { return get_instance(); });
-
+    Thread another_thread([] { return get_instance(); });
+    another_thread.start();
     another_thread.join();
     return 0;
 }

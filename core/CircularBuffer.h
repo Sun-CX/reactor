@@ -5,7 +5,8 @@
 #ifndef REACTOR_CIRCULARBUFFER_H
 #define REACTOR_CIRCULARBUFFER_H
 
-#include "Exception.h"
+#include "ConsoleStream.h"
+#include "GnuExt.h"
 
 using std::move;
 
@@ -54,7 +55,7 @@ public:
      * 队头元素出队
      */
     T pop_front() {
-        if (unlikely(empty())) ERROR_EXIT("empty!");
+        if (unlikely(empty())) FATAL << "empty!";
         T val(move(arr[front]));
         front = (front + 1) % capacity;
         return val;

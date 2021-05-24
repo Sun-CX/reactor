@@ -14,4 +14,4 @@ set(LIBRARY_SOURCE
         ConsoleStream.cpp)
 
 add_library(reactor-core SHARED ${LIBRARY_SOURCE})
-target_link_libraries(reactor-core PRIVATE pthread)
+target_link_libraries(reactor-core INTERFACE pthread)
