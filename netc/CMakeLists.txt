@@ -25,10 +25,12 @@ set(LIBRARY_SOURCE
         #        Connector.cpp
         )
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
-
-include_directories(${PROJECT_SOURCE_DIR}/core ${PROJECT_SOURCE_DIR}/logging)
-link_directories(${PROJECT_BINARY_DIR}/lib)
-
 add_library(netc SHARED ${LIBRARY_SOURCE})
-target_link_libraries(netc reactor-core)
+set_target_properties(netc PROPERTIES
+        VERSION 1.0
+        SOVERSION 1
+        LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/lib
+        )
+target_include_directories(netc PRIVATE ${PROJECT_SOURCE_DIR}/core)
+target_link_directories(netc PRIVATE ${PROJECT_BINARY_DIR}/lib)
+target_link_libraries(netc PRIVATE reactor-core)
