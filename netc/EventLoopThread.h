@@ -29,7 +29,7 @@ private:
 public:
     explicit EventLoopThread(ThreadInitialCallback callback = nullptr, string name = "");
 
-    virtual ~EventLoopThread();
+    ~EventLoopThread();
 
     EventLoop *start();
 };

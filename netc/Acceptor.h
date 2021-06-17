@@ -27,7 +27,7 @@ private:
 public:
     Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port);
 
-    virtual ~Acceptor();
+    ~Acceptor();
 
     void set_new_connection_callback(const NewConnectionCallback &handler);
 

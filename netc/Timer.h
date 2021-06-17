@@ -34,7 +34,7 @@ private:
 public:
     explicit Timer(EventLoop *loop);
 
-    virtual ~Timer();
+    ~Timer();
 
     // 可跨线程调用
     void schedule(const TimerTask::TimerCallback &callback, const Timestamp &after,

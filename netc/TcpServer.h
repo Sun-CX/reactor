@@ -52,7 +52,7 @@ private:
 public:
     TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name, int threads, bool reuse_port = false);
 
-    virtual ~TcpServer();
+    ~TcpServer();
 
     void start();
 

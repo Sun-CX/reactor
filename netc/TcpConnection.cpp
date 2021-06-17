@@ -14,11 +14,10 @@
 
 using std::bind;
 
-const char *TcpConnection::STATUS_STRING[4] = {"Connecting", "Connected", "Disconnecting", "Disconnected"};
+const char *TcpConnection::STATUS_STRING[4] = {"CONNECTING", "CONNECTED", "DISCONNECTING", "DISCONNECTED"};
 
-TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local,
-                             const InetAddress &peer) :
-        loop(loop), name(move(name)), status(Connecting), reading(true), socket(new Socket(con_fd)),
+TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local, const InetAddress &peer) :
+        loop(loop), name(move(name)), status(CONNECTING), reading(true), socket(new Socket(con_fd)),
         conn_channel(new Channel(loop, socket->get_fd())), local(local), peer(peer) {
     INFO << "++++++++++++++++++++++ TcpConnection ++++++++++++++++++++++";
     socket->keep_alive(true);
@@ -30,7 +29,7 @@ TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const Ine
 
 TcpConnection::~TcpConnection() {
     assert(loop->is_in_loop_thread());
-    assert(status == Disconnected);
+    assert(status == DISCONNECTED);
     INFO << "---------------------- ~TcpConnection ----------------------";
 }
 
@@ -68,9 +67,9 @@ void TcpConnection::close_handler() {
     assert(loop->is_in_loop_thread());
     // 当 peer 主动断开连接时，状态为 Connected
     // 当 host 主动断开连接时，状态为 Disconnecting
-    assert(status == Connected or status == Disconnecting);
+    assert(status == CONNECTED or status == DISCONNECTING);
     INFO << "con_fd " << conn_channel->get_fd() << " is closing, current status: " << STATUS_STRING[status];
-    if (status == Connected) status = Disconnecting;
+    if (status == CONNECTED) status = DISCONNECTING;
     conn_channel->disable_all();
     conn_channel->remove();
     close_callback(shared_from_this());
@@ -88,41 +87,41 @@ void TcpConnection::error_handler() {
 
 void TcpConnection::connection_established() {
     assert(loop->is_in_loop_thread());
-    assert(status == Connecting);
+    assert(status == CONNECTING);
 
-    status = Connected;
+    status = CONNECTED;
     conn_channel->enable_reading();
     conn_callback(shared_from_this());
 }
 
 void TcpConnection::connection_destroyed() {
     assert(loop->is_in_loop_thread());
-    assert(status == Disconnecting);
-    status = Disconnected;
+    assert(status == DISCONNECTING);
+    status = DISCONNECTED;
     INFO << "connection disconnected.";
 }
 
 void TcpConnection::send_outbound_bytes() {
     assert(loop->is_in_loop_thread());
-    assert(status == Connected);
+    assert(status == CONNECTED);
     conn_channel->enable_writing();
 }
 
 void TcpConnection::shutdown() {
     assert(loop->is_in_loop_thread());
-    assert(status == Connected);
+    assert(status == CONNECTED);
     INFO << "-------------- shutdown --------------";
     if (!conn_channel->writing_enabled()) {
         socket->shutdown_write();
-        status = Disconnecting;
+        status = DISCONNECTING;
     }
 }
 
 void TcpConnection::force_close() {
     assert(loop->is_in_loop_thread());
-    assert(status == Connected);
+    assert(status == CONNECTED);
     INFO << "-------------- quit --------------";
-    status = Disconnecting;
+    status = DISCONNECTING;
     conn_channel->disable_all();
     conn_channel->remove();
     connection_destroyed();

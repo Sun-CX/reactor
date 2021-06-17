@@ -14,7 +14,7 @@ private:
 public:
     explicit Socket(int con_fd);
 
-    virtual ~Socket();
+    ~Socket();
 
     [[nodiscard]]
     int get_fd() const;

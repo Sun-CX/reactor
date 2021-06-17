@@ -20,7 +20,7 @@ private:
 public:
     ServerSocket();
 
-    virtual ~ServerSocket();
+    ~ServerSocket();
 
     [[nodiscard]]
     int fd() const;

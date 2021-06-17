@@ -24,7 +24,7 @@ class Socket;
 class TcpConnection final : public NonCopyable, public enable_shared_from_this<TcpConnection> {
 private:
     enum STATUS {
-        Connecting, Connected, Disconnecting, Disconnected
+        CONNECTING, CONNECTED, DISCONNECTING, DISCONNECTED
     };
     static const char *STATUS_STRING[4];
 
@@ -62,7 +62,7 @@ private:
 public:
     TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local, const InetAddress &peer);
 
-    virtual ~TcpConnection();
+    ~TcpConnection();
 
     void connection_established();
 
