@@ -58,7 +58,7 @@ private:
 public:
     EventLoop();
 
-    virtual ~EventLoop();
+    ~EventLoop();
 
     // 只能在创建该对象的线程中调用，不能跨线程调用
     void loop();
