@@ -5,8 +5,6 @@ set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 include_directories(${PROJECT_SOURCE_DIR}/core)
 link_directories(${PROJECT_BINARY_DIR}/lib)
 
-#add_executable(noncopyable-test NonCopyable-Test.cpp)
-
 add_executable(thread-test Thread-Test.cpp)
 target_link_libraries(thread-test PRIVATE reactor-core)
 
