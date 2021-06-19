@@ -40,7 +40,7 @@ Timestamp EpollPoller::poll(Poller::Channels *active_channels, int milliseconds)
     } else {
         fill_active_channels(active_channels, ready_events);
         if (ready_events == events.capacity())
-            events.reserve(events.capacity() * 2);
+            events.reserve(events.capacity() << 1u);
     }
     return now;
 }
