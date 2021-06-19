@@ -20,9 +20,21 @@ using std::for_each;
 thread_local EventLoop *EventLoop::current_thread_loop = nullptr;
 const int EventLoop::default_poll_timeout_milliseconds = -1;   // 默认永不超时
 
-EventLoop::EventLoop() : looping(false), exited(false), thread_name(CurrentThread::name), pid(CurrentThread::id),
-                         poller(Poller::default_poller(this)), mutex(), calling_pending_func(false),
-                         wakeup_channel(new Channel(this, create_event_fd())), timer(new Timer(this)) {
+EventLoop::EventLoop() :
+        looping(false),
+        exited(false),
+        thread_name(CurrentThread::name),
+        pid(CurrentThread::id),
+        poller(Poller::default_poller(this)),
+        active_channels(),
+        mutex(),
+        calling_pending_func(false),
+        pending_functors(),
+        wakeup_channel(new Channel(this, create_event_fd())),
+        timer(new Timer(this)) {
+
+    INFO << "---------------------- EventLoop constructed ----------------------";
+
     if (unlikely(current_thread_loop != nullptr)) {
         FATAL << "current thread already has an event loop object(" << current_thread_loop << ')';
     } else current_thread_loop = this;

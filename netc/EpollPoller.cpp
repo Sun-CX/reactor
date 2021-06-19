@@ -68,7 +68,7 @@ void EpollPoller::update_channel(Channel *channel) {
         channel->set_index(ADD);
         update(channel, EPOLL_CTL_ADD);
     } else {
-        if (channel->none_events_watched()) {
+        if (channel->no_events_watched()) {
             update(channel, EPOLL_CTL_DEL);
             channel->set_index(DEL);
         } else update(channel, EPOLL_CTL_MOD);

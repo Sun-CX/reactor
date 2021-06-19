@@ -7,6 +7,7 @@
 #include "ConsoleStream.h"
 #include <poll.h>
 #include <sys/epoll.h>
+#include <cassert>
 
 static_assert(POLLIN == EPOLLIN and
               POLLPRI == EPOLLPRI and
@@ -35,23 +36,27 @@ void Channel::remove() {
 
 void Channel::handle_events() {
     if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
-        INFO << "************** POLLIN | POLLPRI | POLLRDHUP(" << fd << ") **************";
-        if (read_callback) read_callback();
+//        INFO << "************** POLLIN | POLLPRI | POLLRDHUP(" << fd << ") **************";
+        assert(read_callback);
+        read_callback();
     }
 
     if (revents & POLLOUT) {
-        INFO << "************** POLLOUT(" << fd << ") **************";
-        if (write_callback) write_callback();
+//        INFO << "************** POLLOUT(" << fd << ") **************";
+        assert(write_callback);
+        write_callback();
     }
 
     if (revents & POLLHUP and !(revents & POLLIN)) {
-        INFO << "************** POLLHUP and !POLLIN(" << fd << ") **************";
-        if (close_callback) close_callback();
+//        INFO << "************** POLLHUP and !POLLIN(" << fd << ") **************";
+        assert(close_callback);
+        close_callback();
     }
 
     if (revents & (POLLERR | POLLNVAL)) {
-        INFO << "************** POLLERR | POLLNVAL(" << fd << ") **************";
-        if (error_callback) error_callback();
+//        INFO << "************** POLLERR | POLLNVAL(" << fd << ") **************";
+        assert(error_callback);
+        error_callback();
     }
 }
 
@@ -59,11 +64,11 @@ uint32_t Channel::get_events() const {
     return events;
 }
 
-void Channel::set_revents(uint32_t evt) {
-    revents = evt;
+void Channel::set_revents(uint32_t e) {
+    revents = e;
 }
 
-bool Channel::none_events_watched() const {
+bool Channel::no_events_watched() const {
     return events == 0;
 }
 

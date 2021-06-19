@@ -54,10 +54,10 @@ public:
     [[nodiscard]]
     uint32_t get_events() const;
 
-    void set_revents(uint32_t evt);
+    void set_revents(uint32_t e);
 
     [[nodiscard]]
-    bool none_events_watched() const;
+    bool no_events_watched() const;
 
     [[nodiscard]]
     EventLoop *loop_owner() const;
