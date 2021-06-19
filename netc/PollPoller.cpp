@@ -76,7 +76,8 @@ void PollPoller::update_channel(Channel *channel) {
          * 不能仅仅将 pollfd.events 设置为 0，因为无法屏蔽 POLLHUP, POLLERR and POLLNVAL 事件
          * pfd.fd 取相反数再减一的操作是为了解决 fd 可能为 0 的问题：因为 -0 = 0，因此要减一
          */
-        if (channel->no_events_watched()) pfd.fd = -channel->get_fd() - 1;
+        if (channel->no_events_watched())
+            pfd.fd = -channel->get_fd() - 1;
     }
 }
 
@@ -95,7 +96,8 @@ void PollPoller::remove_channel(Channel *channel) {
         iter_swap(fds.begin() + idx, fds.end() - 1);
         fds.pop_back();
 
-        if (end_channel_fd < 0) end_channel_fd = -end_channel_fd - 1;
+        if (end_channel_fd < 0)
+            end_channel_fd = -end_channel_fd - 1;
         channel_map[end_channel_fd]->set_index(idx);
     }
 }

@@ -39,7 +39,8 @@ Timestamp EpollPoller::poll(Poller::Channels *active_channels, int milliseconds)
         WARN << "epoll_wait timeout, nothing happened.";
     } else {
         fill_active_channels(active_channels, ready_events);
-        if (ready_events == events.capacity()) events.reserve(events.capacity() * 2);
+        if (ready_events == events.capacity())
+            events.reserve(events.capacity() * 2);
     }
     return now;
 }
