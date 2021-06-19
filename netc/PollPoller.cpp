@@ -63,6 +63,7 @@ void PollPoller::update_channel(Channel *channel) {
         pfd.fd = channel->get_fd();
         pfd.events = static_cast<short>(channel->get_events());
         pfd.revents = 0;
+
         /**
          * The field fd contains a file descriptor for an open file. If this field is negative, then the corresponding events field is ignored and the revents field returns zero.
          * This provides an easy way of ignoring a file descriptor for a single poll() call: simply negate the fd field.
