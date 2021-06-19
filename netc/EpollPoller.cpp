@@ -7,11 +7,11 @@
 #include "Channel.h"
 #include "Timestamp.h"
 #include "GnuExt.h"
+#include "ConsoleStream.h"
 #include <sys/epoll.h>
 #include <unistd.h>
 #include <cstring>
 #include <cassert>
-#include "ConsoleStream.h"
 
 const int EpollPoller::NEW = -1;
 const int EpollPoller::ADD = 0;
