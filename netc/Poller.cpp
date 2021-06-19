@@ -25,9 +25,10 @@ bool Poller::has_channel(Channel *channel) const {
 }
 
 Poller *Poller::default_poller(EventLoop *loop) {
-    if (getenv("REACTOR_USE_EPOLL") != nullptr) {
-        return new EpollPoller(loop);
-    } else {
-        return new PollPoller(loop);
-    }
+//    if (getenv("REACTOR_USE_EPOLL") != nullptr) {
+//        return new EpollPoller(loop);
+//    } else {
+//        return new PollPoller(loop);
+//    }
+    return new EpollPoller(loop);
 }
