@@ -13,7 +13,9 @@ EventLoopThread::EventLoopThread(ThreadInitializer initializer, string name) :
         thread(bind(&EventLoopThread::thread_func, this), move(name)),
         mutex(),
         condition(mutex),
-        initial(move(initializer)) {}
+        initial(move(initializer)) {
+    INFO << "---------------------- EventLoopThread ----------------------";
+}
 
 EventLoopThread::~EventLoopThread() {
     INFO << "---------------------- ~EventLoopThread ----------------------";
