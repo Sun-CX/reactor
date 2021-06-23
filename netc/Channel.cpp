@@ -9,21 +9,6 @@
 #include <sys/epoll.h>
 #include <cassert>
 
-static_assert(POLLIN == EPOLLIN and
-              POLLPRI == EPOLLPRI and
-              POLLOUT == EPOLLOUT and
-              POLLWRBAND == EPOLLWRBAND and
-              POLLRDNORM == EPOLLRDNORM and
-              POLLRDBAND == EPOLLRDBAND and
-              POLLWRNORM == EPOLLWRNORM and
-              POLLERR == EPOLLERR and
-              POLLHUP == EPOLLHUP and
-              POLLMSG == EPOLLMSG and
-              POLLRDHUP == EPOLLRDHUP
-//              POLLREMOVE == EPOLLREMOVE
-//              POLLNVAL == EPOLLNVAL
-        , "POLL/EPOLL constants assert failed.");
-
 Channel::Channel(EventLoop *loop, int fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
 
 void Channel::update() {
