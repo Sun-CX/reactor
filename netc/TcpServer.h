@@ -41,7 +41,7 @@ private:
     ConnectionCallback conn_callback;
     MessageCallback msg_callback;
     WriteCompleteCallback write_complete_callback;
-    EventLoopThread::ThreadInitialCallback thread_initial_callback;
+    EventLoopThread::ThreadInitializer thread_initial_callback;
 
     void on_new_connection(int con_fd, const InetAddress &peer);
 

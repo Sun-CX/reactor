@@ -8,9 +8,12 @@
 
 using std::bind;
 
-EventLoopThread::EventLoopThread(EventLoopThread::ThreadInitialCallback callback, string name) :
-        loop(nullptr), thread(bind(&EventLoopThread::thread_func, this), move(name)), mutex(),
-        condition(mutex), initial_callback(move(callback)) {}
+EventLoopThread::EventLoopThread(ThreadInitializer initializer, string name) :
+        loop(nullptr),
+        thread(bind(&EventLoopThread::thread_func, this), move(name)),
+        mutex(),
+        condition(mutex),
+        initial(move(initializer)) {}
 
 EventLoopThread::~EventLoopThread() {
     INFO << "---------------------- ~EventLoopThread ----------------------";
@@ -22,7 +25,7 @@ EventLoopThread::~EventLoopThread() {
 
 void EventLoopThread::thread_func() {
     EventLoop lo;
-    if (initial_callback) initial_callback(&lo);
+    if (initial) initial(&lo);
     {
         MutexGuard guard(mutex);
         loop = &lo;
@@ -40,10 +43,10 @@ EventLoop *EventLoopThread::start() {
     EventLoop *lo = nullptr;
     {
         MutexGuard guard(mutex);
-        while (lo == nullptr) {
+        while (loop == nullptr) {
             condition.wait();
-            lo = loop;
         }
+        lo = loop;
     }
     return lo;
 }

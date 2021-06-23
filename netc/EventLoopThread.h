@@ -16,18 +16,18 @@ private:
 
     friend class TcpServer;
 
-    using ThreadInitialCallback = function<void(EventLoop *)>;
+    using ThreadInitializer = function<void(EventLoop *)>;
 
     EventLoop *loop;
     Thread thread;
     Mutex mutex;
     Condition condition;
-    ThreadInitialCallback initial_callback; // 在 EventLoop::loop() 之前被调用
+    ThreadInitializer initial; // 在 EventLoop::loop() 之前被调用
 
     void thread_func();
 
 public:
-    explicit EventLoopThread(ThreadInitialCallback callback = nullptr, string name = "");
+    explicit EventLoopThread(ThreadInitializer callback = nullptr, string name = "");
 
     ~EventLoopThread();
 

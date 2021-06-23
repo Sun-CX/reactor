@@ -26,9 +26,9 @@ private:
     vector<EventLoop *> loops;
 
 public:
-    EventLoopThreadPool(EventLoop *base_loop, int num_threads, string name);
+    EventLoopThreadPool(EventLoop *base_loop, string name, int num_threads);
 
-    void start(const EventLoopThread::ThreadInitialCallback &callback);
+    void start(const EventLoopThread::ThreadInitializer &callback);
 
     EventLoop *get_next_loop();
 };

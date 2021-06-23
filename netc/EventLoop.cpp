@@ -138,8 +138,7 @@ void EventLoop::wakeup() const {
 void EventLoop::read_wakeup_event() const {
     uint64_t one;
     auto n = read(wakeup_channel->get_fd(), &one, sizeof(one));
-    if (unlikely(n != sizeof(one)))
-        FATAL << "read from eventfd " << wakeup_channel->get_fd() << " error!";//ERROR_EXIT("read error.");
+    assert(n == sizeof(one));
     INFO << "receive event from eventfd " << wakeup_channel->get_fd();
 }
 
