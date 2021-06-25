@@ -21,7 +21,11 @@ private:
     const int fd;       // Channel 只引用 fd，并不管理 fd 的创建和关闭
     uint32_t events;    // 关注的 IO 事件
     uint32_t revents;   // 发生的 IO 事件
-    int index;          // 当前 Channel 对象在 PollPoller::fds 中的索引
+    /*
+     * 在 PollPoller 的实现中是 channel 在 PollPoller::fds 中的索引
+     * 在 EpollPoller 的实现中是代表 channel 的三种不同状态
+     */
+    int index;
 
     EventCallback read_callback;
     EventCallback write_callback;

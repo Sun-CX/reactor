@@ -46,7 +46,7 @@ public:
 
     virtual void update_channel(Channel *channel) = 0;
 
-    // 移除通道，在调用此方法之前，通常都会先调用 Channel->disable_all();
+    // 移除 channel，在调用此方法之前，都会先调用 channel->disable_all();
     virtual void remove_channel(Channel *channel) = 0;
 
     virtual bool has_channel(Channel *channel) const;
