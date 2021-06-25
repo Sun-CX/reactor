@@ -93,12 +93,12 @@ void EventLoop::quit() {
 }
 
 void EventLoop::run_in_loop(const Functor &func) {
-    INFO << __func__ << " invoked, loop in: " << thread_name << "[" << pid << "]";
+    INFO << __func__ << " invoked, loop in: " << CurrentThread::name;
     is_in_loop_thread() ? func() : queue_in_loop(func);
 }
 
 void EventLoop::queue_in_loop(const Functor &func) {
-    INFO << __func__ << " invoked, loop in: " << thread_name << "[" << pid << "]";
+    INFO << __func__ << " invoked, loop in: " << CurrentThread::name;
     {
         MutexGuard guard(mutex);
         pending_functors.push_back(func);

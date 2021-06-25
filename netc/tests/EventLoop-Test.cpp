@@ -27,10 +27,9 @@ void test1() {
 
 void test2() {
     EventLoop loop;
-    g_loop = &loop;
 
-    Thread thread([] {
-        g_loop->loop();
+    Thread thread([&loop] {
+        loop.loop();
     });
 
     thread.start();

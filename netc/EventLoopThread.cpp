@@ -14,12 +14,11 @@ EventLoopThread::EventLoopThread(ThreadInitializer initializer, string name) :
         mutex(),
         condition(mutex),
         initial(move(initializer)) {
-    DEBUG << "---------------------- EventLoopThread ----------------------";
+    DEBUG << "---------------------- +EventLoopThread ----------------------";
 }
 
 EventLoopThread::~EventLoopThread() {
-    DEBUG << "---------------------- ~EventLoopThread ----------------------";
-    DEBUG << "loop in EventLoopThread is: " << loop;
+    DEBUG << "---------------------- -EventLoopThread ----------------------";
     if (loop != nullptr) {
         loop->quit();
         thread.join();

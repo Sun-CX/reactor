@@ -13,7 +13,7 @@ add_executable(channel-test Channel-Test.cpp)
 target_link_libraries(channel-test netc)
 
 add_executable(eventloop-test EventLoop-Test.cpp)
-target_link_libraries(eventloop-test asan netc)
+target_link_libraries(eventloop-test PRIVATE netc reactor-core)
 
 add_executable(timerfd-test timerfd-Test.cpp)
 
@@ -30,7 +30,7 @@ add_executable(acceptor-test Acceptor-Test.cpp)
 target_link_libraries(acceptor-test netc)
 
 add_executable(eventloopthread-test EventLoopThread-Test.cpp)
-target_link_libraries(eventloopthread-test netc)
+target_link_libraries(eventloopthread-test PRIVATE netc reactor-core)
 
 add_executable(minheap-test MinHeap-Test.cpp)
 target_link_libraries(minheap-test reactor-core)
