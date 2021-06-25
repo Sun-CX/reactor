@@ -24,7 +24,7 @@ add_executable(countdownlatch-test-2 CountDownLatch-Test2.cpp)
 target_link_libraries(countdownlatch-test-2 PRIVATE reactor-core)
 
 add_executable(singleton-test Singleton-Test.cpp)
-target_link_libraries(singleton-test PRIVATE reactor-core)
+target_link_libraries(singleton-test PRIVATE reactor-core pthread)
 
 add_executable(blockingqueue-test BlockingQueue-Test.cpp)
 target_link_libraries(blockingqueue-test PRIVATE reactor-core)
@@ -42,7 +42,7 @@ add_executable(fixedthreadpool-test FixedThreadPool-Test.cpp)
 target_link_libraries(fixedthreadpool-test PRIVATE reactor-core)
 
 add_executable(threadlocal-test ThreadLocal-Test.cpp)
-target_link_libraries(threadlocal-test PRIVATE reactor-core)
+target_link_libraries(threadlocal-test PRIVATE reactor-core pthread)
 
 add_executable(consolestream-test ConsoleStream-Test.cpp)
 target_link_libraries(consolestream-test PRIVATE reactor-core)
