@@ -24,7 +24,7 @@ add_executable(buffer-test Buffer-Test.cpp)
 target_link_libraries(buffer-test PRIVATE netc reactor-core)
 
 add_executable(acceptor-test Acceptor-Test.cpp)
-target_link_libraries(acceptor-test netc)
+target_link_libraries(acceptor-test PRIVATE netc reactor-core)
 
 add_executable(eventloopthread-test EventLoopThread-Test.cpp)
 target_link_libraries(eventloopthread-test PRIVATE netc reactor-core)

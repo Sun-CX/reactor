@@ -26,15 +26,7 @@ namespace xxx {
 }
 
 int main(int argc, const char *argv[]) {
-
-//    printf("%lu\n", sizeof(sockaddr));
-//    printf("%lu\n", sizeof(sockaddr_in));
-//    printf("%lu\n", sizeof(sockaddr_in6));
-//    printf("%lu\n", sizeof(struct sockaddr) -
-//                    __SOCKADDR_COMMON_SIZE -
-//                    sizeof(in_port_t) -
-//                    sizeof(struct in_addr));
-
+    
     InetAddress addr(true, 9090);
     DEBUG << addr.to_string();
     
