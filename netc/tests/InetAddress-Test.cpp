@@ -3,6 +3,7 @@
 //
 
 #include "InetAddress.h"
+#include "ConsoleStream.h"
 
 namespace xxx {
 
@@ -35,8 +36,7 @@ int main(int argc, const char *argv[]) {
 //                    sizeof(struct in_addr));
 
     InetAddress addr(true, 9090);
-
-    printf("%s\n", to_readable_string(addr).c_str());
-
+    DEBUG << addr.to_string();
+    
     return 0;
 }

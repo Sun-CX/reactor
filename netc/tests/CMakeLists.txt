@@ -17,7 +17,7 @@ target_link_libraries(eventloop-test PRIVATE netc reactor-core)
 add_executable(timerfd-test timerfd-Test.cpp)
 
 add_executable(inetaddress-test InetAddress-Test.cpp)
-target_link_libraries(inetaddress-test netc)
+target_link_libraries(inetaddress-test PRIVATE netc reactor-core)
 
 add_executable(echoserver-test EchoServer-Test.cpp)
 target_link_libraries(echoserver-test netc)
