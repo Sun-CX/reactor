@@ -78,28 +78,28 @@ public:
      * @return 缓冲区中回车换行符的地址
      */
     [[nodiscard]]
-    const byte *find_CRLF() const;
+    const byte *find_crlf() const;
 
     /**
      * 返回缓冲区中以 start 位置开始的回车换行符的地址
      * @param start 查找的起始地址
      * @return 缓冲区中从 start 位置开始的回车换行符的地址
      */
-    const byte *find_CRLF(const byte *start) const;
+    const byte *find_crlf(const byte *start) const;
 
     /**
      * 返回缓冲区中换行符的地址
      * @return 缓冲区中换行符的地址
      */
     [[nodiscard]]
-    const byte *find_EOL() const;
+    const byte *find_eol() const;
 
     /**
      * 返回缓冲区中以 start 位置开始的换行符的地址
      * @param start 查找的起始地址
      * @return 缓冲区中以 start 位置开始的换行符的地址
      */
-    const byte *find_EOL(const byte *start) const;
+    const byte *find_eol(const byte *start) const;
 
     /**
      * 从缓冲区中读取 n 个字节的数据

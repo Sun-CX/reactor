@@ -15,7 +15,10 @@ const char Buffer::CRLF[] = "\r\n";
 const int Buffer::prepared_size = 8;
 const int Buffer::initial_size = 1024;
 
-Buffer::Buffer(size_t init_size) : buf(prepared_size + init_size), read_idx(prepared_size), write_idx(prepared_size) {
+Buffer::Buffer(size_t init_size) :
+        buf(prepared_size + init_size),
+        read_idx(prepared_size),
+        write_idx(prepared_size) {
     assert(buf.size() == prepared_size + init_size);
 }
 
@@ -43,12 +46,12 @@ byte *Buffer::begin() {
     return buf.data();
 }
 
-const byte *Buffer::find_CRLF() const {
+const byte *Buffer::find_crlf() const {
     auto pos = search(peek(), begin_write(), CRLF, CRLF + 2);
     return pos == begin_write() ? nullptr : pos;
 }
 
-const byte *Buffer::find_CRLF(const byte *start) const {
+const byte *Buffer::find_crlf(const byte *start) const {
     auto pos = search(start, begin_write(), CRLF, CRLF + 2);
     return pos == begin_write() ? nullptr : pos;
 }
@@ -61,12 +64,12 @@ byte *Buffer::begin_write() {
     return begin() + write_idx;
 }
 
-const byte *Buffer::find_EOL() const {
+const byte *Buffer::find_eol() const {
     auto p = memchr(peek(), '\n', readable_bytes());
     return static_cast<const byte *>(p);
 }
 
-const byte *Buffer::find_EOL(const byte *start) const {
+const byte *Buffer::find_eol(const byte *start) const {
     auto p = memchr(start, '\n', readable_bytes());
     return static_cast<const byte *>(p);
 }

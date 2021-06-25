@@ -57,7 +57,7 @@ bool HttpContext::parse_request(Buffer &buf) {
     bool ok = true;
     while (has_more) {
         if (parse_status == ExpectRequestLine) { // 解析请求行
-            auto pos = buf.find_CRLF();
+            auto pos = buf.find_crlf();
             if (pos) {
                 ok = parse_request_line(reinterpret_cast<const char *>(buf.peek()),
                                         reinterpret_cast<const char *>(pos));
@@ -67,7 +67,7 @@ bool HttpContext::parse_request(Buffer &buf) {
                 }
             } else has_more = false;
         } else if (parse_status == ExpectHeaders) { // 解析请求头
-            auto pos = buf.find_CRLF();
+            auto pos = buf.find_crlf();
             if (pos) {
                 auto colon = find(buf.peek(), pos, ':');
                 if (colon != pos) {
