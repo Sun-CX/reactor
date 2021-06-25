@@ -12,7 +12,7 @@ static void print(EventLoop *p = nullptr) {
     DEBUG << "loop: " << p;
 }
 
-static void quit(EventLoop *p) {
+static void quit(EventLoop *p = nullptr) {
     DEBUG << "loop: " << p;
     p->quit();
 }
