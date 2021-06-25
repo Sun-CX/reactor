@@ -42,7 +42,7 @@ public:
      * @param milliseconds 超时时间（毫秒），值为负数为永不超时
      * @return
      */
-    virtual Timestamp poll(Channels *active_channels, int milliseconds) = 0;
+    virtual Timestamp poll(Channels &active_channels, int milliseconds) = 0;
 
     virtual void update_channel(Channel *channel) = 0;
 

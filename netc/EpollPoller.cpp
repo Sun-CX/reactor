@@ -10,14 +10,15 @@
 #include "ConsoleStream.h"
 #include <sys/epoll.h>
 #include <unistd.h>
-#include <cstring>
 #include <cassert>
 
 const int EpollPoller::NEW = -1;
 const int EpollPoller::ADD = 0;
 const int EpollPoller::DEL = 1;
 
-EpollPoller::EpollPoller(EventLoop *loop) : Poller(loop), epoll_fd(epoll_create1(EPOLL_CLOEXEC)) {
+EpollPoller::EpollPoller(EventLoop *loop) :
+        Poller(loop),
+        epoll_fd(epoll_create1(EPOLL_CLOEXEC)) {
     if (unlikely(epoll_fd < 0)) FATAL << "create epoll_fd error.";
     events.reserve(16);
     INFO << "create epoll_fd " << epoll_fd;
@@ -29,12 +30,12 @@ EpollPoller::~EpollPoller() {
         FATAL << "close epoll_fd " << epoll_fd << " with errno: " << errno;
 }
 
-Timestamp EpollPoller::poll(Poller::Channels *active_channels, int milliseconds) {
+Timestamp EpollPoller::poll(Poller::Channels &active_channels, int milliseconds) {
     auto ready_events = epoll_wait(epoll_fd, events.data(), events.capacity(), milliseconds);
     auto now = Timestamp::now();
     if (unlikely(ready_events < 0)) {
         if (errno != EINTR)
-            WARN << __PRETTY_FUNCTION__ << "invoked error, errno = " << errno;
+            ERROR << __PRETTY_FUNCTION__ << "invoked error, errno = " << errno;
     } else if (ready_events == 0) {
         WARN << "epoll_wait timeout, nothing happened.";
     } else {
@@ -45,21 +46,20 @@ Timestamp EpollPoller::poll(Poller::Channels *active_channels, int milliseconds)
     return now;
 }
 
-void EpollPoller::fill_active_channels(Poller::Channels *active_channels, int num_events) const {
+void EpollPoller::fill_active_channels(Poller::Channels &active_channels, int num_events) const {
     for (int i = 0; i < num_events; ++i) {
         auto channel = static_cast<Channel *>(events[i].data.ptr);
         channel->set_revents(events[i].events);
-        active_channels->push_back(channel);
+        active_channels.push_back(channel);
     }
 }
 
 void EpollPoller::update(Channel *channel, int operation) {
-    epoll_event ev;
-    memset(&ev, 0, sizeof(ev));
-    ev.events = channel->get_events();
-    ev.data.ptr = channel;
+    epoll_event evt;
+    evt.events = channel->get_events();
+    evt.data.ptr = channel;
     int fd = channel->get_fd();
-    if (epoll_ctl(epoll_fd, operation, fd, &ev) < 0)
+    if (epoll_ctl(epoll_fd, operation, fd, &evt) < 0)
         FATAL << "epoll_ctl " << operation << " error.";
 }
 

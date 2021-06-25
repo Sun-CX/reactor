@@ -23,7 +23,7 @@ private:
 
     PollFDs fds;
 
-    void fill_active_channels(Channels *active_channels, int num_events) const;
+    void fill_active_channels(Channels &active_channels, int num_events) const;
 
 public:
     explicit PollPoller(EventLoop *loop);
@@ -32,7 +32,7 @@ public:
 
     void remove_channel(Channel *channel) override;
 
-    Timestamp poll(Channels *active_channels, int milliseconds) override;
+    Timestamp poll(Channels &active_channels, int milliseconds) override;
 };
 
 #endif //REACTOR_POLLPOLLER_H

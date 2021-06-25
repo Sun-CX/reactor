@@ -38,9 +38,9 @@ void test2() {
 
 int main(int argc, const char *argv[]) {
 
-//    test();
+    test();
 //    test1();
-    test2();
+//    test2();
 
     return 0;
 }

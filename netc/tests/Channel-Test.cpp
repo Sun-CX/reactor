@@ -16,7 +16,7 @@ static EventLoop *g_loop;
 
 static int count = 1;
 
-void time_out(int fd) {
+void timeout(int fd) {
 
     uint64_t val;
     ssize_t n = ::read(fd, &val, sizeof(val));
@@ -37,7 +37,7 @@ int main(int argc, const char *argv[]) {
     auto timer_fd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 
     Channel channel(g_loop, timer_fd);
-    channel.set_read_callback([=] { return time_out(timer_fd); });
+    channel.set_read_callback([=] { return timeout(timer_fd); });
     channel.enable_reading();
 
     itimerspec spec;

@@ -14,7 +14,7 @@ using std::iter_swap;
 
 PollPoller::PollPoller(EventLoop *loop) : Poller(loop) {}
 
-Timestamp PollPoller::poll(Channels *active_channels, int milliseconds) {
+Timestamp PollPoller::poll(Channels &active_channels, int milliseconds) {
     auto num_events = ::poll(fds.data(), fds.size(), milliseconds);
     auto now = Timestamp::now();
     if (unlikely(num_events < 0)) { // error
@@ -27,14 +27,14 @@ Timestamp PollPoller::poll(Channels *active_channels, int milliseconds) {
     return now;
 }
 
-void PollPoller::fill_active_channels(Poller::Channels *active_channels, int num_events) const {
+void PollPoller::fill_active_channels(Poller::Channels &active_channels, int num_events) const {
     for (auto it = fds.cbegin(); it != fds.cend() and num_events > 0; ++it) {
         if (it->revents > 0) {
             num_events--;
             auto v = channel_map.find(it->fd);
             auto channel = v->second;
             channel->set_revents(it->revents);
-            active_channels->push_back(channel);
+            active_channels.push_back(channel);
         }
     }
 }

@@ -30,11 +30,12 @@ private:
     const int epoll_fd;     // epoll 文件描述符：调用 epoll_create1() 返回
     EpollEvents events;     // 活动的 fd 列表
 
+    /* fd 在 epoll 管理下的三种状态 */
     static const int NEW; // 新增 fd
     static const int ADD; // 已添加
     static const int DEL; // 已脱离 epoll 管理，但未从 channel_map 中清除
 
-    void fill_active_channels(Channels *active_channels, int num_events) const;
+    void fill_active_channels(Channels &active_channels, int num_events) const;
 
     void update(Channel *channel, int operation);
 
@@ -43,7 +44,7 @@ public:
 
     ~EpollPoller() override;
 
-    Timestamp poll(Channels *active_channels, int milliseconds) override;
+    Timestamp poll(Channels &active_channels, int milliseconds) override;
 
     void update_channel(Channel *channel) override;
 
