@@ -4,9 +4,11 @@
 
 #include "EventLoop.h"
 #include "Channel.h"
+#include "ConsoleStream.h"
 #include <sys/timerfd.h>
 #include <cstring>
 #include <unistd.h>
+#include <cassert>
 
 using std::bind;
 
@@ -15,10 +17,15 @@ static EventLoop *g_loop;
 static int count = 1;
 
 void time_out(int fd) {
+
+    uint64_t val;
+    ssize_t n = ::read(fd, &val, sizeof(val));
+    assert(n == sizeof(val));
+
     if (count == 10) {
         g_loop->quit();
     }
-    printf("event triggered for %d times.\n", count);
+    DEBUG << "event triggered " << count << " times.";
     count++;
 }
 
@@ -27,10 +34,10 @@ int main(int argc, const char *argv[]) {
     EventLoop loop;
     g_loop = &loop;
 
-    auto timerfd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
+    auto timer_fd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 
-    Channel channel(g_loop, timerfd);
-    channel.set_read_callback(bind(time_out, timerfd));
+    Channel channel(g_loop, timer_fd);
+    channel.set_read_callback([=] { return time_out(timer_fd); });
     channel.enable_reading();
 
     itimerspec spec;
@@ -39,9 +46,9 @@ int main(int argc, const char *argv[]) {
     spec.it_value.tv_sec = 3;
     spec.it_interval.tv_sec = 1;
 
-    timerfd_settime(timerfd, 0, &spec, nullptr);
+    timerfd_settime(timer_fd, 0, &spec, nullptr);
 
-    g_loop->loop();
-    close(timerfd);
+    loop.loop();
+    ::close(timer_fd);
     return 0;
 }

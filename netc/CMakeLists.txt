@@ -3,13 +3,11 @@ cmake_minimum_required(VERSION 3.15)
 add_subdirectory(tests)
 
 set(LIBRARY_SOURCE
-        #        ============== reactor ==============
         EventLoop.cpp
         Channel.cpp
         Poller.cpp
         PollPoller.cpp
         EpollPoller.cpp
-        #        ============== reactor ==============
         InetAddress.cpp
         ServerSocket.cpp
         Socket.cpp
