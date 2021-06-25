@@ -21,7 +21,7 @@ using std::placeholders::_2;
 // 如果客户端代码没有设置连接回调，则调用此默认连接回调
 static void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
     INFO << "new client connected: " << conn->local_address().to_string() << " <------------------- "
-        << conn->peer_address().to_string();
+         << conn->peer_address().to_string();
 }
 
 // 如果客户端代码没有设置消息到来回调，则调用此默认消息回调
@@ -30,10 +30,15 @@ static void default_message_callback(const shared_ptr<TcpConnection> &conn, Time
 }
 
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name, int threads, bool reuse_port)
-        : loop(loop), name(move(name)), acceptor(new Acceptor(loop, bind_addr, reuse_port)),
+        : loop(loop),
+          name(move(name)),
+          acceptor(new Acceptor(loop, bind_addr, reuse_port)),
           thread_pool(new EventLoopThreadPool(loop, this->name, threads)),
-          conn_callback(default_connection_callback), msg_callback(default_message_callback), started(0),
-          next_conn_id(0) {
+          started(false),
+          next_conn_id(0),
+          connections(),
+          conn_callback(default_connection_callback),
+          msg_callback(default_message_callback) {
     acceptor->set_new_connection_callback(bind(&TcpServer::on_new_connection, this, _1, _2));
 }
 

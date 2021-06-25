@@ -24,7 +24,7 @@ private:
     Condition condition;
     ThreadInitializer initial; // 在 EventLoop::loop() 之前被调用
 
-    void thread_func();
+    void thread_routine();
 
 public:
     explicit EventLoopThread(ThreadInitializer callback = nullptr, string name = "");

@@ -14,8 +14,11 @@
 using std::bind;
 
 Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
-        loop(loop), server_socket(), accept_channel(loop, server_socket.fd()),
-        listening(false), idle_fd(open("/dev/null", O_CLOEXEC)) {
+        loop(loop),
+        server_socket(),
+        accept_channel(loop, server_socket.fd()),
+        listening(false),
+        idle_fd(open("/dev/null", O_RDONLY | O_CLOEXEC)) {
     INFO << "create idle_fd: " << idle_fd;
     server_socket.reuse_addr(true);
     server_socket.reuse_port(reuse_port);
@@ -39,19 +42,19 @@ void Acceptor::read_handler() {
         callback(con_fd, peer_addr);
     } else {// error
         if (errno == EMFILE) {
-            close(idle_fd);
+            ::close(idle_fd);
             idle_fd = server_socket.accept(peer_addr);
-            close(idle_fd);
+            ::close(idle_fd);
             idle_fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
         } else
-            ERROR << "accept new connection error!";
+            FATAL << "accept new connection error!";
     }
 }
 
 void Acceptor::listen() {
     assert(loop->is_in_loop_thread());
-    listening = true;
     server_socket.listen();
+    listening = true;
     accept_channel.enable_reading();
 }
 

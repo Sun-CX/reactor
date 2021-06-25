@@ -10,22 +10,23 @@ using std::bind;
 
 EventLoopThread::EventLoopThread(ThreadInitializer initializer, string name) :
         loop(nullptr),
-        thread(bind(&EventLoopThread::thread_func, this), move(name)),
+        thread(bind(&EventLoopThread::thread_routine, this), move(name)),
         mutex(),
         condition(mutex),
         initial(move(initializer)) {
-    INFO << "---------------------- EventLoopThread ----------------------";
+    DEBUG << "---------------------- EventLoopThread ----------------------";
 }
 
 EventLoopThread::~EventLoopThread() {
-    INFO << "---------------------- ~EventLoopThread ----------------------";
+    DEBUG << "---------------------- ~EventLoopThread ----------------------";
+    DEBUG << "loop in EventLoopThread is: " << loop;
     if (loop != nullptr) {
         loop->quit();
         thread.join();
     }
 }
 
-void EventLoopThread::thread_func() {
+void EventLoopThread::thread_routine() {
     EventLoop lo;
     if (initial) initial(&lo);
     {
