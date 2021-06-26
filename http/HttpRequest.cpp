@@ -47,6 +47,10 @@ const string &HttpRequest::get_parameter(const string &name) const {
     return parameters.at(name);
 }
 
+const Headers &HttpRequest::get_parameters() const {
+    return parameters;
+}
+
 const Headers &HttpRequest::get_headers() const {
     return headers;
 }
