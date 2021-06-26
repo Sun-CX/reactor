@@ -29,7 +29,6 @@ private:
     static const char *STATUS_STRING[4];
 
     EventLoop *loop;
-    const string name;
     STATUS status;
     bool reading;
     unique_ptr<Socket> socket;
@@ -60,7 +59,7 @@ private:
 //    void send_in_loop(const void *data, size_t len);
 
 public:
-    TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local, const InetAddress &peer);
+    TcpConnection(EventLoop *loop, int con_fd, const InetAddress &local, const InetAddress &peer);
 
     ~TcpConnection();
 
@@ -82,7 +81,7 @@ public:
 
     Buffer &outbound_buf();
 
-    const string &get_name() const;
+    int get_fd() const;
 
     const InetAddress &local_address() const;
 

@@ -16,10 +16,18 @@ using std::bind;
 
 const char *TcpConnection::STATUS_STRING[4] = {"CONNECTING", "CONNECTED", "DISCONNECTING", "DISCONNECTED"};
 
-TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const InetAddress &local, const InetAddress &peer) :
-        loop(loop), name(move(name)), status(CONNECTING), reading(true), socket(new Socket(con_fd)),
-        conn_channel(new Channel(loop, socket->get_fd())), local(local), peer(peer) {
-    INFO << "++++++++++++++++++++++ TcpConnection ++++++++++++++++++++++";
+TcpConnection::TcpConnection(EventLoop *loop, int con_fd, const InetAddress &local, const InetAddress &peer) :
+        loop(loop),
+        status(CONNECTING),
+        reading(true),
+        socket(new Socket(con_fd)),
+        conn_channel(new Channel(loop, socket->get_fd())),
+        local(local),
+        peer(peer),
+        inbound(),
+        outbound(),
+        context() {
+    DEBUG << "---------------------- +TcpConnection ----------------------";
     socket->keep_alive(true);
     conn_channel->set_read_callback(bind(&TcpConnection::read_handler, this));
     conn_channel->set_write_callback(bind(&TcpConnection::write_handler, this));
@@ -30,7 +38,7 @@ TcpConnection::TcpConnection(EventLoop *loop, string name, int con_fd, const Ine
 TcpConnection::~TcpConnection() {
     assert(loop->is_in_loop_thread());
     assert(status == DISCONNECTED);
-    INFO << "---------------------- ~TcpConnection ----------------------";
+    DEBUG << "---------------------- -TcpConnection ----------------------";
 }
 
 void TcpConnection::read_handler() {
@@ -131,10 +139,6 @@ EventLoop *TcpConnection::get_loop() const {
     return loop;
 }
 
-const string &TcpConnection::get_name() const {
-    return name;
-}
-
 const InetAddress &TcpConnection::local_address() const {
     return local;
 }
@@ -149,6 +153,10 @@ Buffer &TcpConnection::inbound_buf() {
 
 Buffer &TcpConnection::outbound_buf() {
     return outbound;
+}
+
+int TcpConnection::get_fd() const {
+    return socket->get_fd();
 }
 
 const any &TcpConnection::get_context() const {
