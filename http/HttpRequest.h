@@ -38,6 +38,8 @@ public:
 
     const string &get_parameter(const string &name) const;
 
+    const Headers &get_headers() const;
+
     Version get_version() const;
 };
 

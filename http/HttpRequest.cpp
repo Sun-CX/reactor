@@ -48,6 +48,12 @@ const string &HttpRequest::get_parameter(const string &name) const {
     return parameters.at(name);
 }
 
+const Headers &HttpRequest::get_headers() const {
+    return headers;
+}
+
 Version HttpRequest::get_version() const {
     return version;
 }
+
+

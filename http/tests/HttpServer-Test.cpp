@@ -5,10 +5,18 @@
 #include "HttpServer.h"
 #include "EventLoop.h"
 #include "InetAddress.h"
+#include "ConsoleStream.h"
 
 using std::to_string;
 
 void service(const HttpRequest &request, HttpResponse &response) {
+
+    const Headers &headers = request.get_headers();
+    for (const auto &e: headers) {
+        DEBUG << e.first << ':' << e.second;
+    }
+
+
     response.set_response_status(200, "OK");
     response.set_header("Content-Type", "text/plain");
     string body("hello reactor!");
