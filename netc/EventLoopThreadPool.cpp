@@ -6,16 +6,14 @@
 #include "EventLoop.h"
 #include <cassert>
 
-using std::make_unique;
-
 EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop, string name, int num_threads) :
         loop(base_loop),
         prefix(move(name)),
         num_threads(num_threads),
         next(0) {
     assert(num_threads >= 0);
-    threads.reserve(num_threads);
-    loops.reserve(num_threads);
+    worker_threads.reserve(num_threads);
+    worker_loops.reserve(num_threads);
 }
 
 void EventLoopThreadPool::start(const EventLoopThread::ThreadInitializer &callback) {
@@ -23,8 +21,8 @@ void EventLoopThreadPool::start(const EventLoopThread::ThreadInitializer &callba
     char thread_name[prefix.size() + 8];
     for (int i = 0; i < num_threads; ++i) {
         snprintf(thread_name, sizeof(thread_name), "%s-%d", prefix.c_str(), i + 1);
-        threads.emplace_back(new EventLoopThread(callback, thread_name));
-        loops.push_back(threads.back()->start());
+        worker_threads.emplace_back(new EventLoopThread(callback, thread_name));
+        worker_loops.push_back(worker_threads.back()->start());
     }
     if (num_threads == 0 and callback) callback(loop);
 }
@@ -32,9 +30,9 @@ void EventLoopThreadPool::start(const EventLoopThread::ThreadInitializer &callba
 EventLoop *EventLoopThreadPool::get_next_loop() {
     assert(loop->is_in_loop_thread());
     EventLoop *lo = loop;
-    if (!loops.empty()) {
-        lo = loops[next++];
-        if (next == loops.size()) next = 0;
+    if (!worker_loops.empty()) {
+        lo = worker_loops[next++];
+        if (next == worker_loops.size()) next = 0;
     }
     return lo;
 }

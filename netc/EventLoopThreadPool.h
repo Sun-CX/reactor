@@ -22,8 +22,8 @@ private:
     const string prefix;
     const int num_threads;
     int next;
-    vector<unique_ptr<EventLoopThread>> threads;
-    vector<EventLoop *> loops;
+    vector<unique_ptr<EventLoopThread>> worker_threads;
+    vector<EventLoop *> worker_loops;
 
 public:
     EventLoopThreadPool(EventLoop *base_loop, string name, int num_threads);
