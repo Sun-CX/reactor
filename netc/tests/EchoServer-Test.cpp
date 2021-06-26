@@ -41,6 +41,7 @@ public:
     EchoServer(EventLoop *loop, const InetAddress listen_addr, int threads) :
             loop(loop),
             server(loop, listen_addr, "echo-svr", threads, true) {
+
         server.set_msg_callback(bind(&EchoServer::on_message, this, _1, _2));
     }
 

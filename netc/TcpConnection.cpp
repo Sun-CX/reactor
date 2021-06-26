@@ -73,8 +73,8 @@ void TcpConnection::write_handler() {
 
 void TcpConnection::close_handler() {
     assert(loop->is_in_loop_thread());
-    // 当 peer 主动断开连接时，状态为 Connected
-    // 当 host 主动断开连接时，状态为 Disconnecting
+    // 当 peer 主动断开连接时，状态为 CONNECTED
+    // 当 host 主动断开连接时，状态为 DISCONNECTING
     assert(status == CONNECTED or status == DISCONNECTING);
     INFO << "con_fd " << conn_channel->get_fd() << " is closing, current status: " << STATUS_STRING[status];
     if (status == CONNECTED) status = DISCONNECTING;
@@ -97,9 +97,9 @@ void TcpConnection::connection_established() {
     assert(loop->is_in_loop_thread());
     assert(status == CONNECTING);
 
+    conn_callback(shared_from_this());
     status = CONNECTED;
     conn_channel->enable_reading();
-    conn_callback(shared_from_this());
 }
 
 void TcpConnection::connection_destroyed() {
