@@ -34,7 +34,6 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
           name(move(name)),
           acceptor(new Acceptor(loop, bind_addr, reuse_port)),
           thread_pool(new EventLoopThreadPool(loop, this->name, threads)),
-          started(false),
           connections(),
           conn_callback(default_connection_callback),
           msg_callback(default_message_callback) {

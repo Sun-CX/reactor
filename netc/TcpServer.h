@@ -9,11 +9,9 @@
 #include "EventLoopThread.h"
 #include <string>
 #include <map>
-#include <atomic>
 
 using std::string;
 using std::map;
-using std::atomic_int;
 using std::unique_ptr;
 
 class EventLoop;
@@ -34,7 +32,6 @@ private:
     const string name;
     unique_ptr<Acceptor> acceptor;
     shared_ptr<EventLoopThreadPool> thread_pool;
-    atomic_int started;
     ConnectionMap connections;
 
     ConnectionCallback conn_callback;
