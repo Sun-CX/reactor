@@ -34,8 +34,8 @@ private:
     shared_ptr<EventLoopThreadPool> thread_pool;
     ConnectionMap connections;
 
-    ConnectionCallback conn_callback;
-    MessageCallback msg_callback;
+    ConnectionCallback new_connection_callback;
+    MessageCallback message_callback;
     WriteCompleteCallback write_complete_callback;
     EventLoopThread::ThreadInitializer thread_initial_callback;
 

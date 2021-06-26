@@ -35,8 +35,8 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
           acceptor(new Acceptor(loop, bind_addr, reuse_port)),
           thread_pool(new EventLoopThreadPool(loop, this->name, threads)),
           connections(),
-          conn_callback(default_connection_callback),
-          msg_callback(default_message_callback) {
+          new_connection_callback(default_connection_callback),
+          message_callback(default_message_callback) {
     acceptor->set_new_connection_callback(bind(&TcpServer::on_new_connection, this, _1, _2));
 }
 
@@ -60,8 +60,8 @@ void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
     InetAddress local = InetAddress::get_local_address(con_fd);
 
     auto conn = make_shared<TcpConnection>(io_loop, con_fd, local, peer);
-    conn->set_connection_callback(conn_callback);
-    conn->set_message_callback(msg_callback);
+    conn->set_connection_callback(new_connection_callback);
+    conn->set_message_callback(message_callback);
     conn->set_write_complete_callback(write_complete_callback);
     conn->set_close_callback(bind(&TcpServer::remove_connection, this, _1));
     connections[con_fd] = conn;
@@ -88,11 +88,11 @@ void TcpServer::start() {
 }
 
 void TcpServer::set_conn_callback(const ConnectionCallback &callback) {
-    conn_callback = callback;
+    new_connection_callback = callback;
 }
 
 void TcpServer::set_msg_callback(const MessageCallback &callback) {
-    msg_callback = callback;
+    message_callback = callback;
 }
 
 void TcpServer::set_write_complete_callback(const WriteCompleteCallback &callback) {
