@@ -60,12 +60,12 @@ void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
     InetAddress local = InetAddress::get_local_address(con_fd);
 
     auto conn = make_shared<TcpConnection>(io_loop, con_fd, local, peer);
-
     conn->set_connection_callback(conn_callback);
     conn->set_message_callback(msg_callback);
     conn->set_write_complete_callback(write_complete_callback);
     conn->set_close_callback(bind(&TcpServer::remove_connection, this, _1));
     connections[con_fd] = conn;
+
     io_loop->queue_in_loop(bind(&TcpConnection::connection_established, conn));
 }
 
