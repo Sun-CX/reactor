@@ -11,14 +11,11 @@ using std::placeholders::_1;
 using std::placeholders::_2;
 using std::any_cast;
 
-static void default_http_callback(const HttpRequest &request, HttpResponse &response) {
-    printf("TODO...\n");
-}
-
 HttpServer::HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port) :
-        server(loop, addr, move(name), threads, reuse_port), http_callback(default_http_callback) {
-    server.set_conn_callback(bind(&HttpServer::on_connection, this, _1));
-    server.set_msg_callback(bind(&HttpServer::on_message, this, _1, _2));
+        server(loop, addr, move(name), threads, reuse_port) {
+
+    server.set_new_connection_callback(bind(&HttpServer::on_connection, this, _1));
+    server.set_message_callback(bind(&HttpServer::on_message, this, _1, _2));
 }
 
 void HttpServer::on_connection(const shared_ptr<TcpConnection> &connection) const {

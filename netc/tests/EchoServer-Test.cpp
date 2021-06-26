@@ -42,7 +42,7 @@ public:
             loop(loop),
             server(loop, listen_addr, "echo-svr", threads, true) {
 
-        server.set_msg_callback(bind(&EchoServer::on_message, this, _1, _2));
+        server.set_message_callback(bind(&EchoServer::on_message, this, _1, _2));
     }
 
     void start() { server.start(); }

@@ -12,6 +12,7 @@
 class HttpServer final : public NonCopyable {
 private:
     using HttpCallback = function<void(const HttpRequest &, HttpResponse &)>;
+
     TcpServer server;
     HttpCallback http_callback;
 

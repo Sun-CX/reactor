@@ -5,7 +5,9 @@
 #include "HttpRequest.h"
 #include <cassert>
 
-HttpRequest::HttpRequest(Method method, Version version) : method(method), version(version) {}
+HttpRequest::HttpRequest(Method method, Version version) :
+        method(method),
+        version(version) {}
 
 bool HttpRequest::set_method(const char *start, const char *end) {
     assert(method == Method::ILLEGAL);

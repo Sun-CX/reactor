@@ -52,9 +52,9 @@ public:
 
     void start();
 
-    void set_conn_callback(const ConnectionCallback &callback);
+    void set_new_connection_callback(const ConnectionCallback &callback);
 
-    void set_msg_callback(const MessageCallback &callback);
+    void set_message_callback(const MessageCallback &callback);
 
     void set_write_complete_callback(const WriteCompleteCallback &callback);
 

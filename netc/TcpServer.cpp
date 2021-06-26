@@ -87,11 +87,11 @@ void TcpServer::start() {
     acceptor->listen();
 }
 
-void TcpServer::set_conn_callback(const ConnectionCallback &callback) {
+void TcpServer::set_new_connection_callback(const ConnectionCallback &callback) {
     new_connection_callback = callback;
 }
 
-void TcpServer::set_msg_callback(const MessageCallback &callback) {
+void TcpServer::set_message_callback(const MessageCallback &callback) {
     message_callback = callback;
 }
 
