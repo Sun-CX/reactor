@@ -53,7 +53,6 @@ TcpServer::~TcpServer() {
     }
 }
 
-// 新的连接到来，构造 TcpConnection 对象，并保存在 connections 中
 void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
     assert(loop->is_in_loop_thread());
     auto io_loop = thread_pool->get_next_loop();

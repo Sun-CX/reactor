@@ -38,7 +38,6 @@ void Acceptor::read_handler() {
     InetAddress peer_addr;
     int con_fd = server_socket.accept(peer_addr);
     if (con_fd >= 0) {// success
-        INFO << "accept new connection, con_fd: " << con_fd;
         callback(con_fd, peer_addr);
     } else {// error
         if (errno == EMFILE) {
