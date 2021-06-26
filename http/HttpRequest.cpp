@@ -33,8 +33,7 @@ void HttpRequest::set_path(const char *start, const char *end) {
     path.assign(start, end);
 }
 
-void
-HttpRequest::set_header(const char *name_start, const char *name_end, const char *value_start, const char *value_end) {
+void HttpRequest::set_header(const char *name_start, const char *name_end, const char *value_start, const char *value_end) {
     string name(name_start, name_end);
     string value(value_start, value_end);
     headers[name] = value;
@@ -55,5 +54,4 @@ const Headers &HttpRequest::get_headers() const {
 Version HttpRequest::get_version() const {
     return version;
 }
-
 
