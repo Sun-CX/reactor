@@ -10,6 +10,9 @@
 using std::shared_ptr;
 using std::cout;
 using std::endl;
+using reactor::core::Thread;
+using reactor::core::Singleton;
+using reactor::core::make_singleton;
 
 class Student {
 private:

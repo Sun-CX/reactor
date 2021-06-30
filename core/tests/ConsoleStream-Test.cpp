@@ -5,6 +5,8 @@
 #include "ConsoleStream.h"
 #include "Thread.h"
 
+using reactor::core::Thread;
+
 static void v1() {
     TRACE << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye " << false;
     DEBUG << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye " << (1 == 2);

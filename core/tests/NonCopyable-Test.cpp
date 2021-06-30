@@ -4,6 +4,8 @@
 
 #include "NonCopyable.h"
 
+using reactor::core::NonCopyable;
+
 class Foo : public NonCopyable {
 
 };

@@ -12,6 +12,8 @@
 
 using std::move;
 using std::to_string;
+using reactor::core::Thread;
+using reactor::core::CurrentThread;
 
 atomic_uint Thread::thread_count(0);
 

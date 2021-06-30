@@ -10,6 +10,10 @@
 
 using std::vector;
 using std::unique_ptr;
+using reactor::core::Mutex;
+using reactor::core::MutexGuard;
+using reactor::core::Timestamp;
+using reactor::core::Thread;
 
 static Mutex mutex;
 

@@ -6,6 +6,8 @@
 #include "GnuExt.h"
 #include "ConsoleStream.h"
 
+using reactor::core::Timestamp;
+
 const int Timestamp::factors[] = {1, 1000, 1000 * 1000};
 
 Timestamp::Timestamp(int64_t time_since_epoch, TimeUint unit) :

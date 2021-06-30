@@ -17,6 +17,9 @@ using std::bind;
 using std::for_each;
 using std::placeholders::_1;
 using std::move;
+using reactor::core::CountDownLatch;
+using reactor::core::Thread;
+using reactor::core::CurrentThread;
 
 /**
  * 本例演示了：

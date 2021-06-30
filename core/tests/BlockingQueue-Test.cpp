@@ -14,6 +14,10 @@ using std::vector;
 using std::unique_ptr;
 using std::make_unique;
 using std::bind;
+using reactor::core::BlockingQueue;
+using reactor::core::CountDownLatch;
+using reactor::core::Thread;
+using reactor::core::CurrentThread;
 
 /**
  * 本例是一个典型的生产者/消费者模型：

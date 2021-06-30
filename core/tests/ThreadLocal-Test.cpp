@@ -5,6 +5,10 @@
 #include "ThreadLocal.h"
 #include "Thread.h"
 
+using reactor::core::ThreadLocal;
+using reactor::core::CurrentThread;
+using reactor::core::Thread;
+
 class Test {
 private:
     string name;

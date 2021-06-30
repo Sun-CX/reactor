@@ -9,36 +9,38 @@
 #include "ConsoleStream.h"
 #include <pthread.h>
 
-template<class T>
-class ThreadLocal final : public NonCopyable {
-private:
-    pthread_key_t key;
+namespace reactor::core {
+    template<class T>
+    class ThreadLocal final : public NonCopyable {
+    private:
+        pthread_key_t key;
 
-    static void destructor(void *arg) {
-        delete static_cast<T *>(arg);
-    }
-
-public:
-    ThreadLocal() {
-        int status = pthread_key_create(&key, ThreadLocal::destructor);
-        if (unlikely(status != 0)) FATAL << "pthread create key error.";
-    }
-
-    T &get_value() {
-        T *ptr = static_cast<T *>(pthread_getspecific(key));
-        if (ptr == nullptr) {
-            T *q = new T();
-            int status = pthread_setspecific(key, q);
-            if (unlikely(status != 0)) FATAL << "pthread set key error.";
-            ptr = q;
+        static void destructor(void *arg) {
+            delete static_cast<T *>(arg);
         }
-        return *ptr;
-    }
 
-    ~ThreadLocal() {
-        int status = pthread_key_delete(key);
-        if (unlikely(status != 0)) FATAL << "pthread delete key error.";
-    }
-};
+    public:
+        ThreadLocal() {
+            int status = pthread_key_create(&key, ThreadLocal::destructor);
+            if (unlikely(status != 0)) FATAL << "pthread create key error.";
+        }
+
+        T &get_value() {
+            T *ptr = static_cast<T *>(pthread_getspecific(key));
+            if (ptr == nullptr) {
+                T *q = new T();
+                int status = pthread_setspecific(key, q);
+                if (unlikely(status != 0)) FATAL << "pthread set key error.";
+                ptr = q;
+            }
+            return *ptr;
+        }
+
+        ~ThreadLocal() {
+            int status = pthread_key_delete(key);
+            if (unlikely(status != 0)) FATAL << "pthread delete key error.";
+        }
+    };
+}
 
 #endif //REACTOR_THREADLOCAL_H

@@ -6,6 +6,7 @@
 #include "Thread.h"
 
 using std::bind;
+using reactor::core::FixedThreadPool;
 
 FixedThreadPool::FixedThreadPool(int n_threads, int max_task_size, string name)
         : mutex(), not_empty(mutex), not_full(mutex), name(move(name)), max_queue_size(max_task_size), running(false) {

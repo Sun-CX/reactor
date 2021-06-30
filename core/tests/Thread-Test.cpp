@@ -5,6 +5,8 @@
 #include "Thread.h"
 
 using std::bind;
+using reactor::core::CurrentThread;
+using reactor::core::Thread;
 
 class Foo {
 private:

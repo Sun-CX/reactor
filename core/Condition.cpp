@@ -6,6 +6,8 @@
 #include "GnuExt.h"
 #include "ConsoleStream.h"
 
+using reactor::core::Condition;
+
 Condition::Condition(Mutex &mutex) : mutex(mutex) {
     int status = pthread_cond_init(&cond, nullptr);
     if (unlikely(status != 0)) FATAL << "condition-variable init error.";

@@ -5,16 +5,18 @@
 #ifndef REACTOR_NONCOPYABLE_H
 #define REACTOR_NONCOPYABLE_H
 
-class NonCopyable {
-public:
-    NonCopyable(const NonCopyable &rhs) = delete;
+namespace reactor::core {
+    class NonCopyable {
+    public:
+        NonCopyable(const NonCopyable &rhs) = delete;
 
-    NonCopyable &operator=(const NonCopyable &rhs) = delete;
+        NonCopyable &operator=(const NonCopyable &rhs) = delete;
 
-protected:
-    NonCopyable() = default;
+    protected:
+        NonCopyable() = default;
 
-    ~NonCopyable() = default;
-};
+        ~NonCopyable() = default;
+    };
+}
 
 #endif //REACTOR_NONCOPYABLE_H

@@ -8,6 +8,9 @@
 #include <functional>
 
 using std::bind;
+using reactor::core::CurrentThread;
+using reactor::core::CountDownLatch;
+using reactor::core::FixedThreadPool;
 
 static void print() {
     printf("%s[%d] execute print...\n", CurrentThread::name, CurrentThread::id);

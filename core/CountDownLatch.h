@@ -7,19 +7,21 @@
 
 #include "Condition.h"
 
-class CountDownLatch final : public NonCopyable {
-private:
-    mutable Mutex mutex;
-    Condition cond;
-    int count;
-public:
-    explicit CountDownLatch(int count);
+namespace reactor::core {
+    class CountDownLatch final : public NonCopyable {
+    private:
+        mutable Mutex mutex;
+        Condition cond;
+        int count;
+    public:
+        explicit CountDownLatch(int count);
 
-    void wait();
+        void wait();
 
-    void count_down();
+        void count_down();
 
-    int get_count() const;
-};
+        int get_count() const;
+    };
+}
 
 #endif //REACTOR_COUNTDOWNLATCH_H

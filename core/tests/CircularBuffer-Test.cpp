@@ -4,6 +4,8 @@
 
 #include "CircularBuffer.h"
 
+using reactor::core::CircularBuffer;
+
 int main(int argc, const char *argv[]) {
 
     CircularBuffer<int> buffer(3);

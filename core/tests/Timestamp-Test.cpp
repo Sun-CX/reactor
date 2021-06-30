@@ -5,6 +5,7 @@
 #include <vector>
 
 using std::vector;
+using reactor::core::Timestamp;
 
 void benchmark() {
     const int n = 1000 * 1000;

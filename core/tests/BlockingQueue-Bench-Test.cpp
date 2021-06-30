@@ -16,6 +16,11 @@ using std::vector;
 using std::unique_ptr;
 using std::bind;
 using std::map;
+using reactor::core::BlockingQueue;
+using reactor::core::Thread;
+using reactor::core::Timestamp;
+using reactor::core::CountDownLatch;
+using reactor::core::CurrentThread;
 
 /**
  * 本例为一个统计程序：

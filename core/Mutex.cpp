@@ -7,6 +7,9 @@
 #include "GnuExt.h"
 #include "ConsoleStream.h"
 
+using reactor::core::Mutex;
+using reactor::core::MutexGuard;
+
 Mutex::Mutex() noexcept : pid(0) {
     auto status = pthread_mutex_init(&mutex, nullptr);
     if (unlikely(status != 0)) FATAL << "mutex init error!";

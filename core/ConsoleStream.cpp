@@ -9,6 +9,7 @@
 #include <algorithm>
 
 using std::reverse;
+using reactor::core::ConsoleStream;
 
 const char ConsoleStream::digits[] = "9876543210123456789";
 const char ConsoleStream::hex_digits[] = "0123456789abcdef";
@@ -61,7 +62,7 @@ size_t ConsoleStream::itoha(char *buf, T x) const {
 }
 
 template<size_t N>
-ConsoleStream::LogBuffer<N>::LogBuffer():cur(buf) {}
+ConsoleStream::LogBuffer<N>::LogBuffer() : cur(buf) {}
 
 template<size_t N>
 size_t ConsoleStream::LogBuffer<N>::avail() const {
@@ -89,7 +90,8 @@ size_t ConsoleStream::LogBuffer<N>::size() const {
 }
 
 ConsoleStream::ConsoleStream(const char *src_file, int line, const char *style, bool terminate)
-        : buffer(), terminate(terminate) {
+        : buffer(),
+          terminate(terminate) {
     *this << style << Timestamp::now().to_string();
 
     *this << " [" << CurrentThread::name << "] [";
