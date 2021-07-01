@@ -7,20 +7,22 @@
 
 #include <functional>
 #include <memory>
+#include "Timestamp.h"
 
-using std::function;
-using std::shared_ptr;
+namespace reactor::net {
+    using std::function;
+    using std::shared_ptr;
+    using reactor::core::Timestamp;
 
-class TcpConnection;
+    class TcpConnection;
 
-class Buffer;
+    class Buffer;
 
-class Timestamp;
-
-using ConnectionCallback = function<void(const shared_ptr<TcpConnection> &)>;
-using MessageCallback = function<void(const shared_ptr<TcpConnection> &, Timestamp)>;
-using WriteCompleteCallback = function<void(const shared_ptr<TcpConnection> &)>;
-using HighWaterMarkCallback = function<void(const shared_ptr<TcpConnection> &, size_t)>;
-using CloseCallback = function<void(const shared_ptr<TcpConnection> &)>;
+    using ConnectionCallback = function<void(const shared_ptr<TcpConnection> &)>;
+    using MessageCallback = function<void(const shared_ptr<TcpConnection> &, Timestamp)>;
+    using WriteCompleteCallback = function<void(const shared_ptr<TcpConnection> &)>;
+    using HighWaterMarkCallback = function<void(const shared_ptr<TcpConnection> &, size_t)>;
+    using CloseCallback = function<void(const shared_ptr<TcpConnection> &)>;
+}
 
 #endif //REACTOR_EVENTS_H

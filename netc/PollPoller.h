@@ -17,22 +17,26 @@
  */
 struct pollfd;
 
-class PollPoller final : public Poller {
-private:
-    using PollFDs = vector<pollfd>;
+namespace reactor::net {
+    using reactor::core::Timestamp;
 
-    PollFDs fds;
+    class PollPoller final : public Poller {
+    private:
+        using PollFDs = vector<pollfd>;
 
-    void fill_active_channels(Channels &active_channels, int num_events) const;
+        PollFDs fds;
 
-public:
-    explicit PollPoller(EventLoop *loop);
+        void fill_active_channels(Channels &active_channels, int num_events) const;
 
-    void update_channel(Channel *channel) override;
+    public:
+        explicit PollPoller(EventLoop *loop);
 
-    void remove_channel(Channel *channel) override;
+        void update_channel(Channel *channel) override;
 
-    Timestamp poll(Channels &active_channels, int milliseconds) override;
-};
+        void remove_channel(Channel *channel) override;
+
+        Timestamp poll(Channels &active_channels, int milliseconds) override;
+    };
+}
 
 #endif //REACTOR_POLLPOLLER_H

@@ -5,6 +5,7 @@
 #include "ThreadLocal.h"
 #include "Thread.h"
 
+using std::string;
 using reactor::core::ThreadLocal;
 using reactor::core::CurrentThread;
 using reactor::core::Thread;

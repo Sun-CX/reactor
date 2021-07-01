@@ -8,6 +8,9 @@
 #include <arpa/inet.h>
 #include <cstring>
 
+using std::string;
+using reactor::net::InetAddress;
+
 InetAddress::InetAddress() {
     memset(&ad4, 0, sizeof(ad4));
 }

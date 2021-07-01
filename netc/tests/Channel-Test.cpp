@@ -11,6 +11,8 @@
 #include <cassert>
 
 using std::bind;
+using reactor::net::EventLoop;
+using reactor::net::Channel;
 
 static EventLoop *g_loop;
 

@@ -8,30 +8,39 @@
 #include "Thread.h"
 #include "Condition.h"
 
-class EventLoop;
+namespace reactor::net {
+    using reactor::core::NonCopyable;
+    using reactor::core::Mutex;
+    using reactor::core::Thread;
+    using reactor::core::Condition;
+    using std::function;
+    using std::string;
 
-class EventLoopThread final : public NonCopyable {
-private:
-    friend class EventLoopThreadPool;
+    class EventLoop;
 
-    friend class TcpServer;
+    class EventLoopThread final : public NonCopyable {
+    private:
+        friend class EventLoopThreadPool;
 
-    using ThreadInitializer = function<void(EventLoop *)>;
+        friend class TcpServer;
 
-    EventLoop *loop;
-    Thread thread;
-    Mutex mutex;
-    Condition condition;
-    ThreadInitializer initial; // 在 EventLoop::loop() 之前被调用
+        using ThreadInitializer = function<void(EventLoop *)>;
 
-    void thread_routine();
+        EventLoop *loop;
+        Thread thread;
+        Mutex mutex;
+        Condition condition;
+        ThreadInitializer initial; // 在 EventLoop::loop() 之前被调用
 
-public:
-    explicit EventLoopThread(ThreadInitializer callback = nullptr, string name = "");
+        void thread_routine();
 
-    ~EventLoopThread();
+    public:
+        explicit EventLoopThread(ThreadInitializer callback = nullptr, string name = "");
 
-    EventLoop *start();
-};
+        ~EventLoopThread();
+
+        EventLoop *start();
+    };
+}
 
 #endif //REACTOR_EVENTLOOPTHREAD_H

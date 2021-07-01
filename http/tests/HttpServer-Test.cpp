@@ -7,7 +7,14 @@
 #include "InetAddress.h"
 #include "ConsoleStream.h"
 
+using std::string;
 using std::to_string;
+using reactor::net::HttpRequest;
+using reactor::net::HttpResponse;
+using reactor::net::http::Headers;
+using reactor::net::EventLoop;
+using reactor::net::InetAddress;
+using reactor::net::HttpServer;
 
 void service(const HttpRequest &request, HttpResponse &response) {
 

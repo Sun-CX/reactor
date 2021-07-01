@@ -12,6 +12,8 @@
 #include <cassert>
 #include <cstdlib>
 
+using reactor::net::Poller;
+
 Poller::Poller(EventLoop *loop) : loop(loop) {}
 
 void Poller::assert_in_loop_thread() const {

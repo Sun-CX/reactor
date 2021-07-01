@@ -7,6 +7,7 @@
 #include "CountDownLatch.h"
 #include <functional>
 
+using std::string;
 using std::bind;
 using reactor::core::CurrentThread;
 using reactor::core::CountDownLatch;

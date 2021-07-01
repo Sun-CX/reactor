@@ -9,6 +9,9 @@
 #include <sys/epoll.h>
 #include <cassert>
 
+using reactor::net::Channel;
+using reactor::net::EventLoop;
+
 Channel::Channel(EventLoop *loop, int fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
 
 void Channel::update() {

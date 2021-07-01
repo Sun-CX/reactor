@@ -12,11 +12,15 @@
 #include "ConsoleStream.h"
 #include <cassert>
 
+using std::shared_ptr;
 using std::make_shared;
 using std::bind;
 using std::to_string;
 using std::placeholders::_1;
 using std::placeholders::_2;
+using reactor::net::TcpConnection;
+using reactor::net::TcpServer;
+using reactor::core::Timestamp;
 
 // 如果客户端代码没有设置连接回调，则调用此默认连接回调
 static void default_connection_callback(const shared_ptr<TcpConnection> &conn) {

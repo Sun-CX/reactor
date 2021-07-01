@@ -7,6 +7,9 @@
 #include "ConsoleStream.h"
 
 using std::bind;
+using reactor::net::EventLoopThread;
+using reactor::core::MutexGuard;
+using reactor::net::EventLoop;
 
 EventLoopThread::EventLoopThread(ThreadInitializer initializer, string name) :
         loop(nullptr),

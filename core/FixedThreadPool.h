@@ -12,13 +12,13 @@
 #include <functional>
 #include <deque>
 
-using std::vector;
-using std::string;
-using std::function;
-using std::unique_ptr;
-using std::deque;
-
 namespace reactor::core {
+    using std::vector;
+    using std::string;
+    using std::function;
+    using std::unique_ptr;
+    using std::deque;
+
     class Thread;
 
     /**

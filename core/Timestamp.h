@@ -7,9 +7,9 @@
 
 #include <string>
 
-using std::string;
-
 namespace reactor::core {
+    using std::string;
+
     class Timestamp final {
     private:
         int64_t microseconds_since_epoch;     // since 1970-01-01 00:00:00 +0000 (UTC).

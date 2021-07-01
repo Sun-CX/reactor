@@ -13,6 +13,11 @@
 #include <cassert>
 
 using std::bind;
+using reactor::net::TcpConnection;
+using reactor::net::EventLoop;
+using reactor::net::InetAddress;
+using reactor::net::Buffer;
+using std::any;
 
 const char *TcpConnection::STATUS_STRING[4] = {"CONNECTING", "CONNECTED", "DISCONNECTING", "DISCONNECTED"};
 

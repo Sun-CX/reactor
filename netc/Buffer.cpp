@@ -10,6 +10,9 @@
 
 using std::search;
 using std::copy;
+using reactor::net::Buffer;
+using reactor::net::byte;
+using std::string;
 
 const char Buffer::CRLF[] = "\r\n";
 const int Buffer::prepared_size = 8;

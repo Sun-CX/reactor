@@ -5,6 +5,8 @@
 #include "Buffer.h"
 #include "ConsoleStream.h"
 
+using reactor::net::Buffer;
+
 static void test_find() {
     Buffer buf;
 

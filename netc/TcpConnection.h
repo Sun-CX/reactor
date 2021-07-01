@@ -11,46 +11,50 @@
 #include "Buffer.h"
 #include <any>
 
-using std::unique_ptr;
-using std::enable_shared_from_this;
-using std::any;
+namespace reactor::net {
+    using reactor::core::NonCopyable;
+    using reactor::net::InetAddress;
+    using reactor::net::Buffer;
+    using std::enable_shared_from_this;
+    using std::unique_ptr;
+    using std::any;
 
-class EventLoop;
+    class EventLoop;
 
-class Channel;
+    class Channel;
 
-class Socket;
+    class Socket;
 
-class TcpConnection final : public NonCopyable, public enable_shared_from_this<TcpConnection> {
-private:
-    enum STATUS {
-        CONNECTING, CONNECTED, DISCONNECTING, DISCONNECTED
-    };
-    static const char *STATUS_STRING[4];
+    class TcpConnection final : public NonCopyable, public enable_shared_from_this<TcpConnection> {
+    private:
+        enum STATUS {
+            CONNECTING, CONNECTED, DISCONNECTING, DISCONNECTED
+        };
+        static const char *STATUS_STRING[4];
 
-    EventLoop *loop;
-    STATUS status;
-    bool reading;
-    unique_ptr<Socket> socket;
-    unique_ptr<Channel> conn_channel;
-    const InetAddress local;
-    const InetAddress peer;
-    Buffer inbound;     // 入站缓冲区
-    Buffer outbound;    // 出站缓冲区
-    any context;
+        EventLoop *loop;
+        STATUS status;
+        bool reading;
+        unique_ptr<Socket> socket;
+        unique_ptr<Channel> conn_channel;
+        const InetAddress local;
+        const InetAddress peer;
+        Buffer inbound;     // 入站缓冲区
+        Buffer outbound;    // 出站缓冲区
+        any context;
 
-    ConnectionCallback conn_callback;
-    MessageCallback msg_callback;
-    CloseCallback close_callback;
-    WriteCompleteCallback write_complete_callback;
+        ConnectionCallback conn_callback;
+        MessageCallback msg_callback;
+        CloseCallback close_callback;
+        WriteCompleteCallback write_complete_callback;
 
-    void read_handler();
+        void read_handler();
 
-    void write_handler();
+        void write_handler();
 
-    void close_handler();
+        void close_handler();
 
-    void error_handler();
+        void error_handler();
 
 //    void send_in_loop();
 
@@ -58,44 +62,45 @@ private:
 
 //    void send_in_loop(const void *data, size_t len);
 
-public:
-    TcpConnection(EventLoop *loop, int con_fd, const InetAddress &local, const InetAddress &peer);
+    public:
+        TcpConnection(EventLoop *loop, int con_fd, const InetAddress &local, const InetAddress &peer);
 
-    ~TcpConnection();
+        ~TcpConnection();
 
-    void connection_established();
+        void connection_established();
 
-    void connection_destroyed();
+        void connection_destroyed();
 
-    void send_outbound_bytes();
+        void send_outbound_bytes();
 
-    void shutdown();
+        void shutdown();
 
-    void force_close();
+        void force_close();
 
-    const any &get_context() const;
+        const any &get_context() const;
 
-    void set_context(const any &ctx);
+        void set_context(const any &ctx);
 
-    Buffer &inbound_buf();
+        Buffer &inbound_buf();
 
-    Buffer &outbound_buf();
+        Buffer &outbound_buf();
 
-    int get_fd() const;
+        int get_fd() const;
 
-    const InetAddress &local_address() const;
+        const InetAddress &local_address() const;
 
-    const InetAddress &peer_address() const;
+        const InetAddress &peer_address() const;
 
-    EventLoop *get_loop() const;
+        EventLoop *get_loop() const;
 
-    void set_connection_callback(const ConnectionCallback &callback);
+        void set_connection_callback(const ConnectionCallback &callback);
 
-    void set_message_callback(const MessageCallback &callback);
+        void set_message_callback(const MessageCallback &callback);
 
-    void set_write_complete_callback(const WriteCompleteCallback &callback);
+        void set_write_complete_callback(const WriteCompleteCallback &callback);
 
-    void set_close_callback(const CloseCallback &callback);
-};
+        void set_close_callback(const CloseCallback &callback);
+    };
+}
 
 #endif //REACTOR_TCPCONNECTION_H

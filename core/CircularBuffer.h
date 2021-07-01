@@ -8,9 +8,9 @@
 #include "ConsoleStream.h"
 #include "GnuExt.h"
 
-using std::move;
-
 namespace reactor::core {
+    using std::move;
+
     /**
      * 循环队列，亦称为环形缓冲区
      *

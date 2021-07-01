@@ -8,6 +8,8 @@
 #include <unistd.h>
 #include <sys/socket.h>
 
+using reactor::net::Socket;
+
 Socket::Socket(int con_fd) : fd(con_fd) {}
 
 Socket::~Socket() {

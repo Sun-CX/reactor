@@ -4,6 +4,8 @@
 
 #include "HttpResponse.h"
 
+using reactor::net::HttpResponse;
+
 HttpResponse::HttpResponse() : version(Version::INVALID), response_code(0) {}
 
 void HttpResponse::set_header(const string &name, const string &value) {

@@ -6,6 +6,7 @@
 #include "GnuExt.h"
 #include "ConsoleStream.h"
 
+using std::string;
 using reactor::core::Timestamp;
 
 const int Timestamp::factors[] = {1, 1000, 1000 * 1000};
@@ -103,14 +104,14 @@ timespec Timestamp::to_timespec() const {
     return {microseconds_since_epoch / factors[SECOND], microseconds_since_epoch % factors[SECOND] * 1000};
 }
 
-Timestamp operator ""_s(unsigned long long x) {
+Timestamp reactor::core::operator ""_s(unsigned long long x) {
     return Timestamp(x, Timestamp::TimeUint::SECOND);
 }
 
-Timestamp operator ""_ms(unsigned long long x) {
+Timestamp reactor::core::operator ""_ms(unsigned long long x) {
     return Timestamp(x, Timestamp::TimeUint::MILLISECOND);
 }
 
-Timestamp operator ""_us(unsigned long long x) {
+Timestamp reactor::core::operator ""_us(unsigned long long x) {
     return Timestamp(x, Timestamp::TimeUint::MICROSECOND);
 }

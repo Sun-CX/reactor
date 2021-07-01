@@ -5,34 +5,36 @@
 #ifndef REACTOR_TIMERTASK_H
 #define REACTOR_TIMERTASK_H
 
-#include "NonCopyable.h"
 #include "Timestamp.h"
 #include <functional>
 
-using std::function;
+namespace reactor::net {
+    using std::function;
+    using reactor::core::Timestamp;
 
-class TimerTask final {
-private:
-    friend class Timer;
+    class TimerTask final {
+    private:
+        friend class Timer;
 
-    friend class EventLoop;
+        friend class EventLoop;
 
-    using TimerCallback = function<void()>;
-    Timestamp expire_time;  // 定时任务到期的绝对时间
-    const Timestamp interval;
-    const TimerCallback callback; // 定时任务回调
+        using TimerCallback = function<void()>;
+        Timestamp expire_time;  // 定时任务到期的绝对时间
+        const Timestamp interval;
+        const TimerCallback callback; // 定时任务回调
 
-    void restart(const Timestamp &abs_time);
+        void restart(const Timestamp &abs_time);
 
-public:
-    TimerTask(TimerCallback callback, const Timestamp &expire_time, const Timestamp &interval);
+    public:
+        TimerTask(TimerCallback callback, const Timestamp &expire_time, const Timestamp &interval);
 
-    void alarm();
+        void alarm();
 
-    [[nodiscard]]
-    bool repeated() const;
+        [[nodiscard]]
+        bool repeated() const;
 
-    bool operator<(const TimerTask &rhs) const;
-};
+        bool operator<(const TimerTask &rhs) const;
+    };
+}
 
 #endif //REACTOR_TIMERTASK_H

@@ -8,11 +8,11 @@
 #include "NonCopyable.h"
 #include <string>
 
-using std::string;
-
 #define BUF_SIZE 2048
 
 namespace reactor::core {
+    using std::string;
+
     class ConsoleStream final : public NonCopyable {
     private:
         static const char digits[];

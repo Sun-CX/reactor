@@ -8,10 +8,10 @@
 #include "Condition.h"
 #include <deque>
 
-using std::deque;
-using std::move;
-
 namespace reactor::core {
+    using std::deque;
+    using std::move;
+
     /**
      * 线程安全的无界队列
      *

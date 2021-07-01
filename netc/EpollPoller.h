@@ -23,32 +23,36 @@
 
 class epoll_event;
 
-class EpollPoller final : public Poller {
-private:
-    using EpollEvents = vector<epoll_event>;
+namespace reactor::net {
+    using reactor::core::Timestamp;
 
-    const int epoll_fd;     // epoll 文件描述符：调用 epoll_create1() 返回
-    EpollEvents events;     // 活动的 fd 列表
+    class EpollPoller final : public Poller {
+    private:
+        using EpollEvents = vector<epoll_event>;
 
-    /* fd 在 epoll 管理下的三种状态 */
-    static const int NEW; // 新增 fd
-    static const int ADD; // 已添加
-    static const int DEL; // 已脱离 epoll 管理，但未从 channel_map 中清除
+        const int epoll_fd;     // epoll 文件描述符：调用 epoll_create1() 返回
+        EpollEvents events;     // 活动的 fd 列表
 
-    void fill_active_channels(Channels &active_channels, int num_events) const;
+        /* fd 在 epoll 管理下的三种状态 */
+        static const int NEW; // 新增 fd
+        static const int ADD; // 已添加
+        static const int DEL; // 已脱离 epoll 管理，但未从 channel_map 中清除
 
-    void update(Channel *channel, int operation);
+        void fill_active_channels(Channels &active_channels, int num_events) const;
 
-public:
-    explicit EpollPoller(EventLoop *loop);
+        void update(Channel *channel, int operation);
 
-    ~EpollPoller() override;
+    public:
+        explicit EpollPoller(EventLoop *loop);
 
-    Timestamp poll(Channels &active_channels, int milliseconds) override;
+        ~EpollPoller() override;
 
-    void update_channel(Channel *channel) override;
+        Timestamp poll(Channels &active_channels, int milliseconds) override;
 
-    void remove_channel(Channel *channel) override;
-};
+        void update_channel(Channel *channel) override;
+
+        void remove_channel(Channel *channel) override;
+    };
+}
 
 #endif //REACTOR_EPOLLPOLLER_H

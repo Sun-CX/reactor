@@ -8,6 +8,10 @@
 #include <unistd.h>
 #include "ConsoleStream.h"
 
+using reactor::net::EventLoop;
+using reactor::net::InetAddress;
+using reactor::net::Acceptor;
+
 static void on_new_connection(int con_fd, const InetAddress &cli) {
     DEBUG << "con_fd: " << con_fd << ", client: " << cli.to_string();
     ::close(con_fd);

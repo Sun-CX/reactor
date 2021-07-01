@@ -10,6 +10,7 @@
 using std::placeholders::_1;
 using std::placeholders::_2;
 using std::any_cast;
+using reactor::net::HttpServer;
 
 HttpServer::HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port) :
         server(loop, addr, move(name), threads, reuse_port) {
@@ -18,11 +19,11 @@ HttpServer::HttpServer(EventLoop *loop, const InetAddress &addr, string name, in
     server.set_message_callback(bind(&HttpServer::on_message, this, _1, _2));
 }
 
-void HttpServer::on_connection(const shared_ptr<TcpConnection> &connection) const {
+void HttpServer::on_connection(const shared_ptr <TcpConnection> &connection) const {
     connection->set_context(HttpContext());
 }
 
-void HttpServer::on_message(const shared_ptr<TcpConnection> &connection, Timestamp recv_time) {
+void HttpServer::on_message(const shared_ptr <TcpConnection> &connection, Timestamp recv_time) {
     auto context = any_cast<HttpContext>(connection->get_context());
     auto parse_success = context.parse_request(connection->inbound_buf());
 

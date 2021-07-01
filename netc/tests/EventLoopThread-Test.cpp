@@ -7,6 +7,9 @@
 #include "ConsoleStream.h"
 
 using std::bind;
+using reactor::core::CurrentThread;
+using reactor::net::EventLoop;
+using reactor::net::EventLoopThread;
 
 static void print(EventLoop *p = nullptr) {
     DEBUG << "loop: " << p;

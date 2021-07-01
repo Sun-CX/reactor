@@ -16,6 +16,9 @@
 using std::bind;
 using std::placeholders::_1;
 using std::for_each;
+using reactor::net::EventLoop;
+using reactor::core::CurrentThread;
+using reactor::core::MutexGuard;
 
 thread_local EventLoop *EventLoop::current_thread_loop = nullptr;
 const int EventLoop::default_poll_timeout_milliseconds = -1;   // 默认永不超时

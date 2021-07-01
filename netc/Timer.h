@@ -9,36 +9,40 @@
 #include "MinHeap.h"
 #include "Channel.h"
 
-class EventLoop;
+namespace reactor::net {
+    using reactor::core::NonCopyable;
 
-class Timer final : public NonCopyable {
-private:
-    EventLoop *loop;
-    QuadHeap<TimerTask *> tasks;
-    Channel timer_channel;
-    const Timestamp base_time;
+    class EventLoop;
 
-    [[nodiscard]]
-    int create_timer_fd() const;
+    class Timer final : public NonCopyable {
+    private:
+        EventLoop *loop;
+        QuadHeap<TimerTask *> tasks;
+        Channel timer_channel;
+        const Timestamp base_time;
 
-    void read_handler();
+        [[nodiscard]]
+        int create_timer_fd() const;
 
-    void read_timeout_event() const;
+        void read_handler();
 
-    void reset_timer_fd() const;
+        void read_timeout_event() const;
 
-    void add_timer_task_in_loop(TimerTask *task);
+        void reset_timer_fd() const;
 
-    bool insert(TimerTask *task);
+        void add_timer_task_in_loop(TimerTask *task);
 
-public:
-    explicit Timer(EventLoop *loop);
+        bool insert(TimerTask *task);
 
-    ~Timer();
+    public:
+        explicit Timer(EventLoop *loop);
 
-    // 可跨线程调用
-    void schedule(const TimerTask::TimerCallback &callback, const Timestamp &after,
-                  const Timestamp &interval = Timestamp());
-};
+        ~Timer();
+
+        // 可跨线程调用
+        void schedule(const TimerTask::TimerCallback &callback, const Timestamp &after,
+                      const Timestamp &interval = Timestamp());
+    };
+}
 
 #endif //REACTOR_TIMER_H

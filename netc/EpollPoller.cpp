@@ -12,6 +12,9 @@
 #include <unistd.h>
 #include <cassert>
 
+using reactor::net::EpollPoller;
+using reactor::core::Timestamp;
+
 const int EpollPoller::NEW = -1;
 const int EpollPoller::ADD = 0;
 const int EpollPoller::DEL = 1;

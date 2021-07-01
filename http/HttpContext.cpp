@@ -8,6 +8,10 @@
 
 using std::find;
 using std::to_string;
+using reactor::net::HttpContext;
+using reactor::net::HttpRequest;
+using reactor::net::HttpResponse;
+using reactor::net::Buffer;
 
 HttpContext::HttpContext() : parse_status(ExpectRequestLine) {}
 

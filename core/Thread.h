@@ -10,11 +10,11 @@
 #include <string>
 #include <functional>
 
-using std::atomic_uint;
-using std::function;
-using std::string;
-
 namespace reactor::core {
+    using std::atomic_uint;
+    using std::function;
+    using std::string;
+
     class Thread final : public NonCopyable {
     private:
         using runnable = function<void()>;

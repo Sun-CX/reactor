@@ -9,28 +9,30 @@
 #include <vector>
 #include <memory>
 
-using std::string;
-using std::vector;
-using std::function;
-using std::unique_ptr;
+namespace reactor::net {
+    using std::string;
+    using std::vector;
+    using std::function;
+    using std::unique_ptr;
 
-class EventLoop;
+    class EventLoop;
 
-class EventLoopThreadPool final : public NonCopyable {
-private:
-    EventLoop *loop;
-    const string prefix;
-    const int num_threads;
-    int next;
-    vector<unique_ptr<EventLoopThread>> worker_threads;
-    vector<EventLoop *> worker_loops;
+    class EventLoopThreadPool final : public NonCopyable {
+    private:
+        EventLoop *loop;
+        const string prefix;
+        const int num_threads;
+        int next;
+        vector<unique_ptr<EventLoopThread>> worker_threads;
+        vector<EventLoop *> worker_loops;
 
-public:
-    EventLoopThreadPool(EventLoop *base_loop, string name, int num_threads);
+    public:
+        EventLoopThreadPool(EventLoop *base_loop, string name, int num_threads);
 
-    void start(const EventLoopThread::ThreadInitializer &callback);
+        void start(const EventLoopThread::ThreadInitializer &callback);
 
-    EventLoop *get_next_loop();
-};
+        EventLoop *get_next_loop();
+    };
+}
 
 #endif //REACTOR_EVENTLOOPTHREADPOOL_H

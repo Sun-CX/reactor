@@ -5,6 +5,8 @@
 #include "InetAddress.h"
 #include "ConsoleStream.h"
 
+using reactor::net::InetAddress;
+
 namespace xxx {
 
     /**

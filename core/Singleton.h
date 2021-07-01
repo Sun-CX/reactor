@@ -9,10 +9,10 @@
 #include "ConsoleStream.h"
 #include <pthread.h>
 
-using std::shared_ptr;
-using std::make_shared;
-
 namespace reactor::core {
+    using std::shared_ptr;
+    using std::make_shared;
+
     template<typename T>
     class Singleton : public NonCopyable {
     private:

@@ -10,6 +10,7 @@
 #include <functional>
 #include <unistd.h>
 
+using std::string;
 using std::vector;
 using std::unique_ptr;
 using std::make_unique;

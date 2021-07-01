@@ -11,6 +11,8 @@
 #include <cassert>
 
 using std::iter_swap;
+using reactor::net::PollPoller;
+using reactor::core::Timestamp;
 
 PollPoller::PollPoller(EventLoop *loop) : Poller(loop) {}
 

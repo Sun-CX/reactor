@@ -9,6 +9,7 @@
 #include <memory>
 #include <functional>
 
+using std::string;
 using std::vector;
 using std::unique_ptr;
 using std::bind;

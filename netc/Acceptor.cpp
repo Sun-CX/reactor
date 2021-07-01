@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 using std::bind;
+using reactor::net::Acceptor;
 
 Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
         loop(loop),

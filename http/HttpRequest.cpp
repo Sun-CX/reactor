@@ -5,6 +5,11 @@
 #include "HttpRequest.h"
 #include <cassert>
 
+using reactor::net::HttpRequest;
+using reactor::net::http::Headers;
+using reactor::net::http::Version;
+using std::string;
+
 HttpRequest::HttpRequest(Method method, Version version) :
         method(method),
         version(version) {}

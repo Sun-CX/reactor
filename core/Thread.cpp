@@ -10,8 +10,10 @@
 #include <cstring>
 #include <unistd.h>
 
+using std::string;
 using std::move;
 using std::to_string;
+using std::atomic_uint;
 using reactor::core::Thread;
 using reactor::core::CurrentThread;
 

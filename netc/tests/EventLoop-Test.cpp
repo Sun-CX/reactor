@@ -5,6 +5,10 @@
 #include "EventLoop.h"
 #include "Thread.h"
 
+using reactor::net::EventLoop;
+using reactor::core::Thread;
+using reactor::core::operator ""_s;
+
 static EventLoop *g_loop;
 
 void test() {

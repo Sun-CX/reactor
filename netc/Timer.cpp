@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 using std::bind;
+using reactor::net::Timer;
 
 Timer::Timer(EventLoop *loop) : loop(loop), timer_channel(this->loop, create_timer_fd()), base_time(Timestamp::now()) {
     timer_channel.set_read_callback(bind(&Timer::read_handler, this));

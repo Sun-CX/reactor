@@ -6,52 +6,55 @@
 #define REACTOR_POLLER_H
 
 #include "NonCopyable.h"
+#include "Timestamp.h"
 #include <vector>
 #include <map>
 
-using std::map;
-using std::vector;
+namespace reactor::net {
+    using std::map;
+    using std::vector;
+    using reactor::core::NonCopyable;
+    using reactor::core::Timestamp;
 
-class Timestamp;
+    class EventLoop;
 
-class EventLoop;
-
-class Channel;
-
-/**
- * 轮询器：具体实现可以是 poll 或者 epoll
- */
-class Poller : public NonCopyable {
-private:
-    EventLoop *loop;
-protected:
-    using Channels = vector<Channel *>;
-    using ChannelMap = map<int, Channel *>;
-    ChannelMap channel_map;
-
-    void assert_in_loop_thread() const;
-
-public:
-    explicit Poller(EventLoop *loop);
-
-    virtual ~Poller() = default;
+    class Channel;
 
     /**
-     * 轮询活跃的事件
-     * @param active_channels
-     * @param milliseconds 超时时间（毫秒），值为负数为永不超时
-     * @return
+     * 轮询器：具体实现可以是 poll 或者 epoll
      */
-    virtual Timestamp poll(Channels &active_channels, int milliseconds) = 0;
+    class Poller : public NonCopyable {
+    private:
+        EventLoop *loop;
+    protected:
+        using Channels = vector<Channel *>;
+        using ChannelMap = map<int, Channel *>;
+        ChannelMap channel_map;
 
-    virtual void update_channel(Channel *channel) = 0;
+        void assert_in_loop_thread() const;
 
-    // 移除 channel，在调用此方法之前，都会先调用 channel->disable_all();
-    virtual void remove_channel(Channel *channel) = 0;
+    public:
+        explicit Poller(EventLoop *loop);
 
-    virtual bool has_channel(Channel *channel) const;
+        virtual ~Poller() = default;
 
-    static Poller *default_poller(EventLoop *loop);
-};
+        /**
+         * 轮询活跃的事件
+         * @param active_channels
+         * @param milliseconds 超时时间（毫秒），值为负数为永不超时
+         * @return
+         */
+        virtual Timestamp poll(Channels &active_channels, int milliseconds) = 0;
+
+        virtual void update_channel(Channel *channel) = 0;
+
+        // 移除 channel，在调用此方法之前，都会先调用 channel->disable_all();
+        virtual void remove_channel(Channel *channel) = 0;
+
+        virtual bool has_channel(Channel *channel) const;
+
+        static Poller *default_poller(EventLoop *loop);
+    };
+}
 
 #endif //REACTOR_POLLER_H

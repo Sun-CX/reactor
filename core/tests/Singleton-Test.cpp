@@ -7,6 +7,7 @@
 #include "Singleton.h"
 #include "Thread.h"
 
+using std::string;
 using std::shared_ptr;
 using std::cout;
 using std::endl;

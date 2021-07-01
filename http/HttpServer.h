@@ -9,23 +9,26 @@
 #include "HttpRequest.h"
 #include "HttpResponse.h"
 
-class HttpServer final : public NonCopyable {
-private:
-    using HttpCallback = function<void(const HttpRequest &, HttpResponse &)>;
+namespace reactor::net {
 
-    TcpServer server;
-    HttpCallback http_callback;
+    class HttpServer final : public NonCopyable {
+    private:
+        using HttpCallback = function<void(const HttpRequest &, HttpResponse &)>;
 
-    void on_connection(const shared_ptr<TcpConnection> &connection) const;
+        TcpServer server;
+        HttpCallback http_callback;
 
-    void on_message(const shared_ptr<TcpConnection> &connection, Timestamp recv_time);
+        void on_connection(const shared_ptr<TcpConnection> &connection) const;
 
-public:
-    HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port = false);
+        void on_message(const shared_ptr<TcpConnection> &connection, Timestamp recv_time);
 
-    void set_http_callback(const HttpCallback &callback);
+    public:
+        HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port = false);
 
-    void start();
-};
+        void set_http_callback(const HttpCallback &callback);
+
+        void start();
+    };
+}
 
 #endif //REACTOR_HTTPSERVER_H

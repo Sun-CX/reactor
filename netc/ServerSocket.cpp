@@ -10,6 +10,8 @@
 #include <cstring>
 #include <netinet/tcp.h>
 
+using reactor::net::ServerSocket;
+
 ServerSocket::ServerSocket() : listen_fd(create_listen_fd()) {}
 
 ServerSocket::~ServerSocket() {

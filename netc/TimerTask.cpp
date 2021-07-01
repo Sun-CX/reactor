@@ -4,6 +4,8 @@
 
 #include "TimerTask.h"
 
+using reactor::net::TimerTask;
+
 TimerTask::TimerTask(TimerCallback callback, const Timestamp &expire_time, const Timestamp &interval)
         : expire_time(expire_time), interval(interval), callback(move(callback)) {}
 

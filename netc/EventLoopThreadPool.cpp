@@ -6,6 +6,9 @@
 #include "EventLoop.h"
 #include <cassert>
 
+using reactor::net::EventLoopThreadPool;
+using reactor::net::EventLoop;
+
 EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop, string name, int num_threads) :
         loop(base_loop),
         prefix(move(name)),

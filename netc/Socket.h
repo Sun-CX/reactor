@@ -7,23 +7,27 @@
 
 #include "NonCopyable.h"
 
-// 封装已连接套接字
-class Socket final : public NonCopyable {
-private:
-    const int fd;
-public:
-    explicit Socket(int con_fd);
+namespace reactor::net {
+    using reactor::core::NonCopyable;
 
-    ~Socket();
+    // 封装已连接套接字
+    class Socket final : public NonCopyable {
+    private:
+        const int fd;
+    public:
+        explicit Socket(int con_fd);
 
-    [[nodiscard]]
-    int get_fd() const;
+        ~Socket();
 
-    void shutdown_read() const;
+        [[nodiscard]]
+        int get_fd() const;
 
-    void shutdown_write() const;
+        void shutdown_read() const;
 
-    void keep_alive(bool on) const;
-};
+        void shutdown_write() const;
+
+        void keep_alive(bool on) const;
+    };
+}
 
 #endif //REACTOR_SOCKET_H
