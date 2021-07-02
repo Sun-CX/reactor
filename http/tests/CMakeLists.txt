@@ -11,3 +11,6 @@ link_directories(${PROJECT_BINARY_DIR}/lib)
 
 add_executable(httpserver-test HttpServer-Test.cpp)
 target_link_libraries(httpserver-test PRIVATE http netc reactor-core)
+
+add_executable(urlencoder-test URLEncoder-Test.cpp)
+target_link_libraries(urlencoder-test PRIVATE http reactor-core)

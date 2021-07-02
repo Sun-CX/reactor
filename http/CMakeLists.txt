@@ -6,7 +6,8 @@ set(LIBRARY_SOURCE
         HttpRequest.cpp
         HttpResponse.cpp
         HttpServer.cpp
-        HttpContext.cpp)
+        HttpContext.cpp
+        URLEncoder.h)
 
 add_library(http SHARED ${LIBRARY_SOURCE})
 set_target_properties(http PROPERTIES
