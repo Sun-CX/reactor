@@ -19,13 +19,13 @@ namespace reactor::net {
         size_t read_idx;
         size_t write_idx;
         static const char CRLF[];
-        static const int prepared_size; // 初始预留大小
-        static const int initial_size;  // 默认初始大小（不包括预留空间）
+        static const int RESERVED_SIZE; // 预留空间大小
+        static const int INITIAL_SIZE;  // 默认初始大小（不包括预留空间）
 
         void enlarge_space(size_t n);
 
     public:
-        explicit Buffer(size_t init_size = initial_size);
+        explicit Buffer(size_t init_size = INITIAL_SIZE);
 
         /**
          * 返回可读字节的长度

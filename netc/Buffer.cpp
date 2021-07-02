@@ -15,14 +15,18 @@ using reactor::net::byte;
 using std::string;
 
 const char Buffer::CRLF[] = "\r\n";
-const int Buffer::prepared_size = 8;
-const int Buffer::initial_size = 1024;
+const int Buffer::RESERVED_SIZE = 8;
+const int Buffer::INITIAL_SIZE = 1024;
 
 Buffer::Buffer(size_t init_size) :
-        buf(prepared_size + init_size),
-        read_idx(prepared_size),
-        write_idx(prepared_size) {
-    assert(buf.size() == prepared_size + init_size);
+        buf(RESERVED_SIZE + init_size),
+        read_idx(RESERVED_SIZE),
+        write_idx(RESERVED_SIZE) {
+    assert(init_size > 0);
+    assert(buf.size() == RESERVED_SIZE + init_size);
+    assert(readable_bytes() == 0);
+    assert(writable_bytes() == init_size);
+    assert(prepared_bytes() == RESERVED_SIZE);
 }
 
 size_t Buffer::readable_bytes() const {
@@ -84,8 +88,8 @@ void Buffer::retrieve(size_t n) {
 }
 
 void Buffer::retrieve_all() {
-    read_idx = prepared_size;
-    write_idx = prepared_size;
+    read_idx = RESERVED_SIZE;
+    write_idx = RESERVED_SIZE;
 }
 
 void Buffer::retrieve_until(const byte *end) {
@@ -119,12 +123,12 @@ string Buffer::retrieve_all_string() {
 }
 
 void Buffer::enlarge_space(size_t n) {
-    if (writable_bytes() + prepared_bytes() < n + prepared_size) {
+    if (writable_bytes() + prepared_bytes() < n + RESERVED_SIZE) {
         buf.resize(write_idx + n);
     } else {
         auto readable = readable_bytes();
-        copy(begin() + read_idx, begin() + write_idx, begin() + prepared_size);
-        read_idx = prepared_size;
+        copy(begin() + read_idx, begin() + write_idx, begin() + RESERVED_SIZE);
+        read_idx = RESERVED_SIZE;
         write_idx = read_idx + readable;
     }
 }
