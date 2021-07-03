@@ -80,11 +80,25 @@ namespace reactor::net {
         byte *begin_write();
 
         /**
-         * 返回缓冲区可偷窥数据的起始地址
-         * @return 偷窥缓冲区数据的起始地址
+         * 返回缓冲区可读数据的起始地址
+         * @return 缓冲区可读数据的起始地址
          */
         [[nodiscard]]
         const byte *peek() const;
+
+        /**
+         * 从缓冲区中读 16bit 的无符号整数（不改变缓冲区）
+         * @return 16bit 的无符号整数
+         */
+        [[nodiscard]]
+        uint16_t peek_uint16() const;
+
+        /**
+         * 从缓冲区中读 32bit 的无符号整数（不改变缓冲区）
+         * @return 32bit 的无符号整数
+         */
+        [[nodiscard]]
+        uint32_t peek_uint32() const;
 
         /**
          * 返回缓冲区中回车换行符的地址
@@ -130,14 +144,6 @@ namespace reactor::net {
          * @param end 读取数据的 end 地址
          */
         void retrieve_until(const byte *end);
-
-        void retrieve_64();
-
-        void retrieve_32();
-
-        void retrieve_16();
-
-        void retrieve_8();
 
         /**
          * 读取 n 字节数据，并将数据以字符串返回

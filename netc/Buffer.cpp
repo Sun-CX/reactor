@@ -7,6 +7,7 @@
 #include <cstring>
 #include <sys/uio.h>
 #include <cassert>
+#include <netinet/in.h>
 
 using std::search;
 using std::copy;
@@ -50,6 +51,20 @@ size_t Buffer::reserved_bytes() const {
 
 const byte *Buffer::peek() const {
     return begin() + read_idx;
+}
+
+uint16_t Buffer::peek_uint16() const {
+    assert(readable_bytes() >= sizeof(uint16_t));
+    uint16_t val;
+    memcpy(&val, peek(), sizeof(val));
+    return ntohs(val);
+}
+
+uint32_t Buffer::peek_uint32() const {
+    assert(readable_bytes() >= sizeof(uint32_t));
+    uint32_t val;
+    memcpy(&val, peek(), sizeof(val));
+    return ntohl(val);
 }
 
 const byte *Buffer::begin() const {
@@ -101,22 +116,6 @@ void Buffer::retrieve_all() {
 
 void Buffer::retrieve_until(const byte *end) {
     retrieve(end - peek());
-}
-
-void Buffer::retrieve_64() {
-    retrieve(sizeof(int64_t));
-}
-
-void Buffer::retrieve_32() {
-    retrieve(sizeof(int32_t));
-}
-
-void Buffer::retrieve_16() {
-    retrieve(sizeof(int16_t));
-}
-
-void Buffer::retrieve_8() {
-    retrieve(sizeof(int8_t));
 }
 
 string Buffer::retrieve_string(size_t n) {
