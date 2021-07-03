@@ -6,8 +6,10 @@
 #define REACTOR_URLENCODER_H
 
 #include "Buffer.h"
+#include <vector>
 
 namespace reactor::net {
+    using std::vector;
 
     class URLEncoder final {
     private:

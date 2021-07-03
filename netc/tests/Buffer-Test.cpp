@@ -30,7 +30,7 @@ void test() {
     buffer.append("world");
 //    cout << buffer.retrieve_all_string() << endl;
 
-    buffer.retrieve_64();
+    buffer.retrieve(8);
 
     buffer.append("fuck");
     DEBUG << buffer.retrieve_all_string();
