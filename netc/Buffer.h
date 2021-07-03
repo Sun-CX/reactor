@@ -5,27 +5,32 @@
 #ifndef REACTOR_BUFFER_H
 #define REACTOR_BUFFER_H
 
-#include <vector>
 #include <string>
 
 namespace reactor::net {
-    using std::vector;
     using std::string;
     using byte = unsigned char;
 
     class Buffer final {
     private:
-        vector<byte> buf;
+        byte *buf;
         size_t read_idx;
         size_t write_idx;
+        size_t capacity;
         static const char CRLF[];
         static const int RESERVED_SIZE; // 预留空间大小
         static const int INITIAL_SIZE;  // 默认初始大小（不包括预留空间）
 
-        void enlarge_space(size_t n);
+        /**
+         * 确保缓冲区可写入 n 字节数据
+         * @param n
+         */
+        void ensure_writable(size_t n);
 
     public:
         explicit Buffer(size_t init_size = INITIAL_SIZE);
+
+        ~Buffer();
 
         /**
          * 返回可读字节的长度
@@ -35,7 +40,7 @@ namespace reactor::net {
         size_t readable_bytes() const;
 
         /**
-         * 返回当前可写字节的长度，当扩容后可写字节长度也相应增大
+         * 返回当前可写字节的长度，当扩容后可写字节的长度也相应增大
          * @return 当前可写字节的长度
          */
         [[nodiscard]]
@@ -46,7 +51,7 @@ namespace reactor::net {
          * @return 预留区大小
          */
         [[nodiscard]]
-        size_t prepared_bytes() const;
+        size_t reserved_bytes() const;
 
         /**
          * 返回缓冲区的起始地址
@@ -55,6 +60,10 @@ namespace reactor::net {
         [[nodiscard]]
         const byte *begin() const;
 
+        /**
+         * 返回缓冲区的起始地址
+         * @return 缓冲区起始地址
+         */
         byte *begin();
 
         /**
@@ -64,6 +73,10 @@ namespace reactor::net {
         [[nodiscard]]
         const byte *begin_write() const;
 
+        /**
+         * 返回缓冲区的可写地址
+         * @return 缓冲区可写地址
+         */
         byte *begin_write();
 
         /**

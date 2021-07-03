@@ -19,14 +19,21 @@ const int Buffer::RESERVED_SIZE = 8;
 const int Buffer::INITIAL_SIZE = 1024;
 
 Buffer::Buffer(size_t init_size) :
-        buf(RESERVED_SIZE + init_size),
+        buf(static_cast<byte *>(::malloc(sizeof(byte) * (RESERVED_SIZE + init_size)))),
         read_idx(RESERVED_SIZE),
-        write_idx(RESERVED_SIZE) {
+        write_idx(RESERVED_SIZE),
+        capacity(RESERVED_SIZE + init_size) {
     assert(init_size > 0);
-    assert(buf.size() == RESERVED_SIZE + init_size);
+    assert(buf != nullptr);
     assert(readable_bytes() == 0);
     assert(writable_bytes() == init_size);
-    assert(prepared_bytes() == RESERVED_SIZE);
+    assert(reserved_bytes() == RESERVED_SIZE);
+}
+
+Buffer::~Buffer() {
+    assert(buf != nullptr);
+    ::free(buf);
+    read_idx = write_idx = capacity = 0;
 }
 
 size_t Buffer::readable_bytes() const {
@@ -34,10 +41,10 @@ size_t Buffer::readable_bytes() const {
 }
 
 size_t Buffer::writable_bytes() const {
-    return buf.size() - write_idx;
+    return capacity - write_idx;
 }
 
-size_t Buffer::prepared_bytes() const {
+size_t Buffer::reserved_bytes() const {
     return read_idx;
 }
 
@@ -46,11 +53,11 @@ const byte *Buffer::peek() const {
 }
 
 const byte *Buffer::begin() const {
-    return buf.data();
+    return buf;
 }
 
 byte *Buffer::begin() {
-    return buf.data();
+    return buf;
 }
 
 const byte *Buffer::find_crlf() const {
@@ -122,19 +129,22 @@ string Buffer::retrieve_all_string() {
     return retrieve_string(readable_bytes());
 }
 
-void Buffer::enlarge_space(size_t n) {
-    if (writable_bytes() + prepared_bytes() < n + RESERVED_SIZE) {
-        buf.resize(write_idx + n);
-    } else {
-        auto readable = readable_bytes();
-        copy(begin() + read_idx, begin() + write_idx, begin() + RESERVED_SIZE);
-        read_idx = RESERVED_SIZE;
-        write_idx = read_idx + readable;
+void Buffer::ensure_writable(size_t n) {
+    if (reserved_bytes() + writable_bytes() < n + RESERVED_SIZE) {
+        size_t need = n + RESERVED_SIZE - (reserved_bytes() + writable_bytes());
+        buf = static_cast<byte *>(::realloc(buf, capacity + need));
+        assert(buf != nullptr);
+        capacity += need;
     }
+    auto readable = readable_bytes();
+    copy(begin() + read_idx, begin() + write_idx, begin() + RESERVED_SIZE);
+    read_idx = RESERVED_SIZE;
+    write_idx = read_idx + readable;
 }
 
 void Buffer::append(const byte *data, size_t n) {
-    if (writable_bytes() < n) enlarge_space(n);
+    if (writable_bytes() < n)
+        ensure_writable(n);
     copy(data, data + n, begin_write());
     write_idx += n;
 }
@@ -162,7 +172,7 @@ ssize_t Buffer::read_from_fd(int fd, int *err_no) {
     if (n < 0) *err_no = errno;
     else if (n <= writable) write_idx += n;
     else {
-        write_idx = buf.size();
+        write_idx = capacity;
         append(data, n - writable);
     }
     return n;

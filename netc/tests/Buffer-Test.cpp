@@ -15,13 +15,30 @@ static void test_find() {
     buf.append(msg, sizeof(msg));
 
     auto idx = buf.find_crlf();
-    DEBUG << "first crlf index: " << idx - buf.begin() - buf.prepared_bytes();
+    DEBUG << "first crlf index: " << idx - buf.begin() - buf.reserved_bytes();
 
     idx = buf.find_crlf(idx + 2);
-    DEBUG << "second crlf index: " << idx - buf.begin() - buf.prepared_bytes();
+    DEBUG << "second crlf index: " << idx - buf.begin() - buf.reserved_bytes();
+}
+
+void test() {
+    Buffer buffer(8);
+    buffer.append("hello");
+
+//    cout << buffer.retrieve_all_string() << endl;
+
+    buffer.append("world");
+//    cout << buffer.retrieve_all_string() << endl;
+
+    buffer.retrieve_64();
+
+    buffer.append("fuck");
+    DEBUG << buffer.retrieve_all_string();
 }
 
 int main(int argc, const char *argv[]) {
-    test_find();
+
+//    test_find();
+    test();
     return 0;
 }

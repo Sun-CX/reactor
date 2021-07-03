@@ -21,7 +21,7 @@ add_executable(echoserver-test EchoServer-Test.cpp)
 target_link_libraries(echoserver-test netc)
 
 add_executable(buffer-test Buffer-Test.cpp)
-target_link_libraries(buffer-test PRIVATE netc reactor-core)
+target_link_libraries(buffer-test PRIVATE asan netc reactor-core)
 
 add_executable(acceptor-test Acceptor-Test.cpp)
 target_link_libraries(acceptor-test PRIVATE netc reactor-core)
