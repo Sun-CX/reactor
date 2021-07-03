@@ -20,7 +20,7 @@ using std::shared_ptr;
 using google::protobuf::Message;
 using reactor::net::byte;
 
-class ProtoCodec final : public NonCopyable {
+class Codec final : public NonCopyable {
 public:
     enum ErrorCode {
         NO_ERROR,
@@ -45,7 +45,7 @@ private:
 public:
     static shared_ptr<Message> parse(const byte *buf, size_t len, ErrorCode &ec);
 
-    explicit ProtoCodec(ProtobufMessageCallback messageCallback, ErrorCallback errorCallback = default_error_callback);
+    explicit Codec(ProtobufMessageCallback messageCallback, ErrorCallback errorCallback = default_error_callback);
 
     void on_message(const shared_ptr<TcpConnection> &con, Timestamp ts);
 };
