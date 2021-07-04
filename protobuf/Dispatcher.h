@@ -5,14 +5,14 @@
 #ifndef REACTOR_DISPATCHER_H
 #define REACTOR_DISPATCHER_H
 
-#include "NonCopyable.h"
+#include "ConsoleStream.h"
 #include "google/protobuf/message.h"
+#include "Timestamp.h"
 #include <map>
 #include <memory>
 #include <functional>
-#include "Timestamp.h"
 #include <cassert>
-#include "ConsoleStream.h"
+#include <utility>
 
 namespace reactor::net {
     class TcpConnection;
@@ -24,33 +24,34 @@ namespace reactor::proto {
     using google::protobuf::Descriptor;
     using google::protobuf::Message;
     using std::shared_ptr;
+    using std::make_shared;
+    using std::dynamic_pointer_cast;
     using reactor::net::TcpConnection;
     using reactor::core::Timestamp;
     using std::is_base_of;
     using std::function;
     using std::move;
 
-    class Callback : public NonCopyable {
+    class MessageCallback : public NonCopyable {
     public:
-        virtual ~Callback() = default;
+        virtual ~MessageCallback() = default;
 
         virtual void on_message(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, Timestamp) const = 0;
     };
 
     template<typename T>
-    class GenericCallback : public Callback {
-        static_assert(is_base_of<Message, T>::value, "Must be derived from google::protobuf::Message");
+    class ConcreteMessageCallback : public MessageCallback {
+        static_assert(is_base_of<Message, T>::value, "Must be derived from google::protobuf::Message!");
     public:
-        using ProtobufGenericMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, Timestamp)>;
+        using ConcreteProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<T> &, Timestamp)>;
     private:
-        ProtobufGenericMessageCallback callback;
+        ConcreteProtobufMessageCallback callback;
     public:
-        explicit GenericCallback(ProtobufGenericMessageCallback callback) : callback(move(callback)) {}
+        explicit ConcreteMessageCallback(ConcreteProtobufMessageCallback callback) : callback(move(callback)) {}
 
         void on_message(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, Timestamp ts) const override {
-            shared_ptr<T> concrete = msg;
-            assert(concrete != nullptr);
-            callback(con, concrete, ts);
+            assert(msg != nullptr);
+            callback(con, dynamic_pointer_cast<T>(msg), ts);
         }
     };
 
@@ -58,16 +59,17 @@ namespace reactor::proto {
     public:
         using ProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, Timestamp)>;
     private:
-        using CallbackMaps =  map<const Descriptor *, shared_ptr<Callback>>;
+        using CallbackMaps =  map<const Descriptor *, shared_ptr<MessageCallback>>;
 
         CallbackMaps callbacks;
-        ProtobufMessageCallback message_callback;
+        ProtobufMessageCallback default_callback;
 
     public:
+        explicit Dispatcher(ProtobufMessageCallback defaultCallback) : callbacks(), default_callback(move(defaultCallback)) {}
+
         template<typename T>
-        void register_message_callback(const typename GenericCallback<T>::ProtobufGenericMessageCallback &callback) {
-            shared_ptr<GenericCallback<T>> call(new GenericCallback<T>(callback));
-            callbacks[T::descriptor()] = call;
+        void register_message_callback(const typename ConcreteMessageCallback<T>::ConcreteProtobufMessageCallback &callback) {
+            callbacks[T::descriptor()] = make_shared<ConcreteMessageCallback<T>>(callback);
         }
 
         void on_proto_message(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, Timestamp ts) const {
@@ -76,8 +78,8 @@ namespace reactor::proto {
             if (it != callbacks.cend()) {
                 it->second->on_message(con, msg, ts);
             } else {
-                WARN << "NO Callback Found!";
-                message_callback(con, msg, ts);
+                RC_WARN << "NO Callback Found!";
+                default_callback(con, msg, ts);
             }
         }
     };

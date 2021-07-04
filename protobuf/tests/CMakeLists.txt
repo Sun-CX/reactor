@@ -17,3 +17,6 @@ target_link_libraries(protobuf-assert PRIVATE asan protobuf pthread)
 
 add_executable(dispatcherlite-test DispatcherLite-Test.cpp query.pb.h query.pb.cc)
 target_link_libraries(dispatcherlite-test PRIVATE asan protobuf reactor-core pthread)
+
+add_executable(dispatcher-test Dispatcher-Test.cpp query.pb.h query.pb.cc)
+target_link_libraries(dispatcher-test PRIVATE asan protobuf reactor-core pthread)

@@ -36,6 +36,8 @@ void on_answer(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &
 
 int main(int argc, const char *argv[]) {
 
+    GOOGLE_PROTOBUF_VERIFY_VERSION;
+    
     DispatcherLite dispatcher(unknown_message_type);
 
     dispatcher.register_message_callback(Query::descriptor(), on_query);
