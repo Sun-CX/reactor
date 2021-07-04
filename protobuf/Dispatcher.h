@@ -77,7 +77,7 @@ namespace reactor::proto {
             if (it != callbacks.cend()) {
                 it->second->on_message(con, msg, ts);
             } else {
-                RC_WARN << "NO Callback Found!";
+                RC_WARN << "No Callback Found!";
                 default_callback(con, msg, ts);
             }
         }
