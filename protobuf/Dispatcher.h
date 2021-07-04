@@ -38,7 +38,7 @@ namespace reactor::proto {
     };
 
     template<typename T>
-    class ConcreteMessageCallback : public MessageCallback {
+    class ConcreteMessageCallback final : public MessageCallback {
         static_assert(is_base_of<Message, T>::value, "Must be derived from google::protobuf::Message!");
     private:
         friend class Dispatcher;
