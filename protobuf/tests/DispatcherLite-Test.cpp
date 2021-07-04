@@ -3,11 +3,10 @@
 //
 
 #include "DispatcherLite.h"
+#include "ConsoleStream.h"
 #include "TcpConnection.h"
-#include "Timestamp.h"
 #include "query.pb.h"
 #include <cassert>
-#include "ConsoleStream.h"
 
 using reactor::proto::DispatcherLite;
 using reactor::net::TcpConnection;
