@@ -7,7 +7,6 @@
 
 #include "NonCopyable.h"
 #include "google/protobuf/message.h"
-#include "google/protobuf/arenastring.h"
 #include "Timestamp.h"
 #include <functional>
 #include <memory>
