@@ -50,9 +50,6 @@ int main(int argc, const char *argv[]) {
     dispatcher.on_proto_message(conn, query, ts);
     dispatcher.on_proto_message(conn, answer, ts);
 
-    RC_DEBUG << "cnt: " << answer.use_count();
-
     ShutdownProtobufLibrary();
-
     return 0;
 }
