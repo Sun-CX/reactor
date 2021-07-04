@@ -40,9 +40,10 @@ namespace reactor::proto {
     template<typename T>
     class ConcreteMessageCallback : public MessageCallback {
         static_assert(is_base_of<Message, T>::value, "Must be derived from google::protobuf::Message!");
-    public:
-        using ConcreteProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<T> &, Timestamp)>;
     private:
+        friend class Dispatcher;
+
+        using ConcreteProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<T> &, Timestamp)>;
         ConcreteProtobufMessageCallback callback;
     public:
         explicit ConcreteMessageCallback(ConcreteProtobufMessageCallback callback) : callback(move(callback)) {}
