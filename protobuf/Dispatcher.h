@@ -11,8 +11,6 @@
 #include <map>
 #include <memory>
 #include <functional>
-#include <cassert>
-#include <utility>
 
 namespace reactor::net {
     class TcpConnection;
