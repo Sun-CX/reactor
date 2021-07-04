@@ -56,7 +56,7 @@ namespace reactor::core {
          * 队头元素出队
          */
         T pop_front() {
-            if (unlikely(empty())) FATAL << "empty!";
+            if (unlikely(empty())) RC_FATAL << "empty!";
             T val(move(arr[front]));
             front = (front + 1) % capacity;
             return val;

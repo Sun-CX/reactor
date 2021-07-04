@@ -20,7 +20,7 @@ void service(const HttpRequest &request, HttpResponse &response) {
 
     const Headers &headers = request.get_headers();
     for (const auto &e: headers) {
-        DEBUG << e.first << ':' << e.second;
+        RC_DEBUG << e.first << ':' << e.second;
     }
 
 

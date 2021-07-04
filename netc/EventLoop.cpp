@@ -36,10 +36,10 @@ EventLoop::EventLoop() :
         wakeup_channel(new Channel(this, create_event_fd())),
         timer(new Timer(this)) {
 
-    INFO << "---------------------- EventLoop constructed ----------------------";
+    RC_INFO << "---------------------- EventLoop constructed ----------------------";
 
     if (unlikely(current_thread_loop != nullptr)) {
-        FATAL << "current thread already has an event loop object(" << current_thread_loop << ')';
+        RC_FATAL << "current thread already has an event loop object(" << current_thread_loop << ')';
     } else current_thread_loop = this;
 
     wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup_event, this));
@@ -47,19 +47,19 @@ EventLoop::EventLoop() :
 }
 
 EventLoop::~EventLoop() {
-    INFO << "---------------------- ~EventLoop ----------------------";
+    RC_INFO << "---------------------- ~EventLoop ----------------------";
     wakeup_channel->disable_all();
     wakeup_channel->remove();
     auto status = ::close(wakeup_channel->get_fd());
     if (unlikely(status < 0))
-        ERROR << "eventfd " << wakeup_channel->get_fd() << " close error!";
+        RC_ERROR << "eventfd " << wakeup_channel->get_fd() << " close error!";
     current_thread_loop = nullptr;
 }
 
 void EventLoop::loop() {
     assert(is_in_loop_thread());
     looping = true;
-    INFO << "EventLoop(" << this << ") start loop...";
+    RC_INFO << "EventLoop(" << this << ") start loop...";
     while (!exited) {
         active_channels.clear();
         poller->poll(active_channels, default_poll_timeout_milliseconds);
@@ -68,7 +68,7 @@ void EventLoop::loop() {
         execute_pending_functors();
     }
     looping = false;
-    INFO << "EventLoop(" << this << ") stop loop...";
+    RC_INFO << "EventLoop(" << this << ") stop loop...";
 }
 
 void EventLoop::update_channel(Channel *channel) {
@@ -96,12 +96,12 @@ void EventLoop::quit() {
 }
 
 void EventLoop::run_in_loop(const Functor &func) {
-    INFO << __func__ << " invoked, loop in: " << CurrentThread::name;
+    RC_INFO << __func__ << " invoked, loop in: " << CurrentThread::name;
     is_in_loop_thread() ? func() : queue_in_loop(func);
 }
 
 void EventLoop::queue_in_loop(const Functor &func) {
-    INFO << __func__ << " invoked, loop in: " << CurrentThread::name;
+    RC_INFO << __func__ << " invoked, loop in: " << CurrentThread::name;
     {
         MutexGuard guard(mutex);
         pending_functors.push_back(func);
@@ -126,23 +126,23 @@ EventLoop *EventLoop::event_loop_of_current_thread() {
 
 int EventLoop::create_event_fd() const {
     int fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
-    if (unlikely(fd < 0)) FATAL << "create eventfd failed.";
-    INFO << "create eventfd: " << fd;
+    if (unlikely(fd < 0)) RC_FATAL << "create eventfd failed.";
+    RC_INFO << "create eventfd: " << fd;
     return fd;
 }
 
 void EventLoop::wakeup() const {
     uint64_t one = 1;
     auto n = write(wakeup_channel->get_fd(), &one, sizeof(one));
-    if (unlikely(n != sizeof(one))) FATAL << "write to eventfd " << wakeup_channel->get_fd() << " error!";
-    INFO << "write event to eventfd " << wakeup_channel->get_fd();
+    if (unlikely(n != sizeof(one))) RC_FATAL << "write to eventfd " << wakeup_channel->get_fd() << " error!";
+    RC_INFO << "write event to eventfd " << wakeup_channel->get_fd();
 }
 
 void EventLoop::read_wakeup_event() const {
     uint64_t one;
     auto n = read(wakeup_channel->get_fd(), &one, sizeof(one));
     assert(n == sizeof(one));
-    INFO << "receive event from eventfd " << wakeup_channel->get_fd();
+    RC_INFO << "receive event from eventfd " << wakeup_channel->get_fd();
 }
 
 void EventLoop::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {

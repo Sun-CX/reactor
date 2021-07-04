@@ -10,7 +10,7 @@
 using std::string;
 using std::cout;
 using std::endl;
-using reactor::net::examples::Query;
+using reactor::proto::examples::Query;
 using google::protobuf::Descriptor;
 using google::protobuf::DescriptorPool;
 using google::protobuf::Message;
@@ -57,7 +57,7 @@ static Message *create_message(const string &type_name) {
 int main(int argc, const char *argv[]) {
 
 //    assert_test();
-    Message *new_query = create_message("reactor.net.examples.Query");
+    Message *new_query = create_message("reactor.proto.examples.Query");
     assert(new_query != nullptr);
     assert(typeid(*new_query) == typeid(Query::default_instance()));
     cout << "create message: " << new_query << endl;

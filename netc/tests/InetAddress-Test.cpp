@@ -30,7 +30,7 @@ namespace xxx {
 int main(int argc, const char *argv[]) {
     
     InetAddress addr(true, 9090);
-    DEBUG << addr.to_string();
+    RC_DEBUG << addr.to_string();
     
     return 0;
 }

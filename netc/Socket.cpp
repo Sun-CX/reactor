@@ -14,7 +14,7 @@ Socket::Socket(int con_fd) : fd(con_fd) {}
 
 Socket::~Socket() {
     auto status = close(fd);
-    if (unlikely(status != 0)) ERROR << "close con_fd " << fd << " error!";
+    if (unlikely(status != 0)) RC_ERROR << "close con_fd " << fd << " error!";
 }
 
 int Socket::get_fd() const {
@@ -24,15 +24,15 @@ int Socket::get_fd() const {
 void Socket::keep_alive(bool on) const {
     const int opt = on ? 1 : 0;
     auto status = setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE, &opt, sizeof(opt));
-    if (unlikely(status != 0)) ERROR << "con_fd: " << fd << " keep_alive error!";
+    if (unlikely(status != 0)) RC_ERROR << "con_fd: " << fd << " keep_alive error!";
 }
 
 void Socket::shutdown_read() const {
     auto status = shutdown(fd, SHUT_RD);
-    if (unlikely(status != 0)) ERROR << "con_fd " << fd << " shutdown_read error!";
+    if (unlikely(status != 0)) RC_ERROR << "con_fd " << fd << " shutdown_read error!";
 }
 
 void Socket::shutdown_write() const {
     auto status = shutdown(fd, SHUT_WR);
-    if (unlikely(status != 0)) ERROR << "con_fd " << fd << " shutdown_write error!";
+    if (unlikely(status != 0)) RC_ERROR << "con_fd " << fd << " shutdown_write error!";
 }

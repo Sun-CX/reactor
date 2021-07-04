@@ -103,11 +103,11 @@ namespace reactor::core {
 #define STYLE_ERROR "\e[38;5;160m"
 #define STYLE_FATAL "\e[1;38;5;160m"
 
-#define TRACE reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_TRACE)
-#define DEBUG reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_DEBUG)
-#define INFO reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_INFO)
-#define WARN reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_WARN)
-#define ERROR reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_ERROR)
-#define FATAL reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_FATAL, true)
+#define RC_TRACE reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_TRACE)
+#define RC_DEBUG reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_DEBUG)
+#define RC_INFO reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_INFO)
+#define RC_WARN reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_WARN)
+#define RC_ERROR reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_ERROR)
+#define RC_FATAL reactor::core::ConsoleStream(__FILE__, __LINE__, STYLE_FATAL, true)
 
 #endif //REACTOR_CONSOLESTREAM_H

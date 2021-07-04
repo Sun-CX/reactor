@@ -12,11 +12,11 @@ using reactor::net::EventLoop;
 using reactor::net::EventLoopThread;
 
 static void print(EventLoop *p = nullptr) {
-    DEBUG << "loop: " << p;
+    RC_DEBUG << "loop: " << p;
 }
 
 static void quit(EventLoop *p = nullptr) {
-    DEBUG << "loop: " << p;
+    RC_DEBUG << "loop: " << p;
     p->quit();
 }
 

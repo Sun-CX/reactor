@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package reactor.net.examples;
+package reactor.proto.examples;
 
 message Query {
     int64 id = 1;

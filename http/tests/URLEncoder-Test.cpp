@@ -9,7 +9,7 @@ using reactor::net::URLEncoder;
 
 int main(int argc, const char *argv[]) {
 
-    DEBUG << URLEncoder::encode("/hello world?name=sd ds&val=sd");
+    RC_DEBUG << URLEncoder::encode("/hello world?name=sd ds&val=sd");
 
     return 0;
 }

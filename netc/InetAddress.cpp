@@ -42,7 +42,7 @@ InetAddress InetAddress::get_local_address(int fd) {
     InetAddress value;
     socklen_t len = sizeof(value.ad4);
     auto status = getsockname(fd, reinterpret_cast<sockaddr *>(&value.ad4), &len);
-    if (unlikely(status == -1)) FATAL << "getsockname error!";
+    if (unlikely(status == -1)) RC_FATAL << "getsockname error!";
     return value;
 }
 

@@ -63,7 +63,7 @@ bool Timestamp::operator!=(const Timestamp &rhs) const {
 Timestamp Timestamp::now() {
     timespec ts;
     auto status = clock_gettime(CLOCK_REALTIME, &ts);
-    if (unlikely(status != 0)) FATAL << "get clock time error!";
+    if (unlikely(status != 0)) RC_FATAL << "get clock time error!";
     return Timestamp(ts.tv_sec * factors[SECOND] + ts.tv_nsec / 1000);
 }
 

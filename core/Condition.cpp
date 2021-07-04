@@ -10,29 +10,29 @@ using reactor::core::Condition;
 
 Condition::Condition(Mutex &mutex) : mutex(mutex) {
     int status = pthread_cond_init(&cond, nullptr);
-    if (unlikely(status != 0)) FATAL << "condition-variable init error.";
+    if (unlikely(status != 0)) RC_FATAL << "condition-variable init error.";
 }
 
 Condition::~Condition() {
     int status = pthread_cond_destroy(&cond);
-    if (unlikely(status != 0)) FATAL << "condition-variable destroy error.";
+    if (unlikely(status != 0)) RC_FATAL << "condition-variable destroy error.";
 }
 
 void Condition::wait() {
     int status;
     Mutex::ConditionWaitGuard guard(mutex);
     status = pthread_cond_wait(&cond, mutex.get_mutex());
-    if (unlikely(status != 0)) FATAL << "condition-variable wait error.";
+    if (unlikely(status != 0)) RC_FATAL << "condition-variable wait error.";
 }
 
 bool Condition::timed_wait(long seconds, long microseconds) {
     if (seconds < 0 or microseconds < 0 or microseconds > 999999) {
-        FATAL << "condition-variable wait timeout value out of range.";
+        RC_FATAL << "condition-variable wait timeout value out of range.";
     }
 
     timespec ts;
     int status = clock_gettime(CLOCK_REALTIME, &ts);
-    if (unlikely(status != 0)) FATAL << "clock_gettime error.";
+    if (unlikely(status != 0)) RC_FATAL << "clock_gettime error.";
 
     ts.tv_sec += seconds;
     ts.tv_nsec += microseconds * 1000;
@@ -43,11 +43,11 @@ bool Condition::timed_wait(long seconds, long microseconds) {
 
 void Condition::notify() {
     int status = pthread_cond_signal(&cond);
-    if (unlikely(status != 0)) FATAL << "condition-variable signal error.";
+    if (unlikely(status != 0)) RC_FATAL << "condition-variable signal error.";
 }
 
 void Condition::notify_all() {
     int status = pthread_cond_broadcast(&cond);
-    if (unlikely(status != 0)) FATAL << "condition-variable broadcast error.";
+    if (unlikely(status != 0)) RC_FATAL << "condition-variable broadcast error.";
 }
 

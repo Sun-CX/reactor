@@ -17,11 +17,11 @@ EventLoopThread::EventLoopThread(ThreadInitializer initializer, string name) :
         mutex(),
         condition(mutex),
         initial(move(initializer)) {
-    DEBUG << "---------------------- +EventLoopThread ----------------------";
+    RC_DEBUG << "---------------------- +EventLoopThread ----------------------";
 }
 
 EventLoopThread::~EventLoopThread() {
-    DEBUG << "---------------------- -EventLoopThread ----------------------";
+    RC_DEBUG << "---------------------- -EventLoopThread ----------------------";
     if (loop != nullptr) {
         loop->quit();
         thread.join();

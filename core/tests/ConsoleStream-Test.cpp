@@ -8,11 +8,11 @@
 using reactor::core::Thread;
 
 static void v1() {
-    TRACE << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye " << false;
-    DEBUG << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye " << (1 == 2);
-    INFO << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye ";
-    WARN << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye ";
-    ERROR << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye ";
+    RC_TRACE << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye " << false;
+    RC_DEBUG << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye " << (1 == 2);
+    RC_INFO << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye ";
+    RC_WARN << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye ";
+    RC_ERROR << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye ";
 //    FATAL << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye";
 }
 

@@ -20,9 +20,9 @@ Timestamp PollPoller::poll(Channels &active_channels, int milliseconds) {
     auto num_events = ::poll(fds.data(), fds.size(), milliseconds);
     auto now = Timestamp::now();
     if (unlikely(num_events < 0)) { // error
-        WARN << "poll error, errno = " << errno;
+        RC_WARN << "poll error, errno = " << errno;
     } else if (num_events == 0) {   // timeout
-        INFO << "poll timeout...";
+        RC_INFO << "poll timeout...";
     } else {
         fill_active_channels(active_channels, num_events);
     }

@@ -28,7 +28,7 @@ namespace reactor::core {
 
         static shared_ptr<T> instance() {
             auto status = pthread_once(&once, Singleton::init);
-            if (unlikely(status != 0)) FATAL << "pthread_once invoked error!";
+            if (unlikely(status != 0)) RC_FATAL << "pthread_once invoked error!";
             return ptr;
         }
     };

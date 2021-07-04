@@ -22,15 +22,15 @@ const int EpollPoller::DEL = 1;
 EpollPoller::EpollPoller(EventLoop *loop) :
         Poller(loop),
         epoll_fd(epoll_create1(EPOLL_CLOEXEC)) {
-    if (unlikely(epoll_fd < 0)) FATAL << "create epoll_fd error.";
+    if (unlikely(epoll_fd < 0)) RC_FATAL << "create epoll_fd error.";
     events.reserve(16);
-    INFO << "create epoll_fd " << epoll_fd;
+    RC_INFO << "create epoll_fd " << epoll_fd;
 }
 
 EpollPoller::~EpollPoller() {
     auto status = ::close(epoll_fd);
     if (unlikely(status < 0))
-        FATAL << "close epoll_fd " << epoll_fd << " with errno: " << errno;
+        RC_FATAL << "close epoll_fd " << epoll_fd << " with errno: " << errno;
 }
 
 Timestamp EpollPoller::poll(Poller::Channels &active_channels, int milliseconds) {
@@ -38,9 +38,9 @@ Timestamp EpollPoller::poll(Poller::Channels &active_channels, int milliseconds)
     auto now = Timestamp::now();
     if (unlikely(ready_events < 0)) {
         if (errno != EINTR)
-            ERROR << __PRETTY_FUNCTION__ << "invoked error, errno = " << errno;
+            RC_ERROR << __PRETTY_FUNCTION__ << "invoked error, errno = " << errno;
     } else if (ready_events == 0) {
-        WARN << "epoll_wait timeout, nothing happened.";
+        RC_WARN << "epoll_wait timeout, nothing happened.";
     } else {
         fill_active_channels(active_channels, ready_events);
         if (ready_events == events.capacity())
@@ -63,7 +63,7 @@ void EpollPoller::update(Channel *channel, int operation) {
     evt.data.ptr = channel;
     int fd = channel->get_fd();
     if (epoll_ctl(epoll_fd, operation, fd, &evt) < 0)
-        FATAL << "epoll_ctl " << operation << " error.";
+        RC_FATAL << "epoll_ctl " << operation << " error.";
 }
 
 void EpollPoller::update_channel(Channel *channel) {

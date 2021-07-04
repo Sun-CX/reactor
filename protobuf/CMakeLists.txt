@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 
 add_subdirectory(tests)
 
-add_library(procodec SHARED Codec.cpp)
+add_library(procodec SHARED Codec.cpp Dispatcher.h DispatcherLite.h)
 set_target_properties(procodec PROPERTIES
         VERSION 1.0
         SOVERSION 1

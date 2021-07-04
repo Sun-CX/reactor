@@ -27,7 +27,7 @@ void timeout(int fd) {
     if (count == 10) {
         g_loop->quit();
     }
-    DEBUG << "event triggered " << count << " times.";
+    RC_DEBUG << "event triggered " << count << " times.";
     count++;
 }
 

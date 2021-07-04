@@ -22,7 +22,7 @@ namespace reactor::core {
     public:
         ThreadLocal() {
             int status = pthread_key_create(&key, ThreadLocal::destructor);
-            if (unlikely(status != 0)) FATAL << "pthread create key error.";
+            if (unlikely(status != 0)) RC_FATAL << "pthread create key error.";
         }
 
         T &get_value() {
@@ -30,7 +30,7 @@ namespace reactor::core {
             if (ptr == nullptr) {
                 T *q = new T();
                 int status = pthread_setspecific(key, q);
-                if (unlikely(status != 0)) FATAL << "pthread set key error.";
+                if (unlikely(status != 0)) RC_FATAL << "pthread set key error.";
                 ptr = q;
             }
             return *ptr;
@@ -38,7 +38,7 @@ namespace reactor::core {
 
         ~ThreadLocal() {
             int status = pthread_key_delete(key);
-            if (unlikely(status != 0)) FATAL << "pthread delete key error.";
+            if (unlikely(status != 0)) RC_FATAL << "pthread delete key error.";
         }
     };
 }

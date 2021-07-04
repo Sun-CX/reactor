@@ -8,7 +8,7 @@
 using reactor::core::CountDownLatch;
 
 CountDownLatch::CountDownLatch(int count) : mutex(), cond(mutex) {
-    if (count < 0) FATAL << "illegal argument count: " << count;
+    if (count < 0) RC_FATAL << "illegal argument count: " << count;
     this->count = count;
 }
 

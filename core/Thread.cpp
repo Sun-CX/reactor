@@ -23,7 +23,7 @@ attr_constructor void main_thread_initialize() {
     const char *main_proc_name = "main-thread";
     int status = prctl(PR_SET_NAME, main_proc_name);
     if (unlikely(status != 0))
-        FATAL << "prctl error!";
+        RC_FATAL << "prctl error!";
     strcpy(CurrentThread::name, main_proc_name);
     CurrentThread::id = getpid();
 }
@@ -36,7 +36,7 @@ Thread::Thread(Thread::runnable func, string name) : func(move(func)), thread_na
 
 void Thread::start() {
     int status = pthread_create(&tid, nullptr, thread_routine, this);
-    if (unlikely(status != 0)) FATAL << "thread create error!";
+    if (unlikely(status != 0)) RC_FATAL << "thread create error!";
     latch.wait();
 }
 
@@ -46,7 +46,7 @@ void *Thread::thread_routine(void *arg) {
     int status = pthread_setname_np(self->tid, self->thread_name.c_str());
 
     if (unlikely(status != 0))
-        FATAL << "set thread thread_name error!";
+        RC_FATAL << "set thread thread_name error!";
 
     self->pid = syscall(SYS_gettid);
 
@@ -61,7 +61,7 @@ void *Thread::thread_routine(void *arg) {
 
 void Thread::join() {
     int status = pthread_join(tid, nullptr);
-    if (unlikely(status != 0)) FATAL << "thread join error!";
+    if (unlikely(status != 0)) RC_FATAL << "thread join error!";
 }
 
 const string &Thread::name() const {
@@ -82,7 +82,7 @@ bool CurrentThread::is_main_thread() {
 
 int CurrentThread::sleep(long ms, int ns) {
     if (ms < 0 or ns < 0 or ns > 999999) {
-        FATAL << "sleep time out of range.";
+        RC_FATAL << "sleep time out of range.";
     }
 
     timespec time;

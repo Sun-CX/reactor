@@ -26,13 +26,13 @@ Timer::~Timer() {
     timer_channel.remove();
     auto status = ::close(timer_channel.get_fd());
     if (unlikely(status < 0))
-        ERROR << "timer_fd " << timer_channel.get_fd() << " close error!";
+        RC_ERROR << "timer_fd " << timer_channel.get_fd() << " close error!";
 }
 
 int Timer::create_timer_fd() const {
     auto fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);
-    if (unlikely(fd < 0)) FATAL << "timerfd_create error!";
-    INFO << "create timer_fd: " << fd;
+    if (unlikely(fd < 0)) RC_FATAL << "timerfd_create error!";
+    RC_INFO << "create timer_fd: " << fd;
     return fd;
 }
 
@@ -57,7 +57,7 @@ void Timer::read_handler() {
 void Timer::read_timeout_event() const {
     uint64_t exp;
     auto n = read(timer_channel.get_fd(), &exp, sizeof(exp));
-    if (unlikely(n != sizeof(exp))) FATAL << "read timer_fd error!";
+    if (unlikely(n != sizeof(exp))) RC_FATAL << "read timer_fd error!";
 }
 
 void Timer::reset_timer_fd() const {
@@ -65,7 +65,7 @@ void Timer::reset_timer_fd() const {
     memset(&new_val, 0, sizeof(new_val));
     new_val.it_value = tasks.peek()->expire_time.to_timespec();
     auto ret = timerfd_settime(timer_channel.get_fd(), TFD_TIMER_ABSTIME, &new_val, nullptr);
-    if (unlikely(ret < 0)) FATAL << "timerfd_settime error!";
+    if (unlikely(ret < 0)) RC_FATAL << "timerfd_settime error!";
 }
 
 void Timer::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {

@@ -20,7 +20,7 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
         accept_channel(loop, server_socket.fd()),
         listening(false),
         idle_fd(open("/dev/null", O_RDONLY | O_CLOEXEC)) {
-    INFO << "create idle_fd: " << idle_fd;
+    RC_INFO << "create idle_fd: " << idle_fd;
     server_socket.reuse_addr(true);
     server_socket.reuse_port(reuse_port);
     server_socket.bind(addr);
@@ -31,7 +31,7 @@ Acceptor::~Acceptor() {
     accept_channel.disable_all();
     accept_channel.remove();
     auto status = ::close(idle_fd);
-    if (unlikely(status < 0)) ERROR << "close idle fd " << idle_fd << " error!";
+    if (unlikely(status < 0)) RC_ERROR << "close idle fd " << idle_fd << " error!";
 }
 
 void Acceptor::read_handler() {
@@ -47,7 +47,7 @@ void Acceptor::read_handler() {
             ::close(idle_fd);
             idle_fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
         } else
-            FATAL << "accept new connection error!";
+            RC_FATAL << "accept new connection error!";
     }
 }
 

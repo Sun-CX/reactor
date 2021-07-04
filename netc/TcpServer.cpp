@@ -24,7 +24,7 @@ using reactor::core::Timestamp;
 
 // 如果客户端代码没有设置连接回调，则调用此默认连接回调
 static void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
-    INFO << "new client connected: " << conn->local_address().to_string() << " <------------------- "
+    RC_INFO << "new client connected: " << conn->local_address().to_string() << " <------------------- "
          << conn->peer_address().to_string();
 }
 
@@ -46,7 +46,7 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
 
 TcpServer::~TcpServer() {
     assert(loop->is_in_loop_thread());
-    INFO << "---------------------- ~TcpServer ----------------------";
+    RC_INFO << "---------------------- ~TcpServer ----------------------";
     for (auto &e:connections) {
         shared_ptr<TcpConnection> conn(e.second);
 //        INFO << "conn use count: " << conn.use_count();
