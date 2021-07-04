@@ -19,7 +19,9 @@ using google::protobuf::ShutdownProtobufLibrary;
 
 void test1() {
     shared_ptr<Message> msg = make_shared<Query>();
+    RC_DEBUG << "cnt: " << msg.use_count();
     shared_ptr<Query> query = dynamic_pointer_cast<Query>(msg);
+    RC_DEBUG << "cnt: " << query.use_count();
     assert(msg);
     assert(query);
 }
