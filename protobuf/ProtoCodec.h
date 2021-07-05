@@ -40,7 +40,7 @@ namespace reactor::proto {
     using reactor::net::byte;
     using std::string;
 
-    class MessageCodec final : public NonCopyable {
+    class ProtoCodec final : public NonCopyable {
     public:
         enum ErrorCode {
             NO_ERROR,
@@ -69,7 +69,7 @@ namespace reactor::proto {
 
         static Message *create_message(const string &type_name);
 
-        explicit MessageCodec(ProtobufMessageCallback messageCallback, ErrorCallback errorCallback = default_error_callback);
+        explicit ProtoCodec(ProtobufMessageCallback messageCallback, ErrorCallback errorCallback = default_error_callback);
 
         void on_message(const shared_ptr<TcpConnection> &con, Timestamp ts);
 

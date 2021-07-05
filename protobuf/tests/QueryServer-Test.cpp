@@ -5,13 +5,13 @@
 #include "TcpServer.h"
 #include "EventLoop.h"
 #include "Dispatcher.h"
-#include "MessageCodec.h"
+#include "ProtoCodec.h"
 #include "query.pb.h"
 
 using reactor::net::TcpServer;
 using reactor::net::TcpConnection;
 using reactor::proto::Dispatcher;
-using reactor::proto::MessageCodec;
+using reactor::proto::ProtoCodec;
 using reactor::net::EventLoop;
 using reactor::net::InetAddress;
 using std::shared_ptr;
@@ -29,7 +29,7 @@ class QueryServer final : public NonCopyable {
 private:
     TcpServer server;
     Dispatcher dispatcher;
-    MessageCodec codec;
+    ProtoCodec codec;
 
     void on_connection(const shared_ptr<TcpConnection> &con) const {
         RC_DEBUG << "New Connection: " << con->peer_address().to_string()
@@ -68,7 +68,7 @@ public:
         dispatcher.register_message_callback<Answer>(bind(&QueryServer::on_answer, this, _1, _2, _3));
 
         server.set_new_connection_callback(bind(&QueryServer::on_connection, this, _1));
-        server.set_message_callback(bind(&MessageCodec::on_message, &codec, _1, _2));
+        server.set_message_callback(bind(&ProtoCodec::on_message, &codec, _1, _2));
     }
 
     void start() {

@@ -2,12 +2,12 @@
 // Created by 孙诚雄 on 2021/7/2.
 //
 
-#include "MessageCodec.h"
+#include "ProtoCodec.h"
 #include "google/protobuf/message.h"
 #include "ConsoleStream.h"
 #include "zlib.h"
 
-using reactor::proto::MessageCodec;
+using reactor::proto::ProtoCodec;
 using reactor::core::ConsoleStream;
 using std::move;
 using reactor::net::Buffer;
@@ -17,24 +17,25 @@ using google::protobuf::Descriptor;
 using google::protobuf::DescriptorPool;
 using google::protobuf::MessageFactory;
 
-const uint32_t MessageCodec::MIN_TYPE_NAME_LEN = 2u;
-const uint32_t MessageCodec::MIN_DATA_LEN = sizeof(uint32_t) + sizeof(uint32_t) + MIN_TYPE_NAME_LEN + sizeof(uint32_t);
+const uint32_t ProtoCodec::MIN_TYPE_NAME_LEN = 2u;
+const uint32_t ProtoCodec::MIN_DATA_LEN = sizeof(uint32_t) + sizeof(uint32_t) + MIN_TYPE_NAME_LEN + sizeof(uint32_t);
 
-void MessageCodec::default_error_callback(const shared_ptr<TcpConnection> &con, Timestamp s, ErrorCode rc) {
+void ProtoCodec::default_error_callback(const shared_ptr<TcpConnection> &con, Timestamp s, ErrorCode rc) {
     RC_ERROR << __PRETTY_FUNCTION__ << " invoked error with errno = " << rc;
     if (con) con->shutdown();
 }
 
-uint32_t MessageCodec::as_uint32_t(const byte *buf) {
+uint32_t ProtoCodec::as_uint32_t(const byte *buf) {
     uint32_t val;
     ::memcpy(&val, buf, sizeof(val));
     return ntohl(val);
 }
 
-MessageCodec::MessageCodec(MessageCodec::ProtobufMessageCallback messageCallback, MessageCodec::ErrorCallback errorCallback) : message_callback(move(messageCallback)),
-                                                                                                                               error_callback(move(errorCallback)) {}
+ProtoCodec::ProtoCodec(ProtoCodec::ProtobufMessageCallback messageCallback, ProtoCodec::ErrorCallback errorCallback) :
+        message_callback(move(messageCallback)),
+        error_callback(move(errorCallback)) {}
 
-void MessageCodec::on_message(const shared_ptr<TcpConnection> &con, Timestamp ts) {
+void ProtoCodec::on_message(const shared_ptr<TcpConnection> &con, Timestamp ts) {
     Buffer &in = con->inbound_buf();
     while (in.readable_bytes() >= MIN_DATA_LEN) {
         auto len = in.peek_uint32();
@@ -63,7 +64,7 @@ void MessageCodec::on_message(const shared_ptr<TcpConnection> &con, Timestamp ts
     }
 }
 
-shared_ptr<Message> MessageCodec::parse_body(const byte *payload, size_t len, MessageCodec::ErrorCode &ec) {
+shared_ptr<Message> ProtoCodec::parse_body(const byte *payload, size_t len, ProtoCodec::ErrorCode &ec) {
     shared_ptr<Message> message;
 
     uint32_t expected_checksum = as_uint32_t(payload + len - sizeof(uint32_t));
@@ -98,7 +99,7 @@ shared_ptr<Message> MessageCodec::parse_body(const byte *payload, size_t len, Me
     return message;
 }
 
-Message *MessageCodec::create_message(const string &type_name) {
+Message *ProtoCodec::create_message(const string &type_name) {
     Message *message = nullptr;
 
     const Descriptor *descriptor = DescriptorPool::generated_pool()->FindMessageTypeByName(type_name);
@@ -112,7 +113,7 @@ Message *MessageCodec::create_message(const string &type_name) {
     return message;
 }
 
-void MessageCodec::send_message(const shared_ptr<TcpConnection> &con, const Message &message) const {
+void ProtoCodec::send_message(const shared_ptr<TcpConnection> &con, const Message &message) const {
     Buffer &out = con->outbound_buf();
     assert(out.readable_bytes() == 0);
 

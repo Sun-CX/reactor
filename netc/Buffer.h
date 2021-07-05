@@ -8,13 +8,13 @@
 #include <string>
 
 namespace reactor::proto {
-    class MessageCodec;
+    class ProtoCodec;
 }
 
 namespace reactor::net {
     using std::string;
     using byte = unsigned char;
-    using reactor::proto::MessageCodec;
+    using reactor::proto::ProtoCodec;
 
     class Buffer final {
     private:
@@ -26,7 +26,7 @@ namespace reactor::net {
         static const int RESERVED_SIZE; // 预留空间大小
         static const int INITIAL_SIZE;  // 默认初始大小（不包括预留空间）
 
-        friend class MessageCodec;
+        friend class ProtoCodec;
 
         /**
           * 确保缓冲区可写入 n 字节数据
