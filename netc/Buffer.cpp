@@ -49,6 +49,10 @@ size_t Buffer::reserved_bytes() const {
     return read_idx;
 }
 
+void Buffer::has_written(size_t n) {
+    write_idx += n;
+}
+
 const byte *Buffer::peek() const {
     return begin() + read_idx;
 }
@@ -128,6 +132,12 @@ string Buffer::retrieve_all_string() {
     return retrieve_string(readable_bytes());
 }
 
+void Buffer::prepend(const void *data, size_t n) {
+    assert(n <= reserved_bytes());
+    read_idx -= n;
+    copy(static_cast<const byte *>(data), static_cast<const byte *>(data) + n, begin() + read_idx);
+}
+
 void Buffer::ensure_writable(size_t n) {
     if (reserved_bytes() + writable_bytes() < n + RESERVED_SIZE) {
         size_t need = n + RESERVED_SIZE - (reserved_bytes() + writable_bytes());
@@ -154,6 +164,11 @@ void Buffer::append(const void *data, size_t n) {
 
 void Buffer::append(const string &msg) {
     append(msg.c_str(), msg.size());
+}
+
+void Buffer::append_uint32(uint32_t x) {
+    x = htonl(x);
+    append(&x, sizeof(x));
 }
 
 ssize_t Buffer::read_from_fd(int fd, int *err_no) {

@@ -7,9 +7,14 @@
 
 #include <string>
 
+namespace reactor::proto {
+    class MessageCodec;
+}
+
 namespace reactor::net {
     using std::string;
     using byte = unsigned char;
+    using reactor::proto::MessageCodec;
 
     class Buffer final {
     private:
@@ -21,11 +26,19 @@ namespace reactor::net {
         static const int RESERVED_SIZE; // 预留空间大小
         static const int INITIAL_SIZE;  // 默认初始大小（不包括预留空间）
 
+        friend class MessageCodec;
+
         /**
-         * 确保缓冲区可写入 n 字节数据
+          * 确保缓冲区可写入 n 字节数据
+          * @param n
+          */
+        void ensure_writable(size_t n);
+
+        /**
+         * 将可写指针后移 n
          * @param n
          */
-        void ensure_writable(size_t n);
+        void has_written(size_t n);
 
     public:
         explicit Buffer(size_t init_size = INITIAL_SIZE);
@@ -159,6 +172,13 @@ namespace reactor::net {
         string retrieve_all_string();
 
         /**
+         * 向 buffer 预留区写入数据
+         * @param data 写入数据的起始地址
+         * @param n 数据长度
+         */
+        void prepend(const void *data, size_t n);
+
+        /**
          * 向缓冲区中追加以 data 地址开始，大小为 n 字节的数据
          * @param data 待追加数据的起始地址
          * @param n 追加数据的字节长度
@@ -168,6 +188,8 @@ namespace reactor::net {
         void append(const void *data, size_t n);
 
         void append(const string &msg);
+
+        void append_uint32(uint32_t x);
 
         ssize_t read_from_fd(int fd, int *err_no);
     };
