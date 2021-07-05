@@ -20,3 +20,6 @@ target_link_libraries(dispatcherlite-test PRIVATE asan protobuf reactor-core pth
 
 add_executable(dispatcher-test Dispatcher-Test.cpp query.pb.h query.pb.cc)
 target_link_libraries(dispatcher-test PRIVATE asan protobuf reactor-core pthread)
+
+add_executable(queryserver-test QueryServer-Test.cpp query.pb.h query.pb.cc)
+target_link_libraries(queryserver-test PRIVATE asan protobuf reactor-core netc procodec)

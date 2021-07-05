@@ -1,6 +1,21 @@
 //
 // Created by 孙诚雄 on 2021/7/2.
 //
+// 消息传输格式定义：
+//
+// struct ProtobufTransportFormat {
+//     uint32_t len;
+//     uint32_t name_len;
+//     char type_name[name_len];
+//     byte protobuf_data[len - sizeof(name_len) - name_len - sizeof(checksum)];
+//     uint32_t checksum;
+// };
+//
+// 其中：
+// 规定 name_len 最小值为 2，即 name_len >= 2
+// 当 name_len = 2 且 protobuf_data 长度为 0 时，len 取得最小值 14，故 len >= 14
+// checksum 为 name_len ~ protobuf_data 部分
+//
 
 #ifndef REACTOR_PROTOCODEC_H
 #define REACTOR_PROTOCODEC_H
@@ -25,7 +40,7 @@ namespace reactor::proto {
     using reactor::net::byte;
     using std::string;
 
-    class Codec final : public NonCopyable {
+    class MessageCodec final : public NonCopyable {
     public:
         enum ErrorCode {
             NO_ERROR,
@@ -38,9 +53,9 @@ namespace reactor::proto {
         using ProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, Timestamp)>;
         using ErrorCallback = function<void(const shared_ptr<TcpConnection> &, Timestamp, ErrorCode)>;
     private:
-        static const int HEADER_LEN;
-        static const int MIN_MESSAGE_LEN;
-        static const int MAX_MESSAGE_LEN;
+        static const uint32_t MIN_TYPE_NAME_LEN;
+
+        static const uint32_t MIN_DATA_LEN;
 
         static void default_error_callback(const shared_ptr<TcpConnection> &con, Timestamp s, ErrorCode rc);
 
@@ -50,13 +65,15 @@ namespace reactor::proto {
         ErrorCallback error_callback;
 
     public:
-        static shared_ptr<Message> parse(const byte *payload, size_t len, ErrorCode &ec);
+        static shared_ptr<Message> parse_body(const byte *payload, size_t len, ErrorCode &ec);
 
         static Message *create_message(const string &type_name);
 
-        explicit Codec(ProtobufMessageCallback messageCallback, ErrorCallback errorCallback = default_error_callback);
+        explicit MessageCodec(ProtobufMessageCallback messageCallback, ErrorCallback errorCallback = default_error_callback);
 
         void on_message(const shared_ptr<TcpConnection> &con, Timestamp ts);
+
+        void send_message(const shared_ptr<TcpConnection> &con, const Message &message) const;
     };
 }
 
