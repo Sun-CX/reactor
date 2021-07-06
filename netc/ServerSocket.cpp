@@ -37,11 +37,8 @@ void ServerSocket::listen() const {
 }
 
 int ServerSocket::accept(InetAddress &peer_addr) const {
-    sockaddr_in addr;
-    memset(&addr, 0, sizeof(addr));
-    socklen_t len = sizeof(addr);
-    int con_fd = ::accept4(listen_fd, reinterpret_cast<sockaddr *>(&addr), &len, SOCK_NONBLOCK | SOCK_CLOEXEC);
-    peer_addr.set_sockaddr(addr);
+    socklen_t len = sizeof(peer_addr);
+    int con_fd = ::accept4(listen_fd, peer_addr.get_sockaddr(), &len, SOCK_NONBLOCK | SOCK_CLOEXEC);
     return con_fd;
 }
 
