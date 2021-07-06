@@ -37,9 +37,16 @@ int main(int argc, const char *argv[]) {
 
     InetAddress ad2("ABCD:EF01:2345:6789:ABCD:EF01:2345:6789", 8989, true);
     RC_DEBUG << ad2.to_string();
+    RC_DEBUG << ad2.ip_string();
 
     InetAddress ad3(6328, true, true);
     RC_DEBUG << ad3.to_string();
+
+    InetAddress ad4 = InetAddress::resolve("baidu.com");
+    RC_DEBUG << ad4.ip_string();
+
+    InetAddress ad5 = InetAddress::resolve("zhihu.com");
+    RC_DEBUG << ad5.ip_string();
 
     return 0;
 }

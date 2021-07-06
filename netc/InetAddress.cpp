@@ -6,6 +6,7 @@
 #include "GnuExt.h"
 #include "ConsoleStream.h"
 #include <arpa/inet.h>
+#include <netdb.h>
 #include <cstring>
 #include <cassert>
 
@@ -90,4 +91,42 @@ string InetAddress::to_string() const {
         ::snprintf(buf, sizeof(buf), "%s:%hu", ip, port);
     }
     return buf;
+}
+
+InetAddress InetAddress::resolve(const char *hostname) {
+
+    static thread_local char resolve_buf[64 * 1024];
+
+    InetAddress val;
+
+    hostent het;
+    hostent *hs = nullptr;
+    int err;
+
+    int rc = ::gethostbyname_r(hostname, &het, resolve_buf, sizeof(resolve_buf), &hs, &err);
+    if (rc == 0 and hs != nullptr) {
+//        assert(hs->h_addrtype == AF_INET);
+        assert(hs->h_length == sizeof(int));
+
+        if (unlikely(hs->h_addrtype == AF_INET6)) {
+            RC_WARN << "IPv6 not implemented.";
+        } else {
+            val.ad4.sin_family = AF_INET;
+            val.ad4.sin_addr = *reinterpret_cast<in_addr *>(hs->h_addr);
+        }
+    } else {
+        RC_FATAL << "resolve " << hostname << " failed";
+    }
+    return val;
+}
+
+string InetAddress::ip_string() const {
+    if (unlikely(family() == AF_INET6)) {
+        char buf[64];
+        const char *r = ::inet_ntop(AF_INET6, &ad6.sin6_addr, buf, sizeof(buf));
+        assert(r != nullptr);
+        return buf;
+    } else {
+        return ::inet_ntoa(ad4.sin_addr);
+    }
 }

@@ -58,7 +58,12 @@ namespace reactor::net {
         [[nodiscard]]
         string to_string() const;
 
+        [[nodiscard]]
+        string ip_string() const;
+
         static InetAddress get_local_address(int fd);
+
+        static InetAddress resolve(const char *hostname);
     };
 }
 
