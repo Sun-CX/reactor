@@ -28,9 +28,18 @@ namespace xxx {
 }
 
 int main(int argc, const char *argv[]) {
-    
-    InetAddress addr(true, 9090);
+
+    InetAddress addr(9090, true);
     RC_DEBUG << addr.to_string();
-    
+
+    InetAddress ad("192.168.2.2", 8080);
+    RC_DEBUG << ad.to_string();
+
+    InetAddress ad2("ABCD:EF01:2345:6789:ABCD:EF01:2345:6789", 8989, true);
+    RC_DEBUG << ad2.to_string();
+
+    InetAddress ad3(6328, true, true);
+    RC_DEBUG << ad3.to_string();
+
     return 0;
 }
