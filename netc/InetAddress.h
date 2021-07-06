@@ -11,7 +11,7 @@
 namespace reactor::net {
     using std::string;
 
-// 对网络地址的封装（目前只支持 IPv4）
+    // 对网络地址的封装（目前只支持 IPv4）
     class InetAddress final {
     private:
         sockaddr_in ad4;    // 以网络序（大端序）存储
