@@ -7,7 +7,6 @@
 #include "InetAddress.h"
 #include "ConsoleStream.h"
 #include <unistd.h>
-#include <cstring>
 #include <netinet/tcp.h>
 
 using reactor::net::ServerSocket;
