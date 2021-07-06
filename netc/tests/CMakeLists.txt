@@ -31,3 +31,6 @@ target_link_libraries(eventloopthread-test PRIVATE netc reactor-core)
 
 add_executable(minheap-test MinHeap-Test.cpp)
 target_link_libraries(minheap-test reactor-core)
+
+add_executable(socketopt-test SocketOpt-Test.cpp)
+target_link_libraries(socketopt-test PRIVATE reactor-core)
