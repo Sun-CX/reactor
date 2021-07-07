@@ -19,10 +19,10 @@ InetAddress::InetAddress() {
 
 InetAddress::InetAddress(const char *ip, u16 port, sa_family_t ip_version) {
     int ret;
+
     switch (ip_version) {
 
         case AF_INET:
-
             ::memset(&ad4, 0, sizeof(ad4));
             ad4.sin_family = AF_INET;
 
@@ -114,18 +114,30 @@ InetAddress InetAddress::get_peer_address(int fd) {
 
 string InetAddress::to_string() const {
     char buf[64];
+    const char *ret;
+    size_t len;
+    u16 port;
 
-    if (unlikely(family() == AF_INET6)) {
-        const char *r = ::inet_ntop(AF_INET6, &ad6.sin6_addr, buf, sizeof(buf));
-        assert(r != nullptr);
-        size_t len = ::strlen(buf);
-        const u16 port = ::ntohs(ad6.sin6_port);
+    if (likely(family() == AF_INET)) {
+
+        ret = ::inet_ntop(AF_INET, &ad4.sin_addr, buf, sizeof(buf));
+        assert(ret != nullptr);
+
+        len = ::strlen(buf);
+        port = ::ntohs(ad4.sin_port);
+
         ::snprintf(buf + len, sizeof(buf) - len, ":%hu", port);
     } else {
-        const char *ip = ::inet_ntoa(ad4.sin_addr);
-        const u16 port = ::ntohs(ad4.sin_port);
-        ::snprintf(buf, sizeof(buf), "%s:%hu", ip, port);
+
+        ret = ::inet_ntop(AF_INET6, &ad6.sin6_addr, buf, sizeof(buf));
+        assert(ret != nullptr);
+
+        len = ::strlen(buf);
+        port = ::ntohs(ad6.sin6_port);
+
+        ::snprintf(buf + len, sizeof(buf) - len, ":%hu", port);
     }
+
     return buf;
 }
 
@@ -157,14 +169,19 @@ InetAddress InetAddress::resolve(const char *hostname) {
 }
 
 string InetAddress::ip_string() const {
-    if (unlikely(family() == AF_INET6)) {
-        char buf[64];
-        const char *r = ::inet_ntop(AF_INET6, &ad6.sin6_addr, buf, sizeof(buf));
-        assert(r != nullptr);
-        return buf;
+    char buf[64];
+    const char *ret;
+
+    if (likely(family() == AF_INET)) {
+
+        ret = ::inet_ntop(AF_INET, &ad4.sin_addr, buf, sizeof(buf));
+        assert(ret != nullptr);
     } else {
-        return ::inet_ntoa(ad4.sin_addr);
+
+        ret = ::inet_ntop(AF_INET6, &ad6.sin6_addr, buf, sizeof(buf));
+        assert(ret != nullptr);
     }
+    return buf;
 }
 
 
