@@ -35,11 +35,11 @@ int main(int argc, const char *argv[]) {
     InetAddress ad("192.168.2.2", 8080);
     RC_DEBUG << ad.to_string();
 
-    InetAddress ad2("ABCD:EF01:2345:6789:ABCD:EF01:2345:6789", 8989, true);
+    InetAddress ad2("ABCD:EF01:2345:6789:ABCD:EF01:2345:6789", 8989, AF_INET6);
     RC_DEBUG << ad2.to_string();
     RC_DEBUG << ad2.ip_string();
 
-    InetAddress ad3(6328, true, true);
+    InetAddress ad3(6328, true, AF_INET6);
     RC_DEBUG << ad3.to_string();
 
     InetAddress ad4 = InetAddress::resolve("baidu.com");

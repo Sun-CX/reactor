@@ -17,41 +17,66 @@ InetAddress::InetAddress() {
     ::memset(&ad6, 0, sizeof(ad6));
 }
 
-InetAddress::InetAddress(const char *ip, u16 port, bool ipv6) {
-    if (unlikely(ipv6)) {
-        ::memset(&ad6, 0, sizeof(ad6));
-        ad6.sin6_family = AF_INET6;
+InetAddress::InetAddress(const char *ip, u16 port, sa_family_t ip_version) {
+    int ret;
+    switch (ip_version) {
 
-        int rc = ::inet_pton(AF_INET6, ip, &ad6.sin6_addr);
-        if (unlikely(rc == 0)) {
-            RC_FATAL << "Invalid ipv6 address: " << ip;
-        } else if (unlikely(rc < 0)) {
-            RC_FATAL << "System error, errno = " << errno;
-        }
+        case AF_INET:
 
-        assert(rc == 1);
-        ad6.sin6_port = htons(port);
-    } else {
-        ::memset(&ad4, 0, sizeof(ad4));
-        ad4.sin_family = AF_INET;
-        ad4.sin_addr.s_addr = ::inet_addr(ip);
-        ad4.sin_port = ::htons(port);
+            ::memset(&ad4, 0, sizeof(ad4));
+            ad4.sin_family = AF_INET;
+
+            if (unlikely(ret = ::inet_pton(AF_INET, ip, &ad4.sin_addr)) < 0) {
+                assert(errno == EAFNOSUPPORT);
+                RC_FATAL << "System error, errno = " << errno;
+            } else if (unlikely(ret == 0)) {
+                RC_FATAL << "Invalid IPv4 address: " << ip;
+            }
+            assert(ret == 1);
+
+            ad4.sin_port = ::htons(port);
+            break;
+
+        case AF_INET6:
+            ::memset(&ad6, 0, sizeof(ad6));
+            ad6.sin6_family = AF_INET6;
+
+            if (unlikely(ret = ::inet_pton(AF_INET6, ip, &ad6.sin6_addr)) < 0) {
+                assert(errno == EAFNOSUPPORT);
+                RC_FATAL << "System error, errno = " << errno;
+            } else if (unlikely(ret == 0)) {
+                RC_FATAL << "Invalid IPv6 address: " << ip;
+            }
+            assert(ret == 1);
+
+            ad6.sin6_port = ::htons(port);
+            break;
+
+        default:
+            RC_FATAL << "Invalid IP version: " << ip_version;
     }
 }
 
-InetAddress::InetAddress(u16 port, bool loopback_only, bool ipv6) {
-    if (unlikely(ipv6)) {
-        ::memset(&ad6, 0, sizeof(ad6));
-        ad6.sin6_family = AF_INET6;
-        in6_addr ip = loopback_only ? in6addr_loopback : in6addr_any;
-        ad6.sin6_addr = ip;
-        ad6.sin6_port = ::htons(port);
-    } else {
-        ::memset(&ad4, 0, sizeof(ad4));
-        ad4.sin_family = AF_INET;
-        in_addr_t ip = loopback_only ? INADDR_LOOPBACK : INADDR_ANY;
-        ad4.sin_addr.s_addr = ::htonl(ip);
-        ad4.sin_port = ::htons(port);
+InetAddress::InetAddress(u16 port, bool loopback_only, sa_family_t ip_version) {
+
+    switch (ip_version) {
+
+        case AF_INET:
+            ::memset(&ad4, 0, sizeof(ad4));
+            ad4.sin_family = AF_INET;
+            ad4.sin_addr.s_addr = ::htonl(loopback_only ? INADDR_LOOPBACK : INADDR_ANY);
+            ad4.sin_port = ::htons(port);
+            break;
+
+        case AF_INET6:
+            ::memset(&ad6, 0, sizeof(ad6));
+            ad6.sin6_family = AF_INET6;
+            ad6.sin6_addr = loopback_only ? in6addr_loopback : in6addr_any;
+            ad6.sin6_port = ::htons(port);
+            break;
+
+        default:
+            RC_FATAL << "Invalid IP version: " << ip_version;
     }
 }
 
