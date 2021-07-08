@@ -17,10 +17,10 @@ InetAddress::InetAddress() {
     ::memset(&ad6, 0, sizeof(ad6));
 }
 
-InetAddress::InetAddress(const char *ip, u16 port, sa_family_t ip_version) {
+InetAddress::InetAddress(const char *ip, u16 port, sa_family_t version) {
     int ret;
 
-    switch (ip_version) {
+    switch (version) {
 
         case AF_INET:
             ::memset(&ad4, 0, sizeof(ad4));
@@ -53,13 +53,13 @@ InetAddress::InetAddress(const char *ip, u16 port, sa_family_t ip_version) {
             break;
 
         default:
-            RC_FATAL << "Invalid IP version: " << ip_version;
+            RC_FATAL << "Invalid IP version: " << version;
     }
 }
 
-InetAddress::InetAddress(u16 port, bool loopback_only, sa_family_t ip_version) {
+InetAddress::InetAddress(u16 port, bool loopback_only, sa_family_t version) {
 
-    switch (ip_version) {
+    switch (version) {
 
         case AF_INET:
             ::memset(&ad4, 0, sizeof(ad4));
@@ -76,7 +76,7 @@ InetAddress::InetAddress(u16 port, bool loopback_only, sa_family_t ip_version) {
             break;
 
         default:
-            RC_FATAL << "Invalid IP version: " << ip_version;
+            RC_FATAL << "Invalid IP version: " << version;
     }
 }
 

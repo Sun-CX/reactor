@@ -45,9 +45,11 @@ namespace reactor::net {
         sockaddr *get_sockaddr();
 
     public:
-        InetAddress(const char *ip, u16 port, sa_family_t ip_version = AF_INET);
+        // version must be AF_INET or AF_INET6.
+        InetAddress(const char *ip, u16 port, sa_family_t version = AF_INET);
 
-        explicit InetAddress(u16 port, bool loopback_only = false, sa_family_t ip_version = AF_INET);
+        // version must be AF_INET or AF_INET6.
+        explicit InetAddress(u16 port, bool loopback_only = false, sa_family_t version = AF_INET);
 
         /* get protocol family. */
         /* AF_INET or AF_INET6 is returned. */

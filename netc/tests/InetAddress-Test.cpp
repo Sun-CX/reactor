@@ -72,6 +72,12 @@ void get_address_test() {
 
     InetAddress peer = InetAddress::get_peer_address(socket.fd());
     RC_DEBUG << peer.to_string();
+
+    InetAddress bind_addr("192.168.2.2", 6380);
+    socket.bind(bind_addr);
+    InetAddress bind2 = InetAddress::get_local_address(socket.fd());
+    RC_DEBUG << bind2.to_string();
+
 }
 
 int main(int argc, const char *argv[]) {
