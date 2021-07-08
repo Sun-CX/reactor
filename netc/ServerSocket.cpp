@@ -15,30 +15,24 @@ using reactor::net::ServerSocket;
 ServerSocket::ServerSocket() : listen_fd(create_socket()) {}
 
 ServerSocket::~ServerSocket() {
-    int ret = ::close(listen_fd);
-    if (unlikely(ret != 0))
+    if (unlikely(::close(listen_fd) < 0))
         RC_ERROR << "socket(" << listen_fd << ") close error: " << strerror(errno);
 }
 
 int ServerSocket::create_socket() const {
-    int fd = ::socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
-
-    if (unlikely(fd < 0))
+    int fd;
+    if (unlikely((fd = ::socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP)) < 0))
         RC_FATAL << "socket error: " << strerror(errno);
-
     return fd;
 }
 
 void ServerSocket::bind(const InetAddress &addr) const {
-    int ret = ::bind(listen_fd, addr.get_sockaddr(), sizeof(sockaddr_in));
-
-    if (unlikely(ret < 0))
+    if (unlikely(::bind(listen_fd, addr.get_sockaddr(), sizeof(sockaddr_in)) < 0))
         RC_FATAL << "socket(" << listen_fd << ") bind error: " << strerror(errno);
 }
 
 void ServerSocket::listen() const {
-    int ret = ::listen(listen_fd, SOMAXCONN);
-    if (unlikely(ret < 0))
+    if (unlikely(::listen(listen_fd, SOMAXCONN) < 0))
         RC_FATAL << "socket(" << listen_fd << ") listen error: " << strerror(errno);
 
     RC_INFO << "socket(" << listen_fd << ") is listening...";
