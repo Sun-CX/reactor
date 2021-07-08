@@ -17,7 +17,8 @@ using reactor::net::Poller;
 Poller::Poller(EventLoop *loop) : loop(loop) {}
 
 void Poller::assert_in_loop_thread() const {
-    if (unlikely(!loop->is_in_loop_thread())) RC_FATAL << "assert_in_loop_thread failed.";
+    if (unlikely(!loop->is_in_loop_thread())) 
+        RC_FATAL << "assert_in_loop_thread failed.";
 }
 
 bool Poller::has_channel(Channel *channel) const {
