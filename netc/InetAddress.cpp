@@ -97,8 +97,8 @@ InetAddress InetAddress::get_local_address(int fd) {
     socklen_t len = sizeof(value);
     static_assert(sizeof(sockaddr_in6) == sizeof(value));
 
-    auto status = ::getsockname(fd, reinterpret_cast<sockaddr *>(&value.ad6), &len);
-    if (unlikely(status < 0)) RC_FATAL << "getsockname error!";
+    if (unlikely(::getsockname(fd, reinterpret_cast<sockaddr *>(&value.ad6), &len) < 0))
+        RC_FATAL << "getsockname error: " << strerror(errno);
     return value;
 }
 
@@ -107,8 +107,8 @@ InetAddress InetAddress::get_peer_address(int fd) {
     socklen_t len = sizeof(value);
     static_assert(sizeof(sockaddr_in6) == sizeof(value));
 
-    auto status = ::getpeername(fd, reinterpret_cast<sockaddr *>(&value.ad6), &len);
-    if (unlikely(status < 0)) RC_FATAL << "getpeername error!";
+    if (unlikely(::getpeername(fd, reinterpret_cast<sockaddr *>(&value.ad6), &len) < 0))
+        RC_FATAL << "getpeername error: " << strerror(errno);
     return value;
 }
 

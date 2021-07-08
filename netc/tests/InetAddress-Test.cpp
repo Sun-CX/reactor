@@ -4,8 +4,10 @@
 
 #include "InetAddress.h"
 #include "ConsoleStream.h"
+#include "ServerSocket.h"
 
 using reactor::net::InetAddress;
+using reactor::net::ServerSocket;
 
 namespace xxx {
 
@@ -63,11 +65,22 @@ void resolve_test() {
     RC_DEBUG << ad5.ip_string();
 }
 
+void get_address_test() {
+    ServerSocket socket;
+    InetAddress local = InetAddress::get_local_address(socket.fd());
+    RC_DEBUG << local.to_string();
+
+    InetAddress peer = InetAddress::get_peer_address(socket.fd());
+    RC_DEBUG << peer.to_string();
+}
+
 int main(int argc, const char *argv[]) {
 
-    ipv4();
-    ipv6();
-    resolve_test();
+//    ipv4();
+//    ipv6();
+//    resolve_test();
+
+    get_address_test();
 
     return 0;
 }

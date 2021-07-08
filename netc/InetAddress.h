@@ -61,7 +61,7 @@ namespace reactor::net {
         [[nodiscard]]
         string ip_string() const;
 
-        /* get local address of a connected socket. */
+        /* get local address of a socket. */
         static InetAddress get_local_address(int fd);
 
         /* get peer address of a connected socket. */
