@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <cassert>
 #include <unistd.h>
+#include <cstring>
 
 using std::bind;
 using reactor::net::Acceptor;
@@ -19,8 +20,7 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
         server_socket(),
         accept_channel(loop, server_socket.fd()),
         listening(false),
-        idle_fd(open("/dev/null", O_RDONLY | O_CLOEXEC)) {
-    RC_INFO << "create idle_fd: " << idle_fd;
+        idle_fd(open_idle_fd()) {
     server_socket.reuse_addr(true);
     server_socket.reuse_port(reuse_port);
     server_socket.bind(addr);
@@ -30,8 +30,20 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
 Acceptor::~Acceptor() {
     accept_channel.disable_all();
     accept_channel.remove();
-    auto status = ::close(idle_fd);
-    if (unlikely(status < 0)) RC_ERROR << "close idle fd " << idle_fd << " error!";
+    close_idle_fd();
+}
+
+int Acceptor::open_idle_fd() const {
+    int idle;
+    if (unlikely((idle = ::open("/dev/null", O_RDONLY | O_CLOEXEC)) < 0))
+        RC_FATAL << "open idle file error: " << strerror(errno);
+
+    return idle;
+}
+
+void Acceptor::close_idle_fd() const {
+    if (unlikely(::close(idle_fd) < 0))
+        RC_FATAL << "close idle fd(" << idle_fd << ") error: " << strerror(errno);
 }
 
 void Acceptor::read_handler() {
@@ -42,11 +54,17 @@ void Acceptor::read_handler() {
         callback(con_fd, peer_addr);
     } else {// error
         if (errno == EMFILE) {
-            ::close(idle_fd);
+
+            close_idle_fd();
+
             idle_fd = server_socket.accept(peer_addr);
-            ::close(idle_fd);
-            idle_fd = open("/dev/null", O_RDONLY | O_CLOEXEC);
+
+            close_idle_fd();
+
+            idle_fd = open_idle_fd();
+
         } else
+
             RC_FATAL << "accept new connection error!";
     }
 }
@@ -65,3 +83,5 @@ void Acceptor::set_new_connection_callback(const NewConnectionCallback &handler)
 bool Acceptor::is_listening() const {
     return listening;
 }
+
+

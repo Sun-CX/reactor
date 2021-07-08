@@ -24,15 +24,15 @@ Timer::Timer(EventLoop *loop) : loop(loop), timer_channel(this->loop, create_tim
 Timer::~Timer() {
     timer_channel.disable_all();
     timer_channel.remove();
-    auto status = ::close(timer_channel.get_fd());
-    if (unlikely(status < 0))
-        RC_ERROR << "timer_fd " << timer_channel.get_fd() << " close error!";
+    if (unlikely(::close(timer_channel.get_fd()) < 0))
+        RC_FATAL << "close timerfd(" << timer_channel.get_fd() << ") error: " << strerror(errno);
 }
 
 int Timer::create_timer_fd() const {
-    auto fd = timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC);
-    if (unlikely(fd < 0)) RC_FATAL << "timerfd_create error!";
-    RC_INFO << "create timer_fd: " << fd;
+    int fd;
+    if (unlikely((fd = ::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC)) < 0))
+        RC_FATAL << "create timerfd error: " << strerror(errno);
+
     return fd;
 }
 

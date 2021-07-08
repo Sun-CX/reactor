@@ -27,6 +27,11 @@ namespace reactor::net {
 
         void read_handler();
 
+        [[nodiscard]]
+        int open_idle_fd() const;
+
+        void close_idle_fd() const;
+
     public:
         Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port);
 

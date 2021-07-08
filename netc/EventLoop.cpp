@@ -12,6 +12,7 @@
 #include <cassert>
 #include <unistd.h>
 #include <algorithm>
+#include <cstring>
 
 using std::bind;
 using std::placeholders::_1;
@@ -50,9 +51,8 @@ EventLoop::~EventLoop() {
     RC_INFO << "---------------------- ~EventLoop ----------------------";
     wakeup_channel->disable_all();
     wakeup_channel->remove();
-    auto status = ::close(wakeup_channel->get_fd());
-    if (unlikely(status < 0))
-        RC_ERROR << "eventfd " << wakeup_channel->get_fd() << " close error!";
+    if (unlikely(::close(wakeup_channel->get_fd()) < 0))
+        RC_FATAL << "close eventfd(" << wakeup_channel->get_fd() << ") error: " << strerror(errno);
     current_thread_loop = nullptr;
 }
 
@@ -125,9 +125,9 @@ EventLoop *EventLoop::event_loop_of_current_thread() {
 }
 
 int EventLoop::create_event_fd() const {
-    int fd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
-    if (unlikely(fd < 0)) RC_FATAL << "create eventfd failed.";
-    RC_INFO << "create eventfd: " << fd;
+    int fd;
+    if (unlikely((fd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC)) < 0))
+        RC_FATAL << "create eventfd error: " << strerror(errno);
     return fd;
 }
 
