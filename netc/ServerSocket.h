@@ -12,15 +12,15 @@ namespace reactor::net {
 
     class InetAddress;
 
-// 封装监听套接字
     class ServerSocket final : public NonCopyable {
     private:
         const int listen_fd;  // listen_fd 的生存期由 ServerSocket 类控制，在 ServerSocket 析构时会将其关闭
 
         [[nodiscard]]
-        int create_listen_fd() const;
+        int create_socket() const;
 
     public:
+        // only open a IPv4 socket right now.
         ServerSocket();
 
         ~ServerSocket();
@@ -32,22 +32,21 @@ namespace reactor::net {
 
         void listen() const;
 
-        /**
-         * 接受客户端的连接，返回已连接套接字：
-         *
-         * 当连接成功时，返回已连接套接字，并设置对端的地址
-         *
-         * 连接失败返回 -1， errno 保存对应的错误码
-         * @param peer_addr 对端地址
-         * @return 已连接套接字
-         */
+        // On success, this returns a nonnegative integer that is a file descriptor for the accepted socket.
+        // On error, -1 is returned, and errno is set appropriately.
         int accept(InetAddress &peer_addr) const;
 
-        void tcp_no_delay(bool on) const;
-
+        // enable or disable SO_REUSEADDR option on a socket.
+        // SO_REUSEADDR option is disabled by default.
         void reuse_addr(bool on) const;
 
+        // enable or disable SO_REUSEPORT option on a socket.
+        // SO_REUSEPORT option is disabled by default.
         void reuse_port(bool on) const;
+
+        // enable or disable TCP_NODELAY option on a socket.
+        // TCP_NODELAY option is disabled by default.
+        void no_delay(bool on) const;
     };
 }
 

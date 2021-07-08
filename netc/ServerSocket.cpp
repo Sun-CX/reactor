@@ -8,31 +8,40 @@
 #include "ConsoleStream.h"
 #include <unistd.h>
 #include <netinet/tcp.h>
+#include <cstring>
 
 using reactor::net::ServerSocket;
 
-ServerSocket::ServerSocket() : listen_fd(create_listen_fd()) {}
+ServerSocket::ServerSocket() : listen_fd(create_socket()) {}
 
 ServerSocket::~ServerSocket() {
-    auto status = ::close(listen_fd);
-    if (unlikely(status != 0)) RC_ERROR << "close server socket error.";
+    int ret = ::close(listen_fd);
+    if (unlikely(ret != 0))
+        RC_ERROR << "socket(" << listen_fd << ") close error: " << strerror(errno);
 }
 
-int ServerSocket::create_listen_fd() const {
+int ServerSocket::create_socket() const {
     int fd = ::socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
-    if (unlikely(fd < 0)) RC_FATAL << "server socket created error.";
-    RC_INFO << "create listen_fd: " << fd;
+
+    if (unlikely(fd < 0))
+        RC_FATAL << "socket error: " << strerror(errno);
+
     return fd;
 }
 
 void ServerSocket::bind(const InetAddress &addr) const {
-    auto status = ::bind(listen_fd, addr.get_sockaddr(), sizeof(sockaddr_in));
-    if (unlikely(status != 0)) RC_FATAL << "socket " << listen_fd << " bind error!";
+    int ret = ::bind(listen_fd, addr.get_sockaddr(), sizeof(sockaddr_in));
+
+    if (unlikely(ret < 0))
+        RC_FATAL << "socket(" << listen_fd << ") bind error: " << strerror(errno);
 }
 
 void ServerSocket::listen() const {
-    auto status = ::listen(listen_fd, SOMAXCONN);
-    if (unlikely(status != 0)) RC_FATAL << "socket " << listen_fd << " listen error!";
+    int ret = ::listen(listen_fd, SOMAXCONN);
+    if (unlikely(ret < 0))
+        RC_FATAL << "socket(" << listen_fd << ") listen error: " << strerror(errno);
+
+    RC_INFO << "socket(" << listen_fd << ") is listening...";
 }
 
 int ServerSocket::accept(InetAddress &peer_addr) const {
@@ -43,20 +52,20 @@ int ServerSocket::accept(InetAddress &peer_addr) const {
 
 void ServerSocket::reuse_addr(bool on) const {
     const int opt = on ? 1 : 0;
-    auto status = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    if (unlikely(status != 0)) RC_FATAL << "server socket " << listen_fd << " reuse_addr error!";
+    if (unlikely(::setsockopt(listen_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0))
+        RC_FATAL << "setsockopt on socket(" << listen_fd << ") error: " << strerror(errno);
 }
 
-void ServerSocket::tcp_no_delay(bool on) const {
+void ServerSocket::no_delay(bool on) const {
     const int opt = on ? 1 : 0;
-    auto status = setsockopt(listen_fd, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt));
-    if (unlikely(status != 0)) RC_FATAL << "server socket " << listen_fd << " tcp_no_delay error!";
+    if (unlikely(setsockopt(listen_fd, IPPROTO_TCP, TCP_NODELAY, &opt, sizeof(opt)) < 0))
+        RC_FATAL << "setsockopt on socket(" << listen_fd << ") error: " << strerror(errno);
 }
 
 void ServerSocket::reuse_port(bool on) const {
     const int opt = on ? 1 : 0;
-    auto status = setsockopt(listen_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt));
-    if (unlikely(status != 0)) RC_FATAL << "server socket " << listen_fd << " reuse_port error!";
+    if (unlikely(::setsockopt(listen_fd, SOL_SOCKET, SO_REUSEPORT, &opt, sizeof(opt)) < 0))
+        RC_FATAL << "setsockopt on socket(" << listen_fd << ") error: " << strerror(errno);
 }
 
 int ServerSocket::fd() const {
