@@ -50,7 +50,7 @@ namespace reactor::net {
         Channels active_channels;
 
         // whether `pending_functors` are running.
-        bool calling_pending_func;
+        atomic_bool calling_pending_func;
         // mutex lock for ensure `pending_functors` thread safe.
         Mutex mutex;
         // pending tasks waiting to be run after poll return.
@@ -85,6 +85,7 @@ namespace reactor::net {
         void loop();
 
         // check if eventloop is in the thread which has created itself.
+        // cross-thread calling is allowed.
         [[nodiscard]]
         bool is_in_created_thread() const;
 
@@ -98,11 +99,14 @@ namespace reactor::net {
 
         bool has_channel(Channel *channel);
 
-        // stop eventloop, could be called not in thread which has created itself.
+        // stop eventloop.
+        // cross-thread calling is allowed.
         void quit();
 
+        // cross-thread calling is allowed.
         void run_in_loop(const Functor &func);
 
+        // cross-thread calling is allowed.
         void queue_in_loop(const Functor &func);
 
         void schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval = Timestamp());
