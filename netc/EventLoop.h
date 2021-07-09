@@ -49,9 +49,12 @@ namespace reactor::net {
         unique_ptr<Poller> poller;
         Channels active_channels;
 
-        Mutex mutex;                // 互斥锁，用来保证 pending_functors
-        bool calling_pending_func;  // 是否正在执行 pending_functors
-        Functors pending_functors;  // 挂起的执行任务
+        // whether `pending_functors` are running.
+        bool calling_pending_func;
+        // mutex lock for ensure `pending_functors` thread safe.
+        Mutex mutex;
+        // pending tasks waiting to be run after poll return.
+        Functors pending_functors;
 
         unique_ptr<Channel> wakeup_channel;
         unique_ptr<Timer> timer;
