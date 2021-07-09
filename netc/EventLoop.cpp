@@ -149,18 +149,18 @@ void EventLoop::close_event_fd(int fd) const {
 }
 
 void EventLoop::wakeup() const {
-    uint64_t one = 1u;
-    auto n = ::write(wakeup_channel->get_fd(), &one, sizeof(one));
-    if (unlikely(n != sizeof(one)))
+    uint64_t value = 1u;
+    auto n = ::write(wakeup_channel->get_fd(), &value, sizeof(value));
+    if (unlikely(n != sizeof(value)))
         RC_FATAL << "write to eventfd(" << wakeup_channel->get_fd() << ") error";
-    RC_INFO << "write to eventfd(" << wakeup_channel->get_fd() << ')';
+    RC_INFO << "write to eventfd(" << wakeup_channel->get_fd() << "): value = " << value;
 }
 
 void EventLoop::read_wakeup() const {
-    uint64_t one;
-    auto n = ::read(wakeup_channel->get_fd(), &one, sizeof(one));
-    assert(n == sizeof(one));
-    RC_INFO << "read from eventfd(" << wakeup_channel->get_fd() << ')';
+    uint64_t value;
+    auto n = ::read(wakeup_channel->get_fd(), &value, sizeof(value));
+    assert(n == sizeof(value));
+    RC_INFO << "read from eventfd(" << wakeup_channel->get_fd() << "): value = " << value;
 }
 
 void EventLoop::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {
