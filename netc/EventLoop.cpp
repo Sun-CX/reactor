@@ -129,7 +129,7 @@ void EventLoop::execute_pending_functors() {
     calling_pending_func = false;
 }
 
-EventLoop *EventLoop::event_loop_of_current_thread() {
+EventLoop *EventLoop::eventloop_of_current_thread() {
     return eventloop_in_current_thread;
 }
 

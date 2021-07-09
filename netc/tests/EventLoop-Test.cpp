@@ -4,6 +4,7 @@
 
 #include "EventLoop.h"
 #include "Thread.h"
+#include "ConsoleStream.h"
 
 using reactor::net::EventLoop;
 using reactor::core::Thread;
@@ -27,6 +28,23 @@ void call_loop_in_another_thread() {
 
     thread.start();
     thread.join();
+}
+
+void test() {
+    EventLoop *pev = EventLoop::eventloop_of_current_thread();
+    if (pev == nullptr)
+        RC_DEBUG << "nullptr";
+    else
+        RC_DEBUG << pev;
+
+    EventLoop loop;
+    pev = EventLoop::eventloop_of_current_thread();
+    if (pev == nullptr)
+        RC_DEBUG << "nullptr";
+    else {
+        RC_DEBUG << pev;
+        RC_DEBUG << (pev == &loop);
+    }
 }
 
 void test1() {
@@ -58,7 +76,10 @@ int main(int argc, const char *argv[]) {
     // one_event_loop_in_main_thread();
     // multi_event_loop_in_main_thread();
 
-    call_loop_in_another_thread();
+    // call_loop_in_another_thread();
+
+    test();
+
 //    test1();
 //    test2();
 

@@ -66,6 +66,10 @@ namespace reactor::net {
         void execute_pending_functors();
 
     public:
+        // return a pointer points to eventloop object in current thread.
+        // nullptr would be returned if there is no eventloop object in current thread.
+        static EventLoop *eventloop_of_current_thread();
+
         EventLoop();
 
         ~EventLoop();
@@ -97,8 +101,6 @@ namespace reactor::net {
         void queue_in_loop(const Functor &func);
 
         void schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval = Timestamp());
-
-        static EventLoop *event_loop_of_current_thread();
     };
 }
 
