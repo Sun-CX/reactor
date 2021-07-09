@@ -20,7 +20,7 @@ namespace reactor::net {
 
         EventLoop *const loop;
 
-        // file descriptor operated by this channel.
+        // file descriptor listened by this channel.
         const int fd;
 
         // watched events used by poll/epoll system call.
