@@ -106,12 +106,10 @@ void EventLoop::quit() {
 }
 
 void EventLoop::run_in_loop(const Functor &func) {
-    RC_INFO << __func__ << " invoked, loop in: " << CurrentThread::name;
     is_in_created_thread() ? func() : queue_in_loop(func);
 }
 
 void EventLoop::queue_in_loop(const Functor &func) {
-    RC_INFO << __func__ << " invoked, loop in: " << CurrentThread::name;
     {
         MutexGuard guard(mutex);
         pending_functors.push_back(func);
@@ -126,7 +124,7 @@ void EventLoop::execute_pending_functors() {
         MutexGuard guard(mutex);
         fns.swap(pending_functors);
     }
-    RC_DEBUG << "pending_functors's size: " << pending_functors.size();
+    RC_DEBUG << "pending_functors' size: " << fns.size();
 
     for (const auto &functor : fns) functor();
     calling_pending_func = false;
