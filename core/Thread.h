@@ -20,9 +20,14 @@ namespace reactor::core {
         using runnable = function<void()>;
 
         runnable func;
+        // logic name of a thread.
         string thread_name;
-        pthread_t tid;      // POSIX 虚拟线程 ID
-        pid_t pid;          // kernel 线程（LWP）真实 ID
+
+        // POSIX thread id.
+        pthread_t tid;
+
+        // kernel light weight process id.
+        pid_t pid;
         CountDownLatch latch;
 
         static atomic_uint thread_count;
@@ -41,17 +46,20 @@ namespace reactor::core {
         pid_t getid() const;
     };
 
-/* Note: Do Not rewrite CurrentThread::name and CurrentThread::id. Readonly for caller! */
+    // Note: Do Not rewrite CurrentThread::name and CurrentThread::id, readonly for caller!
     class CurrentThread final : public NonCopyable {
     public:
         CurrentThread() = delete;
 
-        /* 线程名最长为 16 字节（包括末尾 '\0' 符） */
+        // logic name of current thread, 16 bytes long(including null terminator) at most.
         thread_local static char name[16];
+        // kernel light weight process id associated with a posix thread.
         thread_local static pid_t id;
 
+        // check if current thread is start thread.
         static bool is_main_thread();
 
+        // sleep current thread for `ms` milliseconds and `ns` nanoseconds.
         static int sleep(long ms, int ns = 0);
     };
 }
