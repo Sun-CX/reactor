@@ -21,8 +21,8 @@ using reactor::net::EventLoop;
 using reactor::core::CurrentThread;
 using reactor::core::MutexGuard;
 
-thread_local EventLoop *EventLoop::current_thread_loop = nullptr;
-const int EventLoop::default_poll_timeout_milliseconds = -1;   // 默认永不超时
+thread_local EventLoop *EventLoop::eventloop_in_current_thread = nullptr;
+const int EventLoop::default_timeout_milliseconds = -1;   // 默认永不超时
 
 EventLoop::EventLoop() :
         looping(false),
@@ -37,32 +37,32 @@ EventLoop::EventLoop() :
         wakeup_channel(new Channel(this, create_event_fd())),
         timer(new Timer(this)) {
 
-    RC_INFO << "---------------------- EventLoop constructed ----------------------";
+    if (likely(eventloop_in_current_thread == nullptr)) {
+        wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup_event, this));
+        wakeup_channel->enable_reading();
 
-    if (unlikely(current_thread_loop != nullptr)) {
-        RC_FATAL << "current thread already has an event loop object(" << current_thread_loop << ')';
-    } else current_thread_loop = this;
-
-    wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup_event, this));
-    wakeup_channel->enable_reading();
+        eventloop_in_current_thread = this;
+        RC_DEBUG << "---------------------- +EventLoop ----------------------";
+    } else
+        RC_FATAL << CurrentThread::name << " already exists an eventloop object, one thread has one eventloop object at most.";
 }
 
 EventLoop::~EventLoop() {
-    RC_INFO << "---------------------- ~EventLoop ----------------------";
+    RC_DEBUG << "---------------------- -EventLoop ----------------------";
     wakeup_channel->disable_all();
     wakeup_channel->remove();
     if (unlikely(::close(wakeup_channel->get_fd()) < 0))
         RC_FATAL << "close eventfd(" << wakeup_channel->get_fd() << ") error: " << strerror(errno);
-    current_thread_loop = nullptr;
+    eventloop_in_current_thread = nullptr;
 }
 
 void EventLoop::loop() {
-    assert(is_in_loop_thread());
+    assert_in_created_thread();
     looping = true;
     RC_INFO << "EventLoop(" << this << ") start loop...";
     while (!exited) {
         active_channels.clear();
-        poller->poll(active_channels, default_poll_timeout_milliseconds);
+        poller->poll(active_channels, default_timeout_milliseconds);
         for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_events, _1));
         // IO 事件处理完毕之后再执行的动作
         execute_pending_functors();
@@ -72,32 +72,41 @@ void EventLoop::loop() {
 }
 
 void EventLoop::update_channel(Channel *channel) {
-    assert(is_in_loop_thread() and channel->loop_owner() == this);
+    assert_in_created_thread();
+    assert(channel->loop_owner() == this);
     poller->update_channel(channel);
 }
 
 void EventLoop::remove_channel(Channel *channel) {
-    assert(is_in_loop_thread() and channel->loop_owner() == this);
+    assert_in_created_thread();
+    assert(channel->loop_owner() == this);
     poller->remove_channel(channel);
 }
 
 bool EventLoop::has_channel(Channel *channel) {
-    assert(is_in_loop_thread() and channel->loop_owner() == this);
+    assert_in_created_thread();
+    assert(channel->loop_owner() == this);
     return poller->has_channel(channel);
 }
 
-bool EventLoop::is_in_loop_thread() const {
+bool EventLoop::is_in_created_thread() const {
     return pid == CurrentThread::id;
+}
+
+void EventLoop::assert_in_created_thread() const {
+    if (unlikely(!is_in_created_thread())) {
+        RC_FATAL << "eventloop scope assert failed, please check your program.";
+    }
 }
 
 void EventLoop::quit() {
     exited = true;
-    if (!is_in_loop_thread()) wakeup();
+    if (!is_in_created_thread()) wakeup();
 }
 
 void EventLoop::run_in_loop(const Functor &func) {
     RC_INFO << __func__ << " invoked, loop in: " << CurrentThread::name;
-    is_in_loop_thread() ? func() : queue_in_loop(func);
+    is_in_created_thread() ? func() : queue_in_loop(func);
 }
 
 void EventLoop::queue_in_loop(const Functor &func) {
@@ -106,7 +115,7 @@ void EventLoop::queue_in_loop(const Functor &func) {
         MutexGuard guard(mutex);
         pending_functors.push_back(func);
     }
-    if (!is_in_loop_thread() or calling_pending_func) wakeup();
+    if (!is_in_created_thread() or calling_pending_func) wakeup();
 }
 
 void EventLoop::execute_pending_functors() {
@@ -121,7 +130,7 @@ void EventLoop::execute_pending_functors() {
 }
 
 EventLoop *EventLoop::event_loop_of_current_thread() {
-    return current_thread_loop;
+    return eventloop_in_current_thread;
 }
 
 int EventLoop::create_event_fd() const {

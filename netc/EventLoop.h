@@ -24,21 +24,29 @@ namespace reactor::net {
 
     class Poller;
 
-    // 每个 EventLoop 对象所在的线程是 IO 线程，其功能是运行事件循环
     class EventLoop final : public NonCopyable {
     private:
         using Functor = function<void()>;
         using Functors = vector<Functor>;
         using Channels = vector<Channel *>;
 
-        static thread_local EventLoop *current_thread_loop; // 控制一个线程中最多只能有一个 EventLoop 对象
-        static const int default_poll_timeout_milliseconds;
+        // for checking one thread has one eventloop object at most.
+        static thread_local EventLoop *eventloop_in_current_thread;
 
+        // default timeout setting for poll/epoll system call.
+        static const int default_timeout_milliseconds;
+
+        // if eventloop has started.
         bool looping;
-        atomic_bool exited;         // 循环是否退出（跨线程读写，原子保护）
-        const char *thread_name;    // EventLoop 对象创建时所在线程的线程名称
-        const pid_t pid;            // EventLoop 对象创建时所在的线程 ID
-        unique_ptr<Poller> poller;  // poller 生命周期与 EventLoop 对象相同
+
+        // if eventloop has stopped.
+        atomic_bool exited;
+        // name of thread that created eventloop.
+        const char *thread_name;
+        // id of thread that created eventloop.
+        const pid_t pid;
+
+        unique_ptr<Poller> poller;
         Channels active_channels;
 
         Mutex mutex;                // 互斥锁，用来保证 pending_functors
@@ -55,7 +63,6 @@ namespace reactor::net {
 
         void read_wakeup_event() const;
 
-        // 让 IO 线程执行一些计算任务
         void execute_pending_functors();
 
     public:
@@ -63,21 +70,24 @@ namespace reactor::net {
 
         ~EventLoop();
 
-        // 只能在创建该对象的线程中调用，不能跨线程调用
+        // start events loop in thread which has created eventloop.
         void loop();
 
-        // 检查当前对象是否处于创建该对象的线程中
+        // check if eventloop is in the thread which has created itself.
         [[nodiscard]]
-        bool is_in_loop_thread() const;
+        bool is_in_created_thread() const;
+
+        // assert eventloop is in the thread which has created itself.
+        // program would abort if assert failed.
+        void assert_in_created_thread() const;
 
         void update_channel(Channel *channel);
 
         void remove_channel(Channel *channel);
 
-        // 检查 channel 是否在当前 EventLoop 对象中
         bool has_channel(Channel *channel);
 
-        // 本函数可以跨线程调用
+        // stop eventloop, could be called not in thread which has created itself.
         void quit();
 
         // 如果当前线程处于 loop 线程，那么直接执行回调函数

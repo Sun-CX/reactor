@@ -9,11 +9,24 @@ using reactor::net::EventLoop;
 using reactor::core::Thread;
 using reactor::core::operator ""_s;
 
-static EventLoop *g_loop;
-
-void test() {
+void one_event_loop_in_main_thread() {
     EventLoop loop;
-//    EventLoop loop1;
+}
+
+void multi_event_loop_in_main_thread() {
+    EventLoop loop;
+    EventLoop loop1;
+}
+
+void call_loop_in_another_thread() {
+    EventLoop loop;
+
+    Thread thread([&loop]() {
+        loop.loop();
+    }, "loop-thread");
+
+    thread.start();
+    thread.join();
 }
 
 void test1() {
@@ -42,7 +55,10 @@ void test2() {
 
 int main(int argc, const char *argv[]) {
 
-    test();
+    // one_event_loop_in_main_thread();
+    // multi_event_loop_in_main_thread();
+
+    call_loop_in_another_thread();
 //    test1();
 //    test2();
 
