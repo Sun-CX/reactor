@@ -14,19 +14,24 @@ namespace reactor::net {
 
     class EventLoop;
 
-    // Channel 是对文件描述符 IO 事件的注册和响应的封装
     class Channel final : public NonCopyable {
     private:
         using EventCallback  = function<void()>;
 
-        EventLoop *loop;
-        const int fd;       // Channel 只引用 fd，并不管理 fd 的创建和关闭
-        uint32_t events;    // 关注的 IO 事件
-        uint32_t revents;   // 发生的 IO 事件
-        /*
-         * 在 PollPoller 的实现中是 channel 在 PollPoller::fds 中的索引
-         * 在 EpollPoller 的实现中是代表 channel 的三种不同状态
-         */
+        EventLoop *const loop;
+
+        // file descriptor operated by this channel.
+        const int fd;
+
+        // watched events used by poll/epoll system call.
+        uint32_t events;
+
+        // triggered events actually.
+        uint32_t revents;
+
+        // field `index` has two meanings in different mechanisms:
+        // * in poll mechanism, `index` is index of channel in vector<pollfd>.
+        // * in epoll mechanism, `index` is one of three different states(defined in `EpollPoller.h`) of channel.
         int index;
 
         EventCallback read_callback;
@@ -40,14 +45,6 @@ namespace reactor::net {
         Channel(EventLoop *loop, int fd);
 
         void handle_events();
-
-        void set_read_callback(const EventCallback &callback);
-
-        void set_write_callback(const EventCallback &callback);
-
-        void set_close_callback(const EventCallback &callback);
-
-        void set_error_callback(const EventCallback &callback);
 
         [[nodiscard]]
         int get_fd() const;
@@ -85,6 +82,14 @@ namespace reactor::net {
 
         [[nodiscard]]
         bool writing_enabled() const;
+
+        void set_read_callback(const EventCallback &callback);
+
+        void set_write_callback(const EventCallback &callback);
+
+        void set_close_callback(const EventCallback &callback);
+
+        void set_error_callback(const EventCallback &callback);
     };
 }
 

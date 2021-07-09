@@ -12,7 +12,12 @@
 using reactor::net::Channel;
 using reactor::net::EventLoop;
 
-Channel::Channel(EventLoop *loop, int fd) : loop(loop), fd(fd), events(0), revents(0), index(-1) {}
+Channel::Channel(EventLoop *loop, int fd) :
+        loop(loop),
+        fd(fd),
+        events(0),
+        revents(0),
+        index(-1) {}
 
 void Channel::update() {
     loop->update_channel(this);
@@ -109,18 +114,18 @@ bool Channel::writing_enabled() const {
     return events & (POLLOUT | POLLWRBAND);
 }
 
-void Channel::set_read_callback(const Channel::EventCallback &callback) {
+void Channel::set_read_callback(const EventCallback &callback) {
     read_callback = callback;
 }
 
-void Channel::set_write_callback(const Channel::EventCallback &callback) {
+void Channel::set_write_callback(const EventCallback &callback) {
     write_callback = callback;
 }
 
-void Channel::set_close_callback(const Channel::EventCallback &callback) {
+void Channel::set_close_callback(const EventCallback &callback) {
     close_callback = callback;
 }
 
-void Channel::set_error_callback(const Channel::EventCallback &callback) {
+void Channel::set_error_callback(const EventCallback &callback) {
     error_callback = callback;
 }
