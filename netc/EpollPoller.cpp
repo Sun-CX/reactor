@@ -21,7 +21,7 @@ const int EpollPoller::DEL = 1;
 
 EpollPoller::EpollPoller(EventLoop *loop) :
         Poller(loop),
-        epoll_fd(epoll_create1(EPOLL_CLOEXEC)) {
+        epoll_fd(::epoll_create1(EPOLL_CLOEXEC)) {
     if (unlikely(epoll_fd < 0))
         RC_FATAL << "epoll create error: " << strerror(errno);
     events.reserve(16);
@@ -32,7 +32,7 @@ EpollPoller::~EpollPoller() {
         RC_FATAL << "close epoll(" << epoll_fd << ") error: " << strerror(errno);
 }
 
-Timestamp EpollPoller::poll(Poller::Channels &active_channels, int milliseconds) {
+Timestamp EpollPoller::poll(Channels &active_channels, int milliseconds) {
     auto ready_events = ::epoll_wait(epoll_fd, events.data(), events.capacity(), milliseconds);
     auto now = Timestamp::now();
     if (unlikely(ready_events < 0)) {

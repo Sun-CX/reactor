@@ -20,12 +20,10 @@ namespace reactor::net {
 
     class Channel;
 
-    /**
-     * 轮询器：具体实现可以是 poll 或者 epoll
-     */
+    // wrapper class for poll or epoll system call.
     class Poller : public NonCopyable {
     private:
-        EventLoop *loop;
+        EventLoop *const loop;
     protected:
         using Channels = vector<Channel *>;
         using ChannelMap = map<int, Channel *>;
@@ -38,12 +36,6 @@ namespace reactor::net {
 
         virtual ~Poller() = default;
 
-        /**
-         * 轮询活跃的事件
-         * @param active_channels
-         * @param milliseconds 超时时间（毫秒），值为负数为永不超时
-         * @return
-         */
         virtual Timestamp poll(Channels &active_channels, int milliseconds) = 0;
 
         virtual void update_channel(Channel *channel) = 0;
