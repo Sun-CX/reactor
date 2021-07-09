@@ -40,7 +40,7 @@ EventLoop::EventLoop() :
     if (likely(eventloop_in_current_thread == nullptr)) {
         eventloop_in_current_thread = this;
 
-        wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup_event, this));
+        wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup, this));
         wakeup_channel->enable_reading();
         RC_DEBUG << "---------------------- +EventLoop ----------------------";
     } else
@@ -156,7 +156,7 @@ void EventLoop::wakeup() const {
     RC_INFO << "write to eventfd(" << wakeup_channel->get_fd() << ')';
 }
 
-void EventLoop::read_wakeup_event() const {
+void EventLoop::read_wakeup() const {
     uint64_t one;
     auto n = ::read(wakeup_channel->get_fd(), &one, sizeof(one));
     assert(n == sizeof(one));

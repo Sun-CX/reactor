@@ -53,17 +53,19 @@ namespace reactor::net {
         bool calling_pending_func;  // 是否正在执行 pending_functors
         Functors pending_functors;  // 挂起的执行任务
 
-        unique_ptr<Channel> wakeup_channel; // 用于唤醒 poll 调用，使其立即返回
-        unique_ptr<Timer> timer;            // 定时器
-
-        void wakeup() const;
+        unique_ptr<Channel> wakeup_channel;
+        unique_ptr<Timer> timer;
 
         [[nodiscard]]
         int create_event_fd() const;
 
         void close_event_fd(int fd) const;
 
-        void read_wakeup_event() const;
+        // wake eventloop up by writing data to eventfd.
+        void wakeup() const;
+
+        // read data on eventfd avoiding readable events triggered again.
+        void read_wakeup() const;
 
         void execute_pending_functors();
 
@@ -96,8 +98,6 @@ namespace reactor::net {
         // stop eventloop, could be called not in thread which has created itself.
         void quit();
 
-        // 如果当前线程处于 loop 线程，那么直接执行回调函数
-        // 如果当前线程不在 loop 线程，则将回调函数加入队列
         void run_in_loop(const Functor &func);
 
         void queue_in_loop(const Functor &func);
