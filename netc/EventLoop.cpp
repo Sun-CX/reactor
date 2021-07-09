@@ -126,7 +126,9 @@ void EventLoop::execute_pending_functors() {
     }
     RC_DEBUG << "pending_functors' size: " << fns.size();
 
-    for (const auto &functor : fns) functor();
+    for (const auto &functor : fns)
+        functor();
+
     calling_pending_func = false;
 }
 
