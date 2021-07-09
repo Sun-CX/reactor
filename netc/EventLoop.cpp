@@ -38,10 +38,10 @@ EventLoop::EventLoop() :
         timer(new Timer(this)) {
 
     if (likely(eventloop_in_current_thread == nullptr)) {
+        eventloop_in_current_thread = this;
+
         wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup_event, this));
         wakeup_channel->enable_reading();
-
-        eventloop_in_current_thread = this;
         RC_DEBUG << "---------------------- +EventLoop ----------------------";
     } else
         RC_FATAL << CurrentThread::name << " already exists an eventloop object, one thread has one eventloop object at most.";
@@ -59,16 +59,17 @@ EventLoop::~EventLoop() {
 void EventLoop::loop() {
     assert_in_created_thread();
     looping = true;
-    RC_INFO << "EventLoop(" << this << ") start loop...";
+    RC_INFO << "start loop...";
     while (!exited) {
         active_channels.clear();
         poller->poll(active_channels, default_timeout_milliseconds);
+        RC_DEBUG << "active_channels' size: " << active_channels.size();
         for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_events, _1));
-        // IO 事件处理完毕之后再执行的动作
+
         execute_pending_functors();
     }
     looping = false;
-    RC_INFO << "EventLoop(" << this << ") stop loop...";
+    RC_INFO << "stop loop...";
 }
 
 void EventLoop::update_channel(Channel *channel) {
@@ -125,7 +126,9 @@ void EventLoop::execute_pending_functors() {
         MutexGuard guard(mutex);
         fns.swap(pending_functors);
     }
-    for (const auto &functor:fns) functor();
+    RC_DEBUG << "pending_functors's size: " << pending_functors.size();
+
+    for (const auto &functor : fns) functor();
     calling_pending_func = false;
 }
 
@@ -146,17 +149,18 @@ void EventLoop::close_event_fd(int fd) const {
 }
 
 void EventLoop::wakeup() const {
-    uint64_t one = 1;
-    auto n = write(wakeup_channel->get_fd(), &one, sizeof(one));
-    if (unlikely(n != sizeof(one))) RC_FATAL << "write to eventfd " << wakeup_channel->get_fd() << " error!";
-    RC_INFO << "write event to eventfd " << wakeup_channel->get_fd();
+    uint64_t one = 1u;
+    auto n = ::write(wakeup_channel->get_fd(), &one, sizeof(one));
+    if (unlikely(n != sizeof(one)))
+        RC_FATAL << "write to eventfd(" << wakeup_channel->get_fd() << ") error";
+    RC_INFO << "write to eventfd(" << wakeup_channel->get_fd() << ')';
 }
 
 void EventLoop::read_wakeup_event() const {
     uint64_t one;
-    auto n = read(wakeup_channel->get_fd(), &one, sizeof(one));
+    auto n = ::read(wakeup_channel->get_fd(), &one, sizeof(one));
     assert(n == sizeof(one));
-    RC_INFO << "receive event from eventfd " << wakeup_channel->get_fd();
+    RC_INFO << "read from eventfd(" << wakeup_channel->get_fd() << ')';
 }
 
 void EventLoop::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {

@@ -8,6 +8,7 @@
 
 using reactor::net::EventLoop;
 using reactor::core::Thread;
+using reactor::core::CurrentThread;
 using reactor::core::operator ""_s;
 
 void one_event_loop_in_main_thread() {
@@ -30,7 +31,7 @@ void call_loop_in_another_thread() {
     thread.join();
 }
 
-void test() {
+void eventloop_of_current_thread_test() {
     EventLoop *pev = EventLoop::eventloop_of_current_thread();
     if (pev == nullptr)
         RC_DEBUG << "nullptr";
@@ -54,6 +55,20 @@ void test() {
             RC_DEBUG << pev;
     }, "loop-thread");
     thread.start();
+    thread.join();
+}
+
+void quit_loop() {
+    EventLoop loop;
+
+    Thread thread([&loop]() {
+        CurrentThread::sleep(1000);
+        loop.quit();
+    }, "quit-loop");
+
+    thread.start();
+
+    loop.loop();
     thread.join();
 }
 
@@ -83,12 +98,13 @@ void test2() {
 
 int main(int argc, const char *argv[]) {
 
-    one_event_loop_in_main_thread();
+    // one_event_loop_in_main_thread();
     // multi_event_loop_in_main_thread();
     // call_loop_in_another_thread();
 
-    // test();
+    // eventloop_of_current_thread_test();
 
+    quit_loop();
 //    test1();
 //    test2();
 
