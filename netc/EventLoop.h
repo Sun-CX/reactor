@@ -42,7 +42,7 @@ namespace reactor::net {
         // if eventloop has stopped.
         atomic_bool exited;
         // name of thread that created eventloop.
-        const char *thread_name;
+        const char *const thread_name;
         // id of thread that created eventloop.
         const pid_t pid;
 
