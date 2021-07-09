@@ -30,7 +30,7 @@ namespace reactor::net {
         using Functors = vector<Functor>;
         using Channels = vector<Channel *>;
 
-        // for checking one thread has one eventloop object at most.
+        // for checking one thread has only one eventloop object at most.
         static thread_local EventLoop *eventloop_in_current_thread;
 
         // default timeout setting for poll/epoll system call.
