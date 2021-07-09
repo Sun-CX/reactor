@@ -61,6 +61,8 @@ namespace reactor::net {
         [[nodiscard]]
         int create_event_fd() const;
 
+        void close_event_fd(int fd) const;
+
         void read_wakeup_event() const;
 
         void execute_pending_functors();

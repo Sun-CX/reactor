@@ -48,12 +48,12 @@ EventLoop::EventLoop() :
 }
 
 EventLoop::~EventLoop() {
-    RC_DEBUG << "---------------------- -EventLoop ----------------------";
     wakeup_channel->disable_all();
     wakeup_channel->remove();
-    if (unlikely(::close(wakeup_channel->get_fd()) < 0))
-        RC_FATAL << "close eventfd(" << wakeup_channel->get_fd() << ") error: " << strerror(errno);
+    close_event_fd(wakeup_channel->get_fd());
+
     eventloop_in_current_thread = nullptr;
+    RC_DEBUG << "---------------------- -EventLoop ----------------------";
 }
 
 void EventLoop::loop() {
@@ -140,6 +140,11 @@ int EventLoop::create_event_fd() const {
     return fd;
 }
 
+void EventLoop::close_event_fd(int fd) const {
+    if (unlikely(::close(fd) < 0))
+        RC_FATAL << "close eventfd(" << wakeup_channel->get_fd() << ") error: " << strerror(errno);
+}
+
 void EventLoop::wakeup() const {
     uint64_t one = 1;
     auto n = write(wakeup_channel->get_fd(), &one, sizeof(one));
@@ -157,3 +162,5 @@ void EventLoop::read_wakeup_event() const {
 void EventLoop::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {
     timer->schedule(callback, after, interval);
 }
+
+

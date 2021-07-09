@@ -45,6 +45,16 @@ void test() {
         RC_DEBUG << pev;
         RC_DEBUG << (pev == &loop);
     }
+
+    Thread thread([] {
+        EventLoop *pev = EventLoop::eventloop_of_current_thread();
+        if (pev == nullptr)
+            RC_DEBUG << "nullptr";
+        else
+            RC_DEBUG << pev;
+    }, "loop-thread");
+    thread.start();
+    thread.join();
 }
 
 void test1() {
@@ -73,12 +83,11 @@ void test2() {
 
 int main(int argc, const char *argv[]) {
 
-    // one_event_loop_in_main_thread();
+    one_event_loop_in_main_thread();
     // multi_event_loop_in_main_thread();
-
     // call_loop_in_another_thread();
 
-    test();
+    // test();
 
 //    test1();
 //    test2();

@@ -12,7 +12,7 @@ add_executable(channel-test Channel-Test.cpp)
 target_link_libraries(channel-test PRIVATE netc reactor-core)
 
 add_executable(eventloop-test EventLoop-Test.cpp)
-target_link_libraries(eventloop-test PRIVATE netc reactor-core)
+target_link_libraries(eventloop-test PRIVATE asan netc reactor-core)
 
 add_executable(inetaddress-test InetAddress-Test.cpp)
 target_link_libraries(inetaddress-test PRIVATE asan netc reactor-core)
