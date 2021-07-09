@@ -61,12 +61,36 @@ void eventloop_of_current_thread_test() {
 void quit_loop() {
     EventLoop loop;
 
-    Thread thread([&loop]() {
+    Thread thread([&loop] {
         CurrentThread::sleep(1000);
         loop.quit();
     }, "quit-loop");
 
     thread.start();
+
+    loop.loop();
+    thread.join();
+}
+
+void run_in_loop_test() {
+    EventLoop loop;
+
+    Thread thread([&loop] {
+        CurrentThread::sleep(1000);
+
+        loop.run_in_loop([&loop] {
+            RC_INFO << "=============== run_in_loop2 ===============";
+        });
+
+        CurrentThread::sleep(500);
+        loop.quit();
+
+    }, "run-loop");
+    thread.start();
+
+    loop.run_in_loop([] {
+        RC_INFO << "=============== run_in_loop1 ===============";
+    });
 
     loop.loop();
     thread.join();
@@ -100,13 +124,13 @@ int main(int argc, const char *argv[]) {
 
     // one_event_loop_in_main_thread();
     // multi_event_loop_in_main_thread();
-    // call_loop_in_another_thread();
+    call_loop_in_another_thread();
 
     // eventloop_of_current_thread_test();
 
-    quit_loop();
-//    test1();
-//    test2();
+    // quit_loop();
+
+    // run_in_loop_test();
 
     return 0;
 }
