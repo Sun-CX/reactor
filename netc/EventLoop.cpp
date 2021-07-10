@@ -59,17 +59,17 @@ EventLoop::~EventLoop() {
 void EventLoop::loop() {
     assert_in_created_thread();
     looping = true;
-    RC_INFO << "start loop...";
+    RC_DEBUG << "start loop...";
     while (!exited) {
         active_channels.clear();
         poller->poll(active_channels, default_timeout_milliseconds);
-        RC_DEBUG << "active_channels' size: " << active_channels.size();
+        // RC_DEBUG << "active_channels' size: " << active_channels.size();
         for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_events, _1));
 
         execute_pending_functors();
     }
     looping = false;
-    RC_INFO << "stop loop...";
+    RC_DEBUG << "stop loop...";
 }
 
 void EventLoop::update_channel(Channel *channel) {
@@ -124,7 +124,7 @@ void EventLoop::execute_pending_functors() {
         MutexGuard guard(mutex);
         fns.swap(pending_functors);
     }
-    RC_DEBUG << "pending_functors' size: " << fns.size();
+    // RC_DEBUG << "pending_functors' size: " << fns.size();
 
     for (const auto &functor : fns)
         functor();
@@ -153,14 +153,14 @@ void EventLoop::wakeup() const {
     auto n = ::write(wakeup_channel->get_fd(), &value, sizeof(value));
     if (unlikely(n != sizeof(value)))
         RC_FATAL << "write to eventfd(" << wakeup_channel->get_fd() << ") error";
-    RC_INFO << "write to eventfd(" << wakeup_channel->get_fd() << "): value = " << value;
+    RC_DEBUG << "write to eventfd(" << wakeup_channel->get_fd() << "): value = " << value;
 }
 
 void EventLoop::read_wakeup() const {
     uint64_t value;
     auto n = ::read(wakeup_channel->get_fd(), &value, sizeof(value));
     assert(n == sizeof(value));
-    RC_INFO << "read from eventfd(" << wakeup_channel->get_fd() << "): value = " << value;
+    RC_DEBUG << "read from eventfd(" << wakeup_channel->get_fd() << "): value = " << value;
 }
 
 void EventLoop::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {
