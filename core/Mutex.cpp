@@ -11,26 +11,32 @@ using reactor::core::Mutex;
 using reactor::core::MutexGuard;
 
 Mutex::Mutex() noexcept : pid(0) {
-    auto status = pthread_mutex_init(&mutex, nullptr);
-    if (unlikely(status != 0)) RC_FATAL << "mutex init error!";
+    int ret = ::pthread_mutex_init(&mutex, nullptr);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread mutex init error:" << ret;
 }
 
 Mutex::~Mutex() {
-    if (unlikely(pid != 0)) RC_FATAL << "one thread holds this mutex, destroy error!";
-    auto status = pthread_mutex_destroy(&mutex);
-    if (unlikely(status != 0)) RC_FATAL << "mutex destroy error!";
+    if (unlikely(pid != 0))
+        RC_FATAL << "one thread(" << pid << ") holds this mutex, destroy error";
+
+    int ret = ::pthread_mutex_destroy(&mutex);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread mutex destroy error: " << ret;
 }
 
 void Mutex::lock() {
-    auto status = pthread_mutex_lock(&mutex);
-    if (unlikely(status != 0)) RC_FATAL << "mutex lock error!";
+    int ret = ::pthread_mutex_lock(&mutex);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread mutex lock error: " << ret;
     pid = CurrentThread::id;
 }
 
 void Mutex::unlock() {
     pid = 0;
-    auto status = pthread_mutex_unlock(&mutex);
-    if (unlikely(status != 0)) RC_FATAL << "mutex unlock error!";
+    int ret = ::pthread_mutex_unlock(&mutex);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread mutex unlock error: " << ret;
 }
 
 pthread_mutex_t *Mutex::get_mutex() {
