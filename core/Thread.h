@@ -41,8 +41,10 @@ namespace reactor::core {
 
         void join();
 
+        [[nodiscard]]
         const string &name() const;
 
+        [[nodiscard]]
         pid_t getid() const;
     };
 
