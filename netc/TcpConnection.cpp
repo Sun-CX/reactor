@@ -41,8 +41,6 @@ TcpConnection::TcpConnection(EventLoop *loop, int con_fd, const InetAddress &loc
 }
 
 TcpConnection::~TcpConnection() {
-    // FIXME: why?
-    // assert(loop->is_in_created_thread());
     assert(status == DISCONNECTED);
     RC_DEBUG << "---------------------- -TcpConnection ----------------------";
 }
