@@ -21,34 +21,34 @@ const int EpollPoller::DEL = 1;
 
 EpollPoller::EpollPoller(EventLoop *loop) :
         Poller(loop),
-        epoll_fd(::epoll_create1(EPOLL_CLOEXEC)) {
-    if (unlikely(epoll_fd < 0))
-        RC_FATAL << "epoll create error: " << strerror(errno);
+        epoll_fd(epoll_open()),
+        events() {
     events.reserve(16);
 }
 
 EpollPoller::~EpollPoller() {
-    if (unlikely(::close(epoll_fd) < 0))
-        RC_FATAL << "close epoll(" << epoll_fd << ") error: " << strerror(errno);
+    epoll_close(epoll_fd);
 }
 
 Timestamp EpollPoller::poll(Channels &active_channels, int milliseconds) {
-    auto ready_events = ::epoll_wait(epoll_fd, events.data(), events.capacity(), milliseconds);
-    auto now = Timestamp::now();
+    int ready_events = ::epoll_wait(epoll_fd, events.data(), events.capacity(), milliseconds);
+    Timestamp now = Timestamp::now();
     if (unlikely(ready_events < 0)) {
         if (errno != EINTR)
-            RC_ERROR << "epoll(" << epoll_fd << ") wait error: " << strerror(errno);
+            RC_FATAL << "epoll(" << epoll_fd << ") wait error: " << strerror(errno);
     } else if (ready_events == 0) {
-        RC_WARN << "epoll(" << epoll_fd << ") timeout, nothing happened.";
+        RC_WARN << "epoll(" << epoll_fd << ") timeout, nothing happened";
     } else {
         fill_active_channels(active_channels, ready_events);
+
+        // FIXME: optimize enlarge capacity strategy.
         if (ready_events == events.capacity())
             events.reserve(events.capacity() << 1u);
     }
     return now;
 }
 
-void EpollPoller::fill_active_channels(Poller::Channels &active_channels, int num_events) const {
+void EpollPoller::fill_active_channels(Channels &active_channels, int num_events) const {
     for (int i = 0; i < num_events; ++i) {
         auto channel = static_cast<Channel *>(events[i].data.ptr);
         channel->set_revents(events[i].events);
@@ -68,16 +68,26 @@ void EpollPoller::update(Channel *channel, int operation) {
 void EpollPoller::update_channel(Channel *channel) {
     Poller::assert_in_loop_thread();
     int idx = channel->get_index();
-    int fd = channel->get_fd();
     if (idx == NEW or idx == DEL) {
-        if (idx == NEW) channel_map[fd] = channel;
-        channel->set_index(ADD);
+        int fd = channel->get_fd();
+
+        if (idx == NEW) {
+            assert(channel_map.find(fd) == channel_map.cend());
+            channel_map[fd] = channel;
+        } else {
+            assert(channel_map.find(fd) != channel_map.cend());
+            assert(channel_map[fd] == channel);
+        }
+
         update(channel, EPOLL_CTL_ADD);
+        channel->set_index(ADD);
     } else {
-        if (channel->no_events_watched()) {
+
+        if (channel->is_disabled()) {
             update(channel, EPOLL_CTL_DEL);
             channel->set_index(DEL);
-        } else update(channel, EPOLL_CTL_MOD);
+        } else
+            update(channel, EPOLL_CTL_MOD);
     }
 }
 
@@ -88,4 +98,17 @@ void EpollPoller::remove_channel(Channel *channel) {
     auto n = channel_map.erase(fd);
     assert(n == 1);
     channel->set_index(NEW);
+}
+
+int EpollPoller::epoll_open() const {
+    int fd;
+    if (unlikely((fd = ::epoll_create1(EPOLL_CLOEXEC)) < 0))
+        RC_FATAL << "epoll create error: " << strerror(errno);
+
+    return fd;
+}
+
+void EpollPoller::epoll_close(int fd) const {
+    if (unlikely(::close(fd) < 0))
+        RC_FATAL << "close epoll(" << fd << ") error: " << strerror(errno);
 }

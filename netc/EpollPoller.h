@@ -30,17 +30,26 @@ namespace reactor::net {
     private:
         using EpollEvents = vector<epoll_event>;
 
-        const int epoll_fd;     // epoll 文件描述符：调用 epoll_create1() 返回
-        EpollEvents events;     // 活动的 fd 列表
+        // a new channel, not added in epoll management and put into `channel_map`.
+        static const int NEW;
 
-        /* fd 在 epoll 管理下的三种状态 */
-        static const int NEW; // 新增 fd
-        static const int ADD; // 已添加
-        static const int DEL; // 已脱离 epoll 管理，但未从 channel_map 中清除
+        // a channel added in epoll management and has been put into `channel_map`.
+        static const int ADD;
+
+        // a channel removed from epoll management and has been put into `channel_map`.
+        static const int DEL;
+
+        const int epoll_fd;
+        EpollEvents events;
 
         void fill_active_channels(Channels &active_channels, int num_events) const;
 
         void update(Channel *channel, int operation);
+
+        [[nodiscard]]
+        int epoll_open() const;
+
+        void epoll_close(int fd) const;
 
     public:
         explicit EpollPoller(EventLoop *loop);

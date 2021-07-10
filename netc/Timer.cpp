@@ -22,7 +22,7 @@ Timer::Timer(EventLoop *loop) : loop(loop), timer_channel(this->loop, create_tim
 }
 
 Timer::~Timer() {
-    timer_channel.disable_all();
+    timer_channel.disable();
     timer_channel.remove();
     if (unlikely(::close(timer_channel.get_fd()) < 0))
         RC_FATAL << "close timerfd(" << timer_channel.get_fd() << ") error: " << strerror(errno);
@@ -37,7 +37,7 @@ int Timer::create_timer_fd() const {
 }
 
 void Timer::read_handler() {
-    assert(loop->is_in_loop_thread());
+    loop->assert_in_created_thread();
     assert(not tasks.empty());
     read_timeout_event();
 
@@ -74,7 +74,7 @@ void Timer::schedule(const TimerTask::TimerCallback &callback, const Timestamp &
 }
 
 void Timer::add_timer_task_in_loop(TimerTask *task) {
-    assert(loop->is_in_loop_thread());
+    loop->assert_in_created_thread();
     assert(base_time <= task->expire_time);
     if (task->expire_time == base_time) {   // 立即执行
         task->callback();

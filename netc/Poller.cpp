@@ -17,14 +17,13 @@ using reactor::net::Poller;
 Poller::Poller(EventLoop *loop) : loop(loop) {}
 
 void Poller::assert_in_loop_thread() const {
-    if (unlikely(!loop->is_in_created_thread()))
-        RC_FATAL << "assert_in_loop_thread failed.";
+    loop->assert_in_created_thread();
 }
 
 bool Poller::has_channel(Channel *channel) const {
     assert(loop->is_in_created_thread());
     auto it = channel_map.find(channel->get_fd());
-    return it != channel_map.end() and it->second == channel;
+    return it != channel_map.cend() and it->second == channel;
 }
 
 Poller *Poller::default_poller(EventLoop *loop) {

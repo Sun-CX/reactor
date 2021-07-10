@@ -30,6 +30,7 @@ namespace reactor::net {
         enum STATUS {
             CONNECTING, CONNECTED, DISCONNECTING, DISCONNECTED
         };
+
         static const char *STATUS_STRING[4];
 
         EventLoop *loop;

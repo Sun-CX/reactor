@@ -20,7 +20,7 @@ EventLoopThreadPool::EventLoopThreadPool(EventLoop *base_loop, string name, int 
 }
 
 void EventLoopThreadPool::start(const EventLoopThread::ThreadInitializer &callback) {
-    assert(loop->is_in_loop_thread());
+    loop->assert_in_created_thread();
     char thread_name[prefix.size() + 8];
     for (int i = 0; i < num_threads; ++i) {
         snprintf(thread_name, sizeof(thread_name), "%s-%d", prefix.c_str(), i + 1);
@@ -31,7 +31,7 @@ void EventLoopThreadPool::start(const EventLoopThread::ThreadInitializer &callba
 }
 
 EventLoop *EventLoopThreadPool::get_next_loop() {
-    assert(loop->is_in_loop_thread());
+    loop->assert_in_created_thread();
     EventLoop *lo = loop;
     if (!worker_loops.empty()) {
         lo = worker_loops[next++];

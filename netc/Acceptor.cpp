@@ -28,7 +28,7 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
 }
 
 Acceptor::~Acceptor() {
-    accept_channel.disable_all();
+    accept_channel.disable();
     accept_channel.remove();
     close_idle_fd();
 }
@@ -47,7 +47,7 @@ void Acceptor::close_idle_fd() const {
 }
 
 void Acceptor::read_handler() {
-    assert(loop->is_in_loop_thread());
+    loop->assert_in_created_thread();
     InetAddress peer_addr;
     int con_fd = server_socket.accept(peer_addr);
     if (con_fd >= 0) {// success
@@ -70,7 +70,7 @@ void Acceptor::read_handler() {
 }
 
 void Acceptor::listen() {
-    assert(loop->is_in_loop_thread());
+    loop->assert_in_created_thread();
     server_socket.listen();
     listening = true;
     accept_channel.enable_reading();

@@ -60,7 +60,7 @@ namespace reactor::net {
         void set_revents(uint32_t e);
 
         [[nodiscard]]
-        bool no_events_watched() const;
+        bool is_disabled() const;
 
         [[nodiscard]]
         EventLoop *loop_owner() const;
@@ -73,7 +73,7 @@ namespace reactor::net {
 
         void disable_writing();
 
-        void disable_all();
+        void disable();
 
         void remove();
 

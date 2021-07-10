@@ -20,7 +20,7 @@ namespace reactor::net {
 
     class Channel;
 
-    // wrapper class for poll or epoll system call.
+    // abstract class for poll or epoll system call.
     class Poller : public NonCopyable {
     private:
         EventLoop *const loop;
@@ -40,7 +40,6 @@ namespace reactor::net {
 
         virtual void update_channel(Channel *channel) = 0;
 
-        // 移除 channel，在调用此方法之前，都会先调用 channel->disable_all();
         virtual void remove_channel(Channel *channel) = 0;
 
         virtual bool has_channel(Channel *channel) const;

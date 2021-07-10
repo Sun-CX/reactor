@@ -61,7 +61,7 @@ void Channel::set_revents(uint32_t e) {
     revents = e;
 }
 
-bool Channel::no_events_watched() const {
+bool Channel::is_disabled() const {
     return events == 0;
 }
 
@@ -97,7 +97,7 @@ void Channel::disable_writing() {
     update();
 }
 
-void Channel::disable_all() {
+void Channel::disable() {
     events = 0;
     update();
 }

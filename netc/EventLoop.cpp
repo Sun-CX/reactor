@@ -48,7 +48,7 @@ EventLoop::EventLoop() :
 }
 
 EventLoop::~EventLoop() {
-    wakeup_channel->disable_all();
+    wakeup_channel->disable();
     wakeup_channel->remove();
     close_event_fd(wakeup_channel->get_fd());
 

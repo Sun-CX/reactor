@@ -25,7 +25,7 @@ using reactor::core::Timestamp;
 // 如果客户端代码没有设置连接回调，则调用此默认连接回调
 static void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
     RC_INFO << "new client connected: " << conn->local_address().to_string() << " <------------------- "
-         << conn->peer_address().to_string();
+            << conn->peer_address().to_string();
 }
 
 // 如果客户端代码没有设置消息到来回调，则调用此默认消息回调
@@ -45,9 +45,9 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
 }
 
 TcpServer::~TcpServer() {
-    assert(loop->is_in_loop_thread());
+    assert(loop->is_in_created_thread());
     RC_INFO << "---------------------- ~TcpServer ----------------------";
-    for (auto &e:connections) {
+    for (auto &e : connections) {
         shared_ptr<TcpConnection> conn(e.second);
 //        INFO << "conn use count: " << conn.use_count();
         e.second.reset();
@@ -58,7 +58,8 @@ TcpServer::~TcpServer() {
 }
 
 void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
-    assert(loop->is_in_loop_thread());
+    assert(loop->is_in_created_thread());
+
     auto io_loop = thread_pool->get_next_loop();
 
     InetAddress local = InetAddress::get_local_address(con_fd);
@@ -78,14 +79,14 @@ void TcpServer::remove_connection(const shared_ptr<TcpConnection> &con) {
 }
 
 void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) {
-    assert(loop->is_in_loop_thread());
+    assert(loop->is_in_created_thread());
     auto n = connections.erase(con->get_fd());
     assert(n == 1);
     con->get_loop()->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
 }
 
 void TcpServer::start() {
-    assert(loop->is_in_loop_thread());
+    assert(loop->is_in_created_thread());
     assert(!acceptor->is_listening());
     thread_pool->start(thread_initial_callback);
     acceptor->listen();
