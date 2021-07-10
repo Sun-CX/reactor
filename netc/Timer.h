@@ -16,7 +16,7 @@ namespace reactor::net {
 
     class Timer final : public NonCopyable {
     private:
-        EventLoop *loop;
+        EventLoop *const loop;
         QuadHeap<TimerTask *> tasks;
         Channel timer_channel;
         const Timestamp base_time;

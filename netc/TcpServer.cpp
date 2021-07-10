@@ -60,7 +60,7 @@ TcpServer::~TcpServer() {
 void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
     assert(loop->is_in_created_thread());
 
-    auto io_loop = thread_pool->get_next_loop();
+    EventLoop *io_loop = thread_pool->get_next_loop();
 
     InetAddress local = InetAddress::get_local_address(con_fd);
 
@@ -71,18 +71,18 @@ void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
     conn->set_close_callback(bind(&TcpServer::remove_connection, this, _1));
     connections[con_fd] = conn;
 
-    io_loop->queue_in_loop(bind(&TcpConnection::connection_established, conn));
+    io_loop->run_in_loop(bind(&TcpConnection::connection_established, conn));
 }
 
 void TcpServer::remove_connection(const shared_ptr<TcpConnection> &con) {
-    loop->queue_in_loop(bind(&TcpServer::remove_connection_in_loop, this, con));
+    loop->run_in_loop(bind(&TcpServer::remove_connection_in_loop, this, con));
 }
 
 void TcpServer::remove_connection_in_loop(const shared_ptr<TcpConnection> &con) {
     assert(loop->is_in_created_thread());
     auto n = connections.erase(con->get_fd());
     assert(n == 1);
-    con->get_loop()->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
+    con->get_loop()->run_in_loop(bind(&TcpConnection::connection_destroyed, con));
 }
 
 void TcpServer::start() {

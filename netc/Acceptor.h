@@ -17,7 +17,7 @@ namespace reactor::net {
     private:
         using NewConnectionCallback = function<void(int, const InetAddress &)>;
 
-        EventLoop *loop;
+        EventLoop *const loop;
         ServerSocket server_socket;
         Channel accept_channel;
         NewConnectionCallback callback;

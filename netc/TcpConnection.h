@@ -33,7 +33,7 @@ namespace reactor::net {
 
         static const char *STATUS_STRING[4];
 
-        EventLoop *loop;
+        EventLoop *const loop;
         STATUS status;
         bool reading;
         unique_ptr<Socket> socket;

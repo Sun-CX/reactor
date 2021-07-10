@@ -41,7 +41,8 @@ TcpConnection::TcpConnection(EventLoop *loop, int con_fd, const InetAddress &loc
 }
 
 TcpConnection::~TcpConnection() {
-    assert(loop->is_in_created_thread());
+    // FIXME: why?
+    // assert(loop->is_in_created_thread());
     assert(status == DISCONNECTED);
     RC_DEBUG << "---------------------- -TcpConnection ----------------------";
 }
@@ -111,7 +112,7 @@ void TcpConnection::connection_destroyed() {
     assert(loop->is_in_created_thread());
     assert(status == DISCONNECTING);
     status = DISCONNECTED;
-    RC_DEBUG << "connection disconnected.";
+    RC_DEBUG << "connection destroyed";
 }
 
 void TcpConnection::send_outbound_bytes() {

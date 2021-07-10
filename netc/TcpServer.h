@@ -29,7 +29,7 @@ namespace reactor::net {
     private:
         using ConnectionMap = map<int, shared_ptr<TcpConnection>>;
 
-        EventLoop *loop;
+        EventLoop *const loop;
         const string name;
         unique_ptr<Acceptor> acceptor;
         shared_ptr<EventLoopThreadPool> thread_pool;

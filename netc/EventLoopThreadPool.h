@@ -19,7 +19,7 @@ namespace reactor::net {
 
     class EventLoopThreadPool final : public NonCopyable {
     private:
-        EventLoop *loop;
+        EventLoop *const loop;
         const string prefix;
         const int num_threads;
         int next;
