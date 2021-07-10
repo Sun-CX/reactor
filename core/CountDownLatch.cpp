@@ -3,26 +3,28 @@
 //
 
 #include "CountDownLatch.h"
-#include "ConsoleStream.h"
+#include <cassert>
 
 using reactor::core::CountDownLatch;
 
-CountDownLatch::CountDownLatch(int count) : mutex(), cond(mutex) {
-    if (count < 0) RC_FATAL << "illegal argument count: " << count;
-    this->count = count;
+CountDownLatch::CountDownLatch(int count) :
+        mutex(),
+        cond(mutex),
+        count(count) {
+    assert(this->count > 0);
 }
 
 void CountDownLatch::wait() {
     MutexGuard guard(mutex);
-    while (count > 0) {
+    while (count > 0)
         cond.wait();
-    }
 }
 
 void CountDownLatch::count_down() {
     MutexGuard guard(mutex);
     count--;
-    if (count == 0) cond.notify_all();
+    if (count == 0)
+        cond.notify_all();
 }
 
 int CountDownLatch::get_count() const {
