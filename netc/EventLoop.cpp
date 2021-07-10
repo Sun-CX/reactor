@@ -57,7 +57,7 @@ EventLoop::~EventLoop() {
 }
 
 void EventLoop::loop() {
-    assert_in_created_thread();
+    assert(is_in_created_thread());
     looping = true;
     RC_DEBUG << "start loop...";
     while (!exited) {
@@ -73,31 +73,25 @@ void EventLoop::loop() {
 }
 
 void EventLoop::update_channel(Channel *channel) {
-    assert_in_created_thread();
+    assert(is_in_created_thread());
     assert(channel->loop_owner() == this);
     poller->update_channel(channel);
 }
 
 void EventLoop::remove_channel(Channel *channel) {
-    assert_in_created_thread();
+    assert(is_in_created_thread());
     assert(channel->loop_owner() == this);
     poller->remove_channel(channel);
 }
 
 bool EventLoop::has_channel(Channel *channel) {
-    assert_in_created_thread();
+    assert(is_in_created_thread());
     assert(channel->loop_owner() == this);
     return poller->has_channel(channel);
 }
 
 bool EventLoop::is_in_created_thread() const {
     return pid == CurrentThread::id;
-}
-
-void EventLoop::assert_in_created_thread() const {
-    if (unlikely(!is_in_created_thread())) {
-        RC_FATAL << "eventloop scope assert failed, please check your program.";
-    }
 }
 
 void EventLoop::quit() {

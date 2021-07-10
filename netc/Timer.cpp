@@ -37,7 +37,7 @@ int Timer::create_timer_fd() const {
 }
 
 void Timer::read_handler() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     assert(not tasks.empty());
     read_timeout_event();
 
@@ -74,7 +74,7 @@ void Timer::schedule(const TimerTask::TimerCallback &callback, const Timestamp &
 }
 
 void Timer::add_timer_task_in_loop(TimerTask *task) {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     assert(base_time <= task->expire_time);
     if (task->expire_time == base_time) {   // 立即执行
         task->callback();

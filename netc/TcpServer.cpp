@@ -24,8 +24,8 @@ using reactor::core::Timestamp;
 
 // 如果客户端代码没有设置连接回调，则调用此默认连接回调
 static void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
-    RC_INFO << "new client connected: " << conn->local_address().to_string() << " <------------------- "
-            << conn->peer_address().to_string();
+    RC_DEBUG << "client connected: " << conn->peer_address().to_string()
+             << " ----------> " << conn->local_address().to_string();
 }
 
 // 如果客户端代码没有设置消息到来回调，则调用此默认消息回调

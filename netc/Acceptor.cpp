@@ -10,6 +10,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <cstring>
+#include <cassert>
 
 using std::bind;
 using reactor::net::Acceptor;
@@ -46,7 +47,7 @@ void Acceptor::close_idle_fd() const {
 }
 
 void Acceptor::read_handler() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     InetAddress peer_addr;
     int con_fd = server_socket.accept(peer_addr);
     if (con_fd >= 0) {// success
@@ -68,7 +69,7 @@ void Acceptor::read_handler() {
 }
 
 void Acceptor::listen() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     server_socket.listen();
     listening = true;
     accept_channel.enable_reading();

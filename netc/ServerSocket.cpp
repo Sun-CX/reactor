@@ -35,7 +35,7 @@ void ServerSocket::listen() const {
     if (unlikely(::listen(listen_fd, SOMAXCONN) < 0))
         RC_FATAL << "socket(" << listen_fd << ") listen error: " << strerror(errno);
 
-    RC_INFO << "socket(" << listen_fd << ") is listening...";
+    RC_DEBUG << "socket(" << listen_fd << ") is listening...";
 }
 
 int ServerSocket::accept(InetAddress &peer_addr) const {

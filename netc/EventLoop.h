@@ -89,10 +89,6 @@ namespace reactor::net {
         [[nodiscard]]
         bool is_in_created_thread() const;
 
-        // assert eventloop is in the thread which has created itself.
-        // program would abort if assert failed.
-        void assert_in_created_thread() const;
-
         void update_channel(Channel *channel);
 
         void remove_channel(Channel *channel);

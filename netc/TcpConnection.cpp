@@ -41,30 +41,30 @@ TcpConnection::TcpConnection(EventLoop *loop, int con_fd, const InetAddress &loc
 }
 
 TcpConnection::~TcpConnection() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     assert(status == DISCONNECTED);
     RC_DEBUG << "---------------------- -TcpConnection ----------------------";
 }
 
 void TcpConnection::read_handler() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     int saved_errno = 0;
     ssize_t n = inbound.read_from_fd(conn_channel->get_fd(), &saved_errno);
     if (n > 0) {
         //TODO:fix timestamp.
         msg_callback(shared_from_this(), Timestamp());
     } else if (n == 0) {
-        RC_INFO << "read 0 bytes from con_fd " << conn_channel->get_fd() << ", prepare to close connection.";
+        RC_DEBUG << "read 0 bytes from con_fd " << conn_channel->get_fd() << ", prepare to close connection";
         close_handler();
     } else {
         errno = saved_errno;
-        RC_ERROR << "read inbound data error, prepare to close connection.";
+        RC_ERROR << "read inbound data error, prepare to close connection";
         error_handler();
     }
 }
 
 void TcpConnection::write_handler() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     auto n = write(conn_channel->get_fd(), outbound.peek(), outbound.readable_bytes());
     if (n > 0) {
         outbound.retrieve(n);
@@ -77,11 +77,11 @@ void TcpConnection::write_handler() {
 }
 
 void TcpConnection::close_handler() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     // 当 peer 主动断开连接时，状态为 CONNECTED
     // 当 host 主动断开连接时，状态为 DISCONNECTING
     assert(status == CONNECTED or status == DISCONNECTING);
-    RC_INFO << "con_fd " << conn_channel->get_fd() << " is closing, current status: " << STATUS_STRING[status];
+    RC_DEBUG << "con_fd " << conn_channel->get_fd() << " is closing, current status: " << STATUS_STRING[status];
     if (status == CONNECTED) status = DISCONNECTING;
     conn_channel->disable();
     conn_channel->remove();
@@ -89,7 +89,7 @@ void TcpConnection::close_handler() {
 }
 
 void TcpConnection::error_handler() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     int opt;
     socklen_t len = sizeof(opt);
     auto n = getsockopt(conn_channel->get_fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
@@ -99,7 +99,7 @@ void TcpConnection::error_handler() {
 }
 
 void TcpConnection::connection_established() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     assert(status == CONNECTING);
 
     conn_callback(shared_from_this());
@@ -108,20 +108,20 @@ void TcpConnection::connection_established() {
 }
 
 void TcpConnection::connection_destroyed() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     assert(status == DISCONNECTING);
     status = DISCONNECTED;
-    RC_INFO << "connection disconnected.";
+    RC_DEBUG << "connection disconnected.";
 }
 
 void TcpConnection::send_outbound_bytes() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     assert(status == CONNECTED);
     conn_channel->enable_writing();
 }
 
 void TcpConnection::shutdown() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     assert(status == CONNECTED);
     RC_INFO << "-------------- shutdown --------------";
     if (!conn_channel->writing_enabled()) {
@@ -131,7 +131,7 @@ void TcpConnection::shutdown() {
 }
 
 void TcpConnection::force_close() {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
     assert(status == CONNECTED);
     RC_INFO << "-------------- quit --------------";
     status = DISCONNECTING;

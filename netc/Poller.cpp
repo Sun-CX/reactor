@@ -17,7 +17,7 @@ using reactor::net::Poller;
 Poller::Poller(EventLoop *loop) : loop(loop) {}
 
 void Poller::assert_in_loop_thread() const {
-    loop->assert_in_created_thread();
+    assert(loop->is_in_created_thread());
 }
 
 bool Poller::has_channel(Channel *channel) const {
