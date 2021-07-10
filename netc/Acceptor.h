@@ -13,7 +13,6 @@ namespace reactor::net {
 
     class EventLoop;
 
-    // 在上层应用程序中，一般不直接使用 Acceptor，而是把它作为 TcpServer 的成员
     class Acceptor final : public NonCopyable {
     private:
         using NewConnectionCallback = function<void(int, const InetAddress &)>;

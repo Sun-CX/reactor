@@ -8,7 +8,6 @@
 #include "EventLoop.h"
 #include "ConsoleStream.h"
 #include <fcntl.h>
-#include <cassert>
 #include <unistd.h>
 #include <cstring>
 
@@ -64,7 +63,6 @@ void Acceptor::read_handler() {
             idle_fd = open_idle_fd();
 
         } else
-
             RC_FATAL << "accept new connection error!";
     }
 }
