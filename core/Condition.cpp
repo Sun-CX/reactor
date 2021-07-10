@@ -5,49 +5,55 @@
 #include "Condition.h"
 #include "GnuExt.h"
 #include "ConsoleStream.h"
+#include <cstring>
 
 using reactor::core::Condition;
 
 Condition::Condition(Mutex &mutex) : mutex(mutex) {
-    int status = pthread_cond_init(&cond, nullptr);
-    if (unlikely(status != 0)) RC_FATAL << "condition-variable init error.";
+    int ret = ::pthread_cond_init(&cond, nullptr);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread cond init error: " << ret;
 }
 
 Condition::~Condition() {
-    int status = pthread_cond_destroy(&cond);
-    if (unlikely(status != 0)) RC_FATAL << "condition-variable destroy error.";
+    int ret = ::pthread_cond_destroy(&cond);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread cond destroy error: " << ret;
 }
 
 void Condition::wait() {
-    int status;
+    int ret;
     Mutex::ConditionWaitGuard guard(mutex);
-    status = pthread_cond_wait(&cond, mutex.get_mutex());
-    if (unlikely(status != 0)) RC_FATAL << "condition-variable wait error.";
+    ret = ::pthread_cond_wait(&cond, mutex.get_mutex());
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread cond wait error: " << ret;
 }
 
 bool Condition::timed_wait(long seconds, long microseconds) {
-    if (seconds < 0 or microseconds < 0 or microseconds > 999999) {
-        RC_FATAL << "condition-variable wait timeout value out of range.";
-    }
+    if (seconds < 0 or microseconds < 0 or microseconds > 999999)
+        RC_FATAL << "pthread cond wait timeout value out of range";
 
     timespec ts;
-    int status = clock_gettime(CLOCK_REALTIME, &ts);
-    if (unlikely(status != 0)) RC_FATAL << "clock_gettime error.";
+    int ret = ::clock_gettime(CLOCK_REALTIME, &ts);
+    if (unlikely(ret < 0))
+        RC_FATAL << "clock gettime error: " << strerror(errno);
 
     ts.tv_sec += seconds;
     ts.tv_nsec += microseconds * 1000;
 
     Mutex::ConditionWaitGuard guard(mutex);
-    return pthread_cond_timedwait(&cond, mutex.get_mutex(), &ts) == ETIMEDOUT;
+    return ::pthread_cond_timedwait(&cond, mutex.get_mutex(), &ts) == ETIMEDOUT;
 }
 
 void Condition::notify() {
-    int status = pthread_cond_signal(&cond);
-    if (unlikely(status != 0)) RC_FATAL << "condition-variable signal error.";
+    int ret = ::pthread_cond_signal(&cond);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread cond signal error: " << ret;
 }
 
 void Condition::notify_all() {
-    int status = pthread_cond_broadcast(&cond);
-    if (unlikely(status != 0)) RC_FATAL << "condition-variable broadcast error.";
+    int ret = ::pthread_cond_broadcast(&cond);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread cond broadcast error: " << ret;
 }
 
