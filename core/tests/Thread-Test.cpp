@@ -3,10 +3,26 @@
 //
 
 #include "Thread.h"
+#include "ConsoleStream.h"
 
 using std::bind;
 using reactor::core::CurrentThread;
 using reactor::core::Thread;
+
+void test_thread_longest_name() {
+
+    auto func = [] {};
+
+    Thread th(func);
+    RC_DEBUG << th.get_name();
+
+    Thread th2(func, "child-thread");
+    RC_DEBUG << th2.get_name();
+
+    // 16 bytes long
+    Thread th3(func, "123456789012345678");
+    RC_DEBUG << th3.get_name();
+}
 
 class Foo {
 private:
@@ -15,39 +31,46 @@ public:
     explicit Foo(int count = 0) : count(count) {}
 
     void increment(int n) {
-        for (int i = 0; i < n; ++i) count++;
-        printf("CurrentThread name: %s, id: %d, is main thread: %d\n", CurrentThread::name,
-               CurrentThread::id, CurrentThread::is_main_thread());
+        for (int i = 0; i < n; ++i)
+            count++;
+
+        RC_DEBUG << "CurrentThread name: " << CurrentThread::name << ", CurrentThread id: " << CurrentThread::id
+                 << ", is main thread: " << CurrentThread::is_main_thread();
     }
 
+    [[nodiscard]]
     int get_count() const {
         return count;
     }
 };
 
-int main(int argc, const char *argv[]) {
+void multi_thread_example() {
 
-//    CurrentThread::sleep(1000 * 5);
-
-    printf("main thread name: %s, main thread id: %d, is main thread: %d\n", CurrentThread::name,
-           CurrentThread::id,
-           CurrentThread::is_main_thread());
+    RC_DEBUG << "CurrentThread name: " << CurrentThread::name << ", CurrentThread id: " << CurrentThread::id
+             << ", is main thread: " << CurrentThread::is_main_thread();
 
     Foo foo;
 
-    Thread t1(bind(&Foo::increment, &foo, 1000000));
-    Thread t2(bind(&Foo::increment, &foo, 1000000));
+    Thread th1(bind(&Foo::increment, &foo, 1000000));
+    Thread th2(bind(&Foo::increment, &foo, 1000000));
 
-    t1.start();
-    t2.start();
+    th1.start();
+    th2.start();
 
-    printf("t1 thread name: %s, id: %d\n", t1.name().c_str(), t1.getid());
-    printf("t2 thread name: %s, id: %d\n", t2.name().c_str(), t2.getid());
+    RC_DEBUG << "th1 thread name: " << th1.get_name() << ", id: " << th1.get_id();
+    RC_DEBUG << "th2 thread name: " << th2.get_name() << ", id: " << th2.get_id();
 
-    t1.join();
-    t2.join();
+    th1.join();
+    th2.join();
 
-    printf("count: %d\n", foo.get_count());
+    RC_DEBUG << "count: " << foo.get_count();
+}
+
+int main(int argc, const char *argv[]) {
+
+    test_thread_longest_name();
+
+    // multi_thread_example();
 
     return 0;
 }

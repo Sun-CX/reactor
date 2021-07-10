@@ -19,9 +19,13 @@ namespace reactor::core {
     private:
         using runnable = function<void()>;
 
+        static atomic_uint thread_count;
+
+        static void *thread_routine(void *arg);
+
         runnable func;
         // logic name of a thread.
-        string thread_name;
+        char thread_name[16];
 
         // POSIX thread id.
         pthread_t tid;
@@ -29,23 +33,21 @@ namespace reactor::core {
         // kernel light weight process id.
         pid_t pid;
         CountDownLatch latch;
-
-        static atomic_uint thread_count;
-
-        static void *thread_routine(void *arg);
-
     public:
-        explicit Thread(runnable func, string name = "");
+
+        explicit Thread(runnable func, const char *name = "");
+
+        explicit Thread(runnable func, const string &name);
 
         void start();
 
         void join();
 
         [[nodiscard]]
-        const string &name() const;
+        const char *get_name() const;
 
         [[nodiscard]]
-        pid_t getid() const;
+        pid_t get_id() const;
     };
 
     // Note: Do Not rewrite CurrentThread::name and CurrentThread::id, readonly for caller!

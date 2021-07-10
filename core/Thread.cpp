@@ -9,6 +9,7 @@
 #include <syscall.h>
 #include <cstring>
 #include <unistd.h>
+#include <cassert>
 
 using std::string;
 using std::move;
@@ -21,38 +22,64 @@ atomic_uint Thread::thread_count(0);
 
 attr_constructor void main_thread_initialize() {
     const char *main_proc_name = "main-thread";
-    int status = prctl(PR_SET_NAME, main_proc_name);
-    if (unlikely(status != 0))
-        RC_FATAL << "prctl error!";
-    strcpy(CurrentThread::name, main_proc_name);
-    CurrentThread::id = getpid();
+    if (unlikely(::prctl(PR_SET_NAME, main_proc_name) < 0))
+        RC_FATAL << "prctl error: " << strerror(errno);
+    ::strcpy(CurrentThread::name, main_proc_name);
+    CurrentThread::id = ::getpid();
 }
 
-Thread::Thread(Thread::runnable func, string name) : func(move(func)), thread_name(move(name)),
-                                                     tid(0), pid(0), latch(1) {
-    // 对于 Linux 来说，进程 ID 为 0 是非法值，操作系统第一个进程 systemd 的 pid 是 1
-    if (thread_name.empty()) thread_name = "thread-" + to_string(++thread_count);
+Thread::Thread(runnable func, const char *name) :
+        func(move(func)),
+        tid(0),
+        pid(0),
+        latch(1) {
+
+    assert(this->func != nullptr);
+
+    if (name == nullptr or ::strlen(name) == 0) {
+        uint32_t cnt = ++thread_count;
+        ::snprintf(thread_name, sizeof(thread_name), "thread-%u", cnt);
+    } else {
+        ::snprintf(thread_name, sizeof(thread_name), "%s", name);
+    }
+}
+
+
+Thread::Thread(runnable func, const string &name) :
+        func(move(func)),
+        tid(0),
+        pid(0),
+        latch(1) {
+
+    assert(this->func != nullptr);
+
+    if (name.empty()) {
+        uint32_t cnt = ++thread_count;
+        ::snprintf(thread_name, sizeof(thread_name), "thread-%u", cnt);
+    } else {
+        ::snprintf(thread_name, sizeof(thread_name), "%s", name.c_str());
+    }
 }
 
 void Thread::start() {
-    int status = pthread_create(&tid, nullptr, thread_routine, this);
-    if (unlikely(status != 0)) RC_FATAL << "thread create error!";
+    int ret = ::pthread_create(&tid, nullptr, thread_routine, this);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread create error: " << ret;
     latch.wait();
 }
 
 void *Thread::thread_routine(void *arg) {
     auto self = static_cast<Thread *>(arg);
 
-    int status = pthread_setname_np(self->tid, self->thread_name.c_str());
+    int ret = ::pthread_setname_np(self->tid, self->thread_name);
 
-    if (unlikely(status != 0))
-        RC_FATAL << "set thread thread_name error!";
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread set name error: " << ret;
 
-    self->pid = syscall(SYS_gettid);
-
+    self->pid = ::syscall(SYS_gettid);
     self->latch.count_down();
 
-    strcpy(CurrentThread::name, self->thread_name.c_str());
+    ::strncpy(CurrentThread::name, self->thread_name, sizeof(CurrentThread::name));
     CurrentThread::id = self->pid;
 
     self->func();
@@ -60,15 +87,16 @@ void *Thread::thread_routine(void *arg) {
 }
 
 void Thread::join() {
-    int status = pthread_join(tid, nullptr);
-    if (unlikely(status != 0)) RC_FATAL << "thread join error!";
+    int ret = ::pthread_join(tid, nullptr);
+    if (unlikely(ret != 0))
+        RC_FATAL << "pthread join error: " << ret;
 }
 
-const string &Thread::name() const {
-    return this->thread_name;
+const char *Thread::get_name() const {
+    return thread_name;
 }
 
-pid_t Thread::getid() const {
+pid_t Thread::get_id() const {
     return pid;
 }
 
@@ -77,7 +105,7 @@ thread_local char CurrentThread::name[16];
 thread_local pid_t CurrentThread::id;
 
 bool CurrentThread::is_main_thread() {
-    return id == getpid();
+    return id == ::getpid();
 }
 
 int CurrentThread::sleep(long ms, int ns) {
@@ -89,5 +117,5 @@ int CurrentThread::sleep(long ms, int ns) {
     time.tv_sec = ms / 1000;
     time.tv_nsec = ms % 1000 * 1000 * 1000 + ns;
 
-    return nanosleep(&time, nullptr);
+    return ::nanosleep(&time, nullptr);
 }
