@@ -44,6 +44,8 @@ namespace reactor::net {
     public:
         Channel(EventLoop *loop, int fd);
 
+        ~Channel();
+
         void handle_events();
 
         [[nodiscard]]

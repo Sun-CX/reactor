@@ -17,7 +17,13 @@ Channel::Channel(EventLoop *loop, int fd) :
         fd(fd),
         events(0),
         revents(0),
-        index(-1) {}
+        index(-1) {
+    RC_DEBUG << "---------------------- +Channel(" << this->fd << ") ----------------------";
+}
+
+Channel::~Channel() {
+    RC_DEBUG << "---------------------- -Channel(" << fd << ") ----------------------";
+}
 
 void Channel::update() {
     loop->update_channel(this);
@@ -41,13 +47,13 @@ void Channel::handle_events() {
     }
 
     if (revents & POLLHUP and !(revents & POLLIN)) {
-//        INFO << "************** POLLHUP and !POLLIN(" << fd << ") **************";
+        RC_WARN << "************** POLLHUP and !POLLIN(" << fd << ") **************";
         assert(close_callback);
         close_callback();
     }
 
     if (revents & (POLLERR | POLLNVAL)) {
-//        INFO << "************** POLLERR | POLLNVAL(" << fd << ") **************";
+        RC_ERROR << "************** POLLERR | POLLNVAL(" << fd << ") **************";
         assert(error_callback);
         error_callback();
     }

@@ -32,7 +32,7 @@ TcpConnection::TcpConnection(EventLoop *loop, int con_fd, const InetAddress &loc
         inbound(),
         outbound(),
         context() {
-    RC_DEBUG << "---------------------- +TcpConnection ----------------------";
+    RC_DEBUG << "---------------------- +TcpConnection(" << conn_channel->get_fd() << ") ----------------------";
     socket->keep_alive(true);
     conn_channel->set_read_callback(bind(&TcpConnection::read_handler, this));
     conn_channel->set_write_callback(bind(&TcpConnection::write_handler, this));
@@ -42,7 +42,7 @@ TcpConnection::TcpConnection(EventLoop *loop, int con_fd, const InetAddress &loc
 
 TcpConnection::~TcpConnection() {
     assert(status == DISCONNECTED);
-    RC_DEBUG << "---------------------- -TcpConnection ----------------------";
+    RC_DEBUG << "---------------------- -TcpConnection(" << conn_channel->get_fd() << ") ----------------------";
 }
 
 void TcpConnection::read_handler() {

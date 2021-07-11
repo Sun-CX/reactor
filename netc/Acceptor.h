@@ -15,6 +15,7 @@ namespace reactor::net {
 
     class Acceptor final : public NonCopyable {
     private:
+        //TODO: 直接传递 con_fd 不理想，封装成 Socket.
         using NewConnectionCallback = function<void(int, const InetAddress &)>;
 
         EventLoop *const loop;
