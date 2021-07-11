@@ -17,12 +17,14 @@ Channel::Channel(EventLoop *loop, int fd) :
         fd(fd),
         events(0),
         revents(0),
-        index(-1) {
+        index(-1),
+        events_handling(false) {
     RC_DEBUG << "---------------------- +Channel(" << this->fd << ") ----------------------";
 }
 
 Channel::~Channel() {
     RC_DEBUG << "---------------------- -Channel(" << fd << ") ----------------------";
+    assert(!events_handling);
 }
 
 void Channel::update() {
@@ -34,6 +36,9 @@ void Channel::remove() {
 }
 
 void Channel::handle_events() {
+
+    events_handling = true;
+
     if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
 //        INFO << "************** POLLIN | POLLPRI | POLLRDHUP(" << fd << ") **************";
         assert(read_callback);
@@ -57,6 +62,8 @@ void Channel::handle_events() {
         assert(error_callback);
         error_callback();
     }
+
+    events_handling = false;
 }
 
 uint32_t Channel::get_events() const {

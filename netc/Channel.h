@@ -34,6 +34,8 @@ namespace reactor::net {
         // * in epoll mechanism, `index` is one of three different states(defined in `EpollPoller.h`) of channel.
         int index;
 
+        bool events_handling;
+
         EventCallback read_callback;
         EventCallback write_callback;
         EventCallback close_callback;

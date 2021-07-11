@@ -55,6 +55,8 @@ void Acceptor::read_handler() {
     } else {// error
         if (errno == EMFILE) {
 
+            RC_WARN << "accept error: " << strerror(errno);
+
             close_idle_fd();
 
             idle_fd = server_socket.accept(peer_addr);

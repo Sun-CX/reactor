@@ -11,6 +11,8 @@
 #include "EventLoopThreadPool.h"
 #include "ConsoleStream.h"
 #include <cassert>
+#include <sys/resource.h>
+#include <cstring>
 
 using std::shared_ptr;
 using std::make_shared;
@@ -42,6 +44,15 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
           new_connection_callback(default_connection_callback),
           message_callback(default_message_callback) {
     acceptor->set_new_connection_callback(bind(&TcpServer::on_new_connection, this, _1, _2));
+
+    rlimit lim;
+    if (::getrlimit(RLIMIT_NOFILE, &lim) < 0)
+        RC_FATAL << "getrlimit error: " << strerror(errno);
+
+    lim.rlim_cur = lim.rlim_max;
+
+    if (::setrlimit(RLIMIT_NOFILE, &lim) < 0)
+        RC_FATAL << "setrlimit error: " << strerror(errno);
 }
 
 TcpServer::~TcpServer() {
