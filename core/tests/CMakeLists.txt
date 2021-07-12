@@ -8,8 +8,8 @@ link_directories(${PROJECT_BINARY_DIR}/lib)
 add_executable(thread-test Thread-Test.cpp)
 target_link_libraries(thread-test PRIVATE reactor-core)
 
-add_executable(exception-test Exception-Test.cpp)
-target_link_libraries(exception-test PRIVATE reactor-core)
+#add_executable(exception-test Exception-Test.cpp)
+#target_link_libraries(exception-test PRIVATE reactor-core)
 
 add_executable(timestamp-test Timestamp-Test.cpp)
 target_link_libraries(timestamp-test PRIVATE reactor-core)

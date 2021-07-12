@@ -4,7 +4,6 @@ add_subdirectory(tests)
 
 set(LIBRARY_SOURCE
         Thread.cpp
-        Exception.cpp
         Timestamp.cpp
         Mutex.cpp
         Condition.cpp
