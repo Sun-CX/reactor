@@ -5,7 +5,7 @@
 #ifndef REACTOR_SINGLETON_H
 #define REACTOR_SINGLETON_H
 
-#include "GnuExt.h"
+#include "Ext.h"
 #include "ConsoleStream.h"
 #include <pthread.h>
 

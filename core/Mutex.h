@@ -8,6 +8,18 @@
 #include "NonCopyable.h"
 #include <pthread.h>
 
+#ifdef __APPLE__
+
+#include <TargetConditionals.h>
+
+#if TARGET_OS_MAC && TARGET_OS_OSX
+
+#include <unistd.h>
+
+#endif
+
+#endif
+
 namespace reactor::core {
     class Mutex final : public NonCopyable {
     private:

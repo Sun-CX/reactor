@@ -4,7 +4,7 @@
 
 #include "Mutex.h"
 #include "Thread.h"
-#include "GnuExt.h"
+#include "Ext.h"
 #include "ConsoleStream.h"
 
 using reactor::core::Mutex;

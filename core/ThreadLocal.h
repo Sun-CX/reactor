@@ -5,7 +5,7 @@
 #ifndef REACTOR_THREADLOCAL_H
 #define REACTOR_THREADLOCAL_H
 
-#include "GnuExt.h"
+#include "Ext.h"
 #include "ConsoleStream.h"
 #include <pthread.h>
 

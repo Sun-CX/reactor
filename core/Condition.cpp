@@ -3,9 +3,21 @@
 //
 
 #include "Condition.h"
-#include "GnuExt.h"
+#include "Ext.h"
 #include "ConsoleStream.h"
 #include <cstring>
+
+#ifdef __APPLE__
+
+#include <TargetConditionals.h>
+
+#if TARGET_OS_MAC && TARGET_OS_OSX
+
+#include <cerrno>
+
+#endif
+
+#endif
 
 using reactor::core::Condition;
 

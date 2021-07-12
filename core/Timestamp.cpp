@@ -3,7 +3,7 @@
 //
 
 #include "Timestamp.h"
-#include "GnuExt.h"
+#include "Ext.h"
 #include "ConsoleStream.h"
 
 using std::string;
@@ -75,7 +75,7 @@ string Timestamp::to_string(bool show_microsecond) const {
 
     if (show_microsecond) {
         auto ms = microseconds_since_epoch % factors[SECOND];
-        snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d.%06ld",
+        snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d.%06lld",
                  tm_time.tm_year + 1900,
                  tm_time.tm_mon + 1,
                  tm_time.tm_mday,

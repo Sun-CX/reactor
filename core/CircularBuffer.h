@@ -6,7 +6,7 @@
 #define REACTOR_CIRCULARBUFFER_H
 
 #include "ConsoleStream.h"
-#include "GnuExt.h"
+#include "Ext.h"
 
 namespace reactor::core {
     using std::move;

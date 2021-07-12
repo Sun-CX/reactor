@@ -64,13 +64,13 @@ void multi_thread_example() {
     th2.join();
 
     RC_DEBUG << "count: " << foo.get_count();
+    CurrentThread::sleep(60 * 1000);
 }
 
 int main(int argc, const char *argv[]) {
 
-    test_thread_longest_name();
-
-    // multi_thread_example();
+    // test_thread_longest_name();
+    multi_thread_example();
 
     return 0;
 }
