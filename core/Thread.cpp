@@ -43,7 +43,7 @@ attr_constructor void main_thread_initialize() {
 
 attr_constructor void main_thread_initialize() {
     const char *main_proc_name = "main-thread";
-    // ::setprogname(main_proc_name);
+    // TODO: set main process name
     ::strcpy(CurrentThread::name, main_proc_name);
     CurrentThread::id = ::getpid();
 }
@@ -93,7 +93,7 @@ Thread::Thread(runnable func, const string &name) :
 void Thread::start() {
     int ret = ::pthread_create(&tid, nullptr, thread_routine, this);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread create error: " << ret;
+        RC_FATAL << "pthread create error: " << strerror(ret);
     latch.wait();
 }
 
@@ -107,7 +107,7 @@ void *Thread::thread_routine(void *arg) {
 #endif
 
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread set name error: " << ret;
+        RC_FATAL << "pthread set name error: " << strerror(ret);
 
 
 #if defined(__linux__)
@@ -117,7 +117,7 @@ void *Thread::thread_routine(void *arg) {
     uint64_t value;
     ret = pthread_threadid_np(self->tid, &value);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread threadid error: " << ret;
+        RC_FATAL << "pthread threadid error: " << strerror(ret);
 
     self->pid = value;
 #endif
@@ -134,7 +134,7 @@ void *Thread::thread_routine(void *arg) {
 void Thread::join() {
     int ret = ::pthread_join(tid, nullptr);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread join error: " << ret;
+        RC_FATAL << "pthread join error: " << strerror(ret);
 }
 
 const char *Thread::get_name() const {

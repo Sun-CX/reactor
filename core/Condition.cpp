@@ -5,9 +5,12 @@
 #include "Condition.h"
 #include "Ext.h"
 #include "ConsoleStream.h"
+
+#ifdef __linux__
+
 #include <cstring>
 
-#ifdef __APPLE__
+#elif __APPLE__
 
 #include <TargetConditionals.h>
 
@@ -24,13 +27,13 @@ using reactor::core::Condition;
 Condition::Condition(Mutex &mutex) : mutex(mutex) {
     int ret = ::pthread_cond_init(&cond, nullptr);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread cond init error: " << ret;
+        RC_FATAL << "pthread cond init error: " << strerror(ret);
 }
 
 Condition::~Condition() {
     int ret = ::pthread_cond_destroy(&cond);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread cond destroy error: " << ret;
+        RC_FATAL << "pthread cond destroy error: " << strerror(ret);
 }
 
 void Condition::wait() {
@@ -38,7 +41,7 @@ void Condition::wait() {
     Mutex::ConditionWaitGuard guard(mutex);
     ret = ::pthread_cond_wait(&cond, mutex.get_mutex());
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread cond wait error: " << ret;
+        RC_FATAL << "pthread cond wait error: " << strerror(ret);
 }
 
 bool Condition::timed_wait(long seconds, long microseconds) {
@@ -60,12 +63,12 @@ bool Condition::timed_wait(long seconds, long microseconds) {
 void Condition::notify() {
     int ret = ::pthread_cond_signal(&cond);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread cond signal error: " << ret;
+        RC_FATAL << "pthread cond signal error: " << strerror(ret);
 }
 
 void Condition::notify_all() {
     int ret = ::pthread_cond_broadcast(&cond);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread cond broadcast error: " << ret;
+        RC_FATAL << "pthread cond broadcast error: " << strerror(ret);
 }
 
