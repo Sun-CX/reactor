@@ -4,10 +4,12 @@
 
 #include "Thread.h"
 #include "ConsoleStream.h"
+#include <atomic>
 
 using std::bind;
 using reactor::core::CurrentThread;
 using reactor::core::Thread;
+using std::atomic_int;
 
 void test_thread_longest_name() {
 
@@ -26,7 +28,7 @@ void test_thread_longest_name() {
 
 class Foo {
 private:
-    int count;
+    atomic_int count;
 public:
     explicit Foo(int count = 0) : count(count) {}
 
@@ -64,7 +66,6 @@ void multi_thread_example() {
     th2.join();
 
     RC_DEBUG << "count: " << foo.get_count();
-    CurrentThread::sleep(60 * 1000);
 }
 
 int main(int argc, const char *argv[]) {

@@ -43,7 +43,7 @@ attr_constructor void main_thread_initialize() {
 
 attr_constructor void main_thread_initialize() {
     const char *main_proc_name = "main-thread";
-    ::setprogname(main_proc_name);
+    // ::setprogname(main_proc_name);
     ::strcpy(CurrentThread::name, main_proc_name);
     CurrentThread::id = ::getpid();
 }
