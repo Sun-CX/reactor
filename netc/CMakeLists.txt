@@ -21,6 +21,7 @@ set(LIBRARY_SOURCE
         Timer.cpp
         MinHeap.h
         #        Connector.cpp
+        #        TcpClient.cpp
         )
 
 add_library(netc SHARED ${LIBRARY_SOURCE})

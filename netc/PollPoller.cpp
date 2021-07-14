@@ -4,7 +4,7 @@
 
 #include "PollPoller.h"
 #include "Timestamp.h"
-#include "GnuExt.h"
+#include "Ext.h"
 #include "Channel.h"
 #include "ConsoleStream.h"
 #include <poll.h>

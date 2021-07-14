@@ -3,7 +3,7 @@
 //
 
 #include "TcpConnection.h"
-#include "GnuExt.h"
+#include "Ext.h"
 #include "EventLoop.h"
 #include "Timestamp.h"
 #include "Socket.h"
@@ -11,6 +11,7 @@
 #include "ConsoleStream.h"
 #include <unistd.h>
 #include <cassert>
+#include <cstring>
 
 using std::bind;
 using reactor::net::TcpConnection;
@@ -47,8 +48,8 @@ TcpConnection::~TcpConnection() {
 
 void TcpConnection::read_handler() {
     assert(loop->is_in_created_thread());
-    int saved_errno = 0;
-    ssize_t n = inbound.read_from_fd(conn_channel->get_fd(), &saved_errno);
+    int saved_errno;
+    ssize_t n = inbound.read_from_fd(conn_channel->get_fd(), saved_errno);
     if (n > 0) {
         //TODO:fix timestamp.
         msg_callback(shared_from_this(), Timestamp());
@@ -56,20 +57,20 @@ void TcpConnection::read_handler() {
         RC_DEBUG << "read 0 bytes from con_fd " << conn_channel->get_fd() << ", prepare to close connection";
         close_handler();
     } else {
-        errno = saved_errno;
-        RC_ERROR << "read inbound data error, prepare to close connection";
+        RC_ERROR << "prepare to close connection(" << conn_channel->get_fd() << "), read inbound data error: " << ::strerror(saved_errno);
         error_handler();
     }
 }
 
 void TcpConnection::write_handler() {
     assert(loop->is_in_created_thread());
-    auto n = write(conn_channel->get_fd(), outbound.peek(), outbound.readable_bytes());
+    auto n = ::write(conn_channel->get_fd(), outbound.peek(), outbound.readable_bytes());
     if (n > 0) {
         outbound.retrieve(n);
         if (outbound.readable_bytes() == 0) {
             conn_channel->disable_writing();
-            if (write_complete_callback) loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
+            if (write_complete_callback)
+                loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
         }
     } else
         RC_ERROR << "write outbound data error!";
@@ -91,10 +92,11 @@ void TcpConnection::error_handler() {
     assert(loop->is_in_created_thread());
     int opt;
     socklen_t len = sizeof(opt);
-    auto n = getsockopt(conn_channel->get_fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
-    if (unlikely(n < 0)) RC_ERROR << "getsockopt error! errno = " << errno;
+    int ret = ::getsockopt(conn_channel->get_fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
+    if (unlikely(ret < 0))
+        RC_FATAL << "getsockopt(" << conn_channel->get_fd() << ") error: " << ::strerror(errno);
     else
-        RC_ERROR << "TcpConnection::error_handler! errno: " << opt;
+        RC_ERROR << "TcpConnection(" << conn_channel->get_fd() << ") error: " << ::strerror(opt);
 }
 
 void TcpConnection::connection_established() {

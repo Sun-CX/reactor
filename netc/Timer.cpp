@@ -7,7 +7,7 @@
 #include "Thread.h"
 #include "EventLoop.h"
 #include "ConsoleStream.h"
-#include "GnuExt.h"
+#include "Ext.h"
 #include <sys/timerfd.h>
 #include <cstring>
 #include <cassert>
@@ -25,13 +25,13 @@ Timer::~Timer() {
     timer_channel.disable();
     timer_channel.remove();
     if (unlikely(::close(timer_channel.get_fd()) < 0))
-        RC_FATAL << "close timerfd(" << timer_channel.get_fd() << ") error: " << strerror(errno);
+        RC_FATAL << "close timerfd(" << timer_channel.get_fd() << ") error: " << ::strerror(errno);
 }
 
 int Timer::create_timer_fd() const {
     int fd;
     if (unlikely((fd = ::timerfd_create(CLOCK_REALTIME, TFD_NONBLOCK | TFD_CLOEXEC)) < 0))
-        RC_FATAL << "create timerfd error: " << strerror(errno);
+        RC_FATAL << "create timerfd error: " << ::strerror(errno);
 
     return fd;
 }

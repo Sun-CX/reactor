@@ -6,6 +6,7 @@
 #include "TcpServer.h"
 #include "TcpConnection.h"
 #include "Timestamp.h"
+#include "ConsoleStream.h"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -23,6 +24,7 @@ private:
     TcpServer server;
 
     void on_message(const shared_ptr<TcpConnection> &conn, Timestamp timestamp) {
+        RC_DEBUG << "on_message called!";
         string msg = conn->inbound_buf().retrieve_all_string();
         if (msg == "exit\n") {
             conn->outbound_buf().append("bye.\n");
@@ -42,6 +44,9 @@ private:
         }
         conn->outbound_buf().append(msg);
         conn->send_outbound_bytes();
+        conn->set_write_complete_callback([](const shared_ptr<TcpConnection> &con) {
+            RC_DEBUG << "has written completed!";
+        });
     }
 
 public:

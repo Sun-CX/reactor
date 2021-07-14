@@ -3,7 +3,7 @@
 //
 
 #include "Acceptor.h"
-#include "GnuExt.h"
+#include "Ext.h"
 #include "InetAddress.h"
 #include "EventLoop.h"
 #include "ConsoleStream.h"
@@ -36,14 +36,14 @@ Acceptor::~Acceptor() {
 int Acceptor::open_idle_fd() const {
     int idle;
     if (unlikely((idle = ::open("/dev/null", O_RDONLY | O_CLOEXEC)) < 0))
-        RC_FATAL << "open idle file error: " << strerror(errno);
+        RC_FATAL << "open idle file error: " << ::strerror(errno);
 
     return idle;
 }
 
 void Acceptor::close_idle_fd() const {
     if (unlikely(::close(idle_fd) < 0))
-        RC_FATAL << "close idle fd(" << idle_fd << ") error: " << strerror(errno);
+        RC_FATAL << "close idle fd(" << idle_fd << ") error: " << ::strerror(errno);
 }
 
 void Acceptor::read_handler() {
@@ -55,7 +55,7 @@ void Acceptor::read_handler() {
     } else {// error
         if (errno == EMFILE) {
 
-            RC_WARN << "accept error: " << strerror(errno);
+            RC_WARN << "accept error: " << ::strerror(errno);
 
             close_idle_fd();
 

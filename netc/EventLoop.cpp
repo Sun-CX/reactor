@@ -4,7 +4,7 @@
 
 #include "EventLoop.h"
 #include "Thread.h"
-#include "GnuExt.h"
+#include "Ext.h"
 #include "Poller.h"
 #include "Timer.h"
 #include "ConsoleStream.h"
@@ -133,13 +133,13 @@ EventLoop *EventLoop::eventloop_of_current_thread() {
 int EventLoop::create_event_fd() const {
     int fd;
     if (unlikely((fd = ::eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC)) < 0))
-        RC_FATAL << "create eventfd error: " << strerror(errno);
+        RC_FATAL << "create eventfd error: " << ::strerror(errno);
     return fd;
 }
 
 void EventLoop::close_event_fd(int fd) const {
     if (unlikely(::close(fd) < 0))
-        RC_FATAL << "close eventfd(" << wakeup_channel->get_fd() << ") error: " << strerror(errno);
+        RC_FATAL << "close eventfd(" << wakeup_channel->get_fd() << ") error: " << ::strerror(errno);
 }
 
 void EventLoop::wakeup() const {

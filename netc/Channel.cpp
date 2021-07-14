@@ -39,25 +39,25 @@ void Channel::handle_events() {
 
     events_handling = true;
 
-    // RC_DEBUG << "************** Read Judge(" << fd << ") **************";
+    RC_DEBUG << "************** Read Judge(" << fd << ") **************";
     if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
         assert(read_callback);
         read_callback();
     }
 
-    // RC_DEBUG << "************** Write Judge(" << fd << ") **************";
+    RC_DEBUG << "************** Write Judge(" << fd << ") **************";
     if (revents & POLLOUT) {
         assert(write_callback);
         write_callback();
     }
 
-    // RC_DEBUG << "************** Close Judge(" << fd << ") **************";
+    RC_DEBUG << "************** Close Judge(" << fd << ") **************";
     if (revents & POLLHUP and !(revents & POLLIN)) {
         assert(close_callback);
         close_callback();
     }
 
-    // RC_DEBUG << "************** Error Judge(" << fd << ") **************";
+    RC_DEBUG << "************** Error Judge(" << fd << ") **************";
     if (revents & (POLLERR | POLLNVAL)) {
         assert(error_callback);
         error_callback();

@@ -191,7 +191,7 @@ namespace reactor::net {
 
         void append_uint32(uint32_t x);
 
-        ssize_t read_from_fd(int fd, int *err_no);
+        ssize_t read_from_fd(int fd, int &err_no);
     };
 }
 

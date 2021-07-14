@@ -171,7 +171,7 @@ void Buffer::append_uint32(uint32_t x) {
     append(&x, sizeof(x));
 }
 
-ssize_t Buffer::read_from_fd(int fd, int *err_no) {
+ssize_t Buffer::read_from_fd(int fd, int &err_no) {
     byte data[65536];
     iovec vec[2];
     const size_t writable = writable_bytes();
@@ -182,12 +182,18 @@ ssize_t Buffer::read_from_fd(int fd, int *err_no) {
     vec[1].iov_len = sizeof(data);
 
     const int iov_cnt = writable < sizeof(data) ? 2 : 1;
-    const ssize_t n = readv(fd, vec, iov_cnt);
-    if (n < 0) *err_no = errno;
-    else if (n <= writable) write_idx += n;
+    const ssize_t n = ::readv(fd, vec, iov_cnt);
+
+    if (n < 0)
+        err_no = errno;
     else {
-        write_idx = capacity;
-        append(data, n - writable);
+        if (n <= writable) {
+            write_idx += n;
+        } else {
+            write_idx = capacity;
+            append(data, n - writable);
+        }
+        err_no = 0;
     }
     return n;
 }

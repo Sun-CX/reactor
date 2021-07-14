@@ -47,12 +47,12 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
 
     rlimit lim;
     if (::getrlimit(RLIMIT_NOFILE, &lim) < 0)
-        RC_FATAL << "getrlimit error: " << strerror(errno);
+        RC_FATAL << "getrlimit error: " << ::strerror(errno);
 
     lim.rlim_cur = lim.rlim_max;
 
     if (::setrlimit(RLIMIT_NOFILE, &lim) < 0)
-        RC_FATAL << "setrlimit error: " << strerror(errno);
+        RC_FATAL << "setrlimit error: " << ::strerror(errno);
 }
 
 TcpServer::~TcpServer() {

@@ -25,10 +25,6 @@ namespace reactor::net {
     private:
         friend class Acceptor;
 
-        friend class ServerSocket;
-
-        friend class Connector;
-
         using u16 = uint16_t;
 
         union {
@@ -37,12 +33,6 @@ namespace reactor::net {
         };
 
         InetAddress();
-
-        [[nodiscard]]
-        const sockaddr *get_sockaddr() const;
-
-        [[nodiscard]]
-        sockaddr *get_sockaddr();
 
     public:
         // version must be AF_INET or AF_INET6.
@@ -62,6 +52,12 @@ namespace reactor::net {
 
         [[nodiscard]]
         string ip_string() const;
+
+        [[nodiscard]]
+        const sockaddr *get_sockaddr() const;
+
+        [[nodiscard]]
+        sockaddr *get_sockaddr();
 
         /* get local address of a socket. */
         static InetAddress get_local_address(int fd);

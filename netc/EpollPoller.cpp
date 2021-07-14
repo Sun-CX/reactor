@@ -5,7 +5,7 @@
 #include "EpollPoller.h"
 #include "Channel.h"
 #include "Timestamp.h"
-#include "GnuExt.h"
+#include "Ext.h"
 #include "ConsoleStream.h"
 #include <sys/epoll.h>
 #include <unistd.h>
@@ -35,7 +35,7 @@ Timestamp EpollPoller::poll(Channels &active_channels, int milliseconds) {
     Timestamp now = Timestamp::now();
     if (unlikely(ready_events < 0)) {
         if (errno != EINTR)
-            RC_FATAL << "epoll(" << epoll_fd << ") wait error: " << strerror(errno);
+            RC_FATAL << "epoll(" << epoll_fd << ") wait error: " << ::strerror(errno);
     } else if (ready_events == 0) {
         RC_WARN << "epoll(" << epoll_fd << ") timeout, nothing happened";
     } else {
@@ -62,7 +62,7 @@ void EpollPoller::update(Channel *channel, int operation) {
     evt.data.ptr = channel;
     int fd = channel->get_fd();
     if (unlikely(::epoll_ctl(epoll_fd, operation, fd, &evt) < 0))
-        RC_FATAL << "epoll(" << epoll_fd << ") ctl error: " << strerror(errno);
+        RC_FATAL << "epoll(" << epoll_fd << ") ctl error: " << ::strerror(errno);
 }
 
 void EpollPoller::update_channel(Channel *channel) {
@@ -103,12 +103,12 @@ void EpollPoller::remove_channel(Channel *channel) {
 int EpollPoller::epoll_open() const {
     int fd;
     if (unlikely((fd = ::epoll_create1(EPOLL_CLOEXEC)) < 0))
-        RC_FATAL << "epoll create error: " << strerror(errno);
+        RC_FATAL << "epoll create error: " << ::strerror(errno);
 
     return fd;
 }
 
 void EpollPoller::epoll_close(int fd) const {
     if (unlikely(::close(fd) < 0))
-        RC_FATAL << "close epoll(" << fd << ") error: " << strerror(errno);
+        RC_FATAL << "close epoll(" << fd << ") error: " << ::strerror(errno);
 }
