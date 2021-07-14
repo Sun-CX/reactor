@@ -19,7 +19,7 @@ using reactor::core::MutexGuard;
 Mutex::Mutex() noexcept : pid(0) {
     int ret = ::pthread_mutex_init(&mutex, nullptr);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread mutex init error:" << strerror(ret);
+        RC_FATAL << "pthread mutex init error:" << ::strerror(ret);
 }
 
 Mutex::~Mutex() {
@@ -28,13 +28,13 @@ Mutex::~Mutex() {
 
     int ret = ::pthread_mutex_destroy(&mutex);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread mutex destroy error: " << strerror(ret);
+        RC_FATAL << "pthread mutex destroy error: " << ::strerror(ret);
 }
 
 void Mutex::lock() {
     int ret = ::pthread_mutex_lock(&mutex);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread mutex lock error: " << strerror(ret);
+        RC_FATAL << "pthread mutex lock error: " << ::strerror(ret);
     pid = CurrentThread::id;
 }
 
@@ -42,7 +42,7 @@ void Mutex::unlock() {
     pid = 0;
     int ret = ::pthread_mutex_unlock(&mutex);
     if (unlikely(ret != 0))
-        RC_FATAL << "pthread mutex unlock error: " << strerror(ret);
+        RC_FATAL << "pthread mutex unlock error: " << ::strerror(ret);
 }
 
 pthread_mutex_t *Mutex::get_mutex() {
