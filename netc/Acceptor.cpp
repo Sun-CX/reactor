@@ -70,7 +70,7 @@ void Acceptor::read_handler() {
             idle_fd = open_idle_fd();
 
         } else
-            RC_FATAL << "accept new connection error!";
+            RC_FATAL << "accept error: " << ::strerror(errno);
     }
 }
 
