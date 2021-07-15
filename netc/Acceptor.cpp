@@ -50,9 +50,13 @@ void Acceptor::read_handler() {
     assert(loop->is_in_created_thread());
     InetAddress peer_addr;
     int con_fd = server_socket.accept(peer_addr);
-    if (con_fd >= 0) {// success
+
+    if (con_fd >= 0) {
+
         callback(con_fd, peer_addr);
-    } else {// error
+
+    } else {
+
         if (errno == EMFILE) {
 
             RC_WARN << "accept error: " << ::strerror(errno);
