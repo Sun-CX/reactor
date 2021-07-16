@@ -29,25 +29,22 @@ private:
     TcpServer server;
 
     void on_message(const shared_ptr<TcpConnection> &conn, Timestamp timestamp) {
-        string msg = conn->inbound_buf().retrieve_all_string();
+        string msg = conn->in().retrieve_all_string();
         if (msg == "exit\n") {
-            conn->outbound_buf().append("bye.\n");
-            conn->send_outbound_bytes();
-            conn->set_write_complete_callback([](const shared_ptr<TcpConnection> &con) {
-                con->shutdown();
-            });
+            conn->out().append(msg);
+            conn->send_and_shutdown();
             return;
         }
         if (msg == "quit\n") {
-            conn->outbound_buf().append("server is closing...");
-            conn->send_outbound_bytes();
+            conn->out().append("server is closing...\n");
+            conn->send();
             conn->set_write_complete_callback([this](const shared_ptr<TcpConnection> &con) {
                 loop->quit();
             });
             return;
         }
-        conn->outbound_buf().append(msg);
-        conn->send_outbound_bytes();
+        conn->out().append(msg);
+        conn->send();
     }
 
 public:
