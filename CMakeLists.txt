@@ -8,17 +8,13 @@ add_subdirectory(netc)
 add_subdirectory(http)
 add_subdirectory(protobuf)
 
-set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
-
-if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-    message(FATAL_ERROR "${PROJECT_NAME} only supports Linux OS for now.")
-endif ()
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fsanitize=address")
 
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
 endif ()
+message(STATUS "Current Build Type: ${CMAKE_BUILD_TYPE}")
 
-message(STATUS "Current build type: ${CMAKE_BUILD_TYPE}")
 if (${CMAKE_BUILD_TYPE} STREQUAL "Release")
     add_definitions(-Wall -Wextra -Wdeprecated -O2)
 endif ()

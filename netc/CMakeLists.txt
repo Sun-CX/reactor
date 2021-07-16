@@ -24,6 +24,10 @@ set(LIBRARY_SOURCE
         #        TcpClient.cpp
         )
 
+if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    message(FATAL_ERROR "${PROJECT_NAME} only supports Linux OS for now.")
+endif ()
+
 add_library(netc SHARED ${LIBRARY_SOURCE})
 set_target_properties(netc PROPERTIES
         VERSION 1.0
