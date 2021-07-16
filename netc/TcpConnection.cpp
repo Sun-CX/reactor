@@ -118,9 +118,6 @@ void TcpConnection::error_handler() {
     // error occurs.
     if (likely(opt))
         RC_ERROR << "connection(" << conn_channel->get_fd() << ") error: " << ::strerror(opt);
-
-    conn_channel->remove();
-    close_callback(shared_from_this());
 }
 
 void TcpConnection::connection_established() {
