@@ -12,6 +12,15 @@
 using reactor::net::Channel;
 using reactor::net::EventLoop;
 
+static_assert(POLLIN == EPOLLIN);
+static_assert(POLLOUT == EPOLLOUT);
+static_assert(POLLRDHUP == EPOLLRDHUP);
+static_assert(POLLPRI == EPOLLPRI);
+static_assert(POLLERR == EPOLLERR);
+static_assert(POLLHUP == EPOLLHUP);
+
+// static_assert(POLLNVAL == EPOLLNVAR);
+
 Channel::Channel(EventLoop *loop, int fd) :
         loop(loop),
         fd(fd),
@@ -39,29 +48,33 @@ void Channel::handle_events() {
 
     events_handling = true;
 
-    RC_DEBUG << "************** Read Judge(" << fd << ") **************";
-    if (revents & (POLLIN | POLLPRI | POLLRDHUP)) {
+    RC_DEBUG << "====================== begin ======================";
+
+    if (revents & (POLLIN | POLLPRI)) {
         assert(read_callback);
+        RC_DEBUG << "Read triggered.";
         read_callback();
     }
 
-    RC_DEBUG << "************** Write Judge(" << fd << ") **************";
     if (revents & POLLOUT) {
         assert(write_callback);
+        RC_DEBUG << "Write triggered.";
         write_callback();
     }
 
-    RC_DEBUG << "************** Close Judge(" << fd << ") **************";
-    if (revents & POLLHUP and !(revents & POLLIN)) {
+    if (revents & (POLLRDHUP | POLLHUP)) {
         assert(close_callback);
+        RC_DEBUG << "Close triggered.";
         close_callback();
     }
 
-    RC_DEBUG << "************** Error Judge(" << fd << ") **************";
-    if (revents & (POLLERR | POLLNVAL)) {
+    if (revents & POLLERR) {
         assert(error_callback);
+        RC_DEBUG << "Error triggered.";
         error_callback();
     }
+
+    RC_DEBUG << "====================== end ======================";
 
     events_handling = false;
 }
@@ -91,22 +104,22 @@ void Channel::set_index(int idx) {
 }
 
 void Channel::enable_reading() {
-    events |= POLLIN | POLLPRI;
+    events |= POLLIN | POLLPRI | POLLRDHUP;
     update();
 }
 
 void Channel::disable_reading() {
-    events &= ~(POLLIN | POLLPRI);
+    events &= ~(POLLIN | POLLPRI | POLLRDHUP);
     update();
 }
 
 void Channel::enable_writing() {
-    events |= POLLOUT | POLLWRBAND;
+    events |= POLLOUT;
     update();
 }
 
 void Channel::disable_writing() {
-    events &= ~(POLLOUT | POLLWRBAND);
+    events &= ~POLLOUT;
     update();
 }
 
@@ -120,11 +133,11 @@ int Channel::get_fd() const {
 }
 
 bool Channel::reading_enabled() const {
-    return events & (POLLIN | POLLPRI);
+    return events & (POLLIN | POLLPRI | POLLRDHUP);
 }
 
 bool Channel::writing_enabled() const {
-    return events & (POLLOUT | POLLWRBAND);
+    return events & POLLOUT;
 }
 
 void Channel::set_read_callback(const EventCallback &callback) {

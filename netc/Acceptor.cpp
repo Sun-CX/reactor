@@ -28,7 +28,6 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
 }
 
 Acceptor::~Acceptor() {
-    accept_channel.disable();
     accept_channel.remove();
     close_idle_fd();
 }

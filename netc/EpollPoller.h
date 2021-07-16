@@ -36,9 +36,6 @@ namespace reactor::net {
         // a channel added in epoll management and has been put into `channel_map`.
         static const int ADD;
 
-        // a channel removed from epoll management and has been put into `channel_map`.
-        static const int DEL;
-
         const int epoll_fd;
         EpollEvents events;
 
@@ -58,8 +55,10 @@ namespace reactor::net {
 
         Timestamp poll(Channels &active_channels, int milliseconds) override;
 
+        // update watched events on channel.
         void update_channel(Channel *channel) override;
 
+        // remove channel from epoll mechanism.
         void remove_channel(Channel *channel) override;
     };
 }

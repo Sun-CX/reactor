@@ -17,7 +17,6 @@ using reactor::core::Timestamp;
 
 const int EpollPoller::NEW = -1;
 const int EpollPoller::ADD = 0;
-const int EpollPoller::DEL = 1;
 
 EpollPoller::EpollPoller(EventLoop *loop) :
         Poller(loop),
@@ -68,32 +67,32 @@ void EpollPoller::update(Channel *channel, int operation) {
 void EpollPoller::update_channel(Channel *channel) {
     Poller::assert_in_loop_thread();
     int idx = channel->get_index();
-    if (idx == NEW or idx == DEL) {
-        int fd = channel->get_fd();
+    int fd = channel->get_fd();
 
-        if (idx == NEW) {
+    switch (idx) {
+        case NEW:
             assert(channel_map.find(fd) == channel_map.cend());
             channel_map[fd] = channel;
-        } else {
+            update(channel, EPOLL_CTL_ADD);
+            channel->set_index(ADD);
+
+            break;
+        case ADD:
             assert(channel_map.find(fd) != channel_map.cend());
-            assert(channel_map[fd] == channel);
-        }
-
-        update(channel, EPOLL_CTL_ADD);
-        channel->set_index(ADD);
-    } else {
-
-        if (channel->is_disabled()) {
-            update(channel, EPOLL_CTL_DEL);
-            channel->set_index(DEL);
-        } else
             update(channel, EPOLL_CTL_MOD);
+
+            break;
+        default:
+            RC_FATAL << "invalid channel state";
     }
 }
 
 void EpollPoller::remove_channel(Channel *channel) {
     Poller::assert_in_loop_thread();
-    assert(channel->get_index() == DEL);
+    assert(channel->get_index() == ADD);
+
+    update(channel, EPOLL_CTL_DEL);
+
     int fd = channel->get_fd();
     auto n = channel_map.erase(fd);
     assert(n == 1);

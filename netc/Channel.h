@@ -31,7 +31,7 @@ namespace reactor::net {
 
         // field `index` has two meanings in different mechanisms:
         // * in poll mechanism, `index` is index of channel in vector<pollfd>.
-        // * in epoll mechanism, `index` is one of three different states(defined in `EpollPoller.h`) of channel.
+        // * in epoll mechanism, `index` is one of two different states(defined in `EpollPoller.h`) of channel.
         int index;
 
         bool events_handling;
@@ -77,8 +77,10 @@ namespace reactor::net {
 
         void disable_writing();
 
+        // watching no events, but once channel was put into poll or epoll mechanism, POLLHUP and POLLERR may also be triggered.
         void disable();
 
+        // remove channel from poll or epoll mechanism, then any events won't be triggered.
         void remove();
 
         [[nodiscard]]

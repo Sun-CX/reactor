@@ -27,6 +27,7 @@ namespace reactor::net {
 
     class TcpConnection final : public NonCopyable, public enable_shared_from_this<TcpConnection> {
     private:
+        // DISCONNECTING: tcp connection is on half-close state.
         enum STATUS {
             CONNECTING, CONNECTED, DISCONNECTING, DISCONNECTED
         };
@@ -57,6 +58,8 @@ namespace reactor::net {
 
         void error_handler();
 
+        void shutdown();
+
 //    void send_in_loop();
 
 //    void send_in_loop(const StringPiece &piece);
@@ -72,9 +75,12 @@ namespace reactor::net {
 
         void connection_destroyed();
 
-        void send_outbound_bytes();
+        // send all of data in outbound buffer.
+        // once data has been sent, channel's writable event will be disabled.
+        void send();
 
-        void shutdown();
+        // ensure all data in outbound buffer has been sent and then close connection.
+        void send_and_shutdown();
 
         void force_close();
 
@@ -82,9 +88,9 @@ namespace reactor::net {
 
         void set_context(const any &ctx);
 
-        Buffer &inbound_buf();
+        Buffer &in();
 
-        Buffer &outbound_buf();
+        Buffer &out();
 
         int get_fd() const;
 

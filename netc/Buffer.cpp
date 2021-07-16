@@ -187,13 +187,14 @@ ssize_t Buffer::read_from_fd(int fd, int &err_no) {
     if (n < 0)
         err_no = errno;
     else {
+        err_no = 0;
+
         if (n <= writable) {
             write_idx += n;
         } else {
             write_idx = capacity;
             append(data, n - writable);
         }
-        err_no = 0;
     }
     return n;
 }

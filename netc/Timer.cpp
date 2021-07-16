@@ -22,7 +22,6 @@ Timer::Timer(EventLoop *loop) : loop(loop), timer_channel(this->loop, create_tim
 }
 
 Timer::~Timer() {
-    timer_channel.disable();
     timer_channel.remove();
     if (unlikely(::close(timer_channel.get_fd()) < 0))
         RC_FATAL << "close timerfd(" << timer_channel.get_fd() << ") error: " << ::strerror(errno);

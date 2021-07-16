@@ -32,7 +32,7 @@ static void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
 
 // 如果客户端代码没有设置消息到来回调，则调用此默认消息回调
 static void default_message_callback(const shared_ptr<TcpConnection> &conn, Timestamp s) {
-    conn->inbound_buf().retrieve_all();
+    conn->in().retrieve_all();
 }
 
 TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name, int threads, bool reuse_port)
