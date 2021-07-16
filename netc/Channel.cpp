@@ -62,6 +62,9 @@ void Channel::handle_events() {
         write_callback();
     }
 
+    // POLLRDHUP: will be set when the other end has called shutdown(SHUT_WR)
+    //            or when this end has called shutdown(SHUT_RD), but the connection may still be alive in the other direction.
+    // POLLHUP: will signal that the connection was closed in both directions.
     if (revents & (POLLRDHUP | POLLHUP)) {
         assert(close_callback);
         RC_DEBUG << "Close triggered.";
