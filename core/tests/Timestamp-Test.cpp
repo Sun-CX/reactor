@@ -2,6 +2,7 @@
 // Created by suncx on 2020/8/8.
 //
 #include "Timestamp.h"
+#include "ConsoleStream.h"
 #include <vector>
 
 using std::vector;
@@ -15,12 +16,16 @@ void benchmark() {
     for (int i = 0; i < n; ++i) {
         vec.push_back(Timestamp::now());
     }
-    printf("begin: %s\n", vec.front().to_string().c_str());
-    printf("end: %s\n", vec.back().to_string().c_str());
-    printf("insert %d timestamps time used: %ld microseconds.\n", n, (vec.back() - vec.front()).time_since_epoch());
+
+    RC_DEBUG << "begin: " << vec.front().to_string(true);
+    RC_DEBUG << "begin: " << vec.back().to_string(true);
+    RC_DEBUG << "insert " << n << " timestamp use " << (vec.back() - vec.front()).time_since_epoch() << " us.";
 }
 
 int main(int argc, const char *argv[]) {
     benchmark();
+
+    // RC_DEBUG << timestamp::now().to_string(true);
+
     return 0;
 }

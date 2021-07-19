@@ -40,12 +40,12 @@ private:
         while (running) {
             Timestamp timestamp = queue.de_queue();
             Timestamp now = Timestamp::now();
-            if (timestamp.valid()) {
+            if (timestamp.time_since_epoch() > 0) {
                 // 时间差，以微秒计
                 int delay = (now - timestamp).time_since_epoch();
                 ++delays[delay];
             }
-            running = timestamp.valid();
+            running = timestamp.time_since_epoch() > 0;
         }
 
         printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::id);
@@ -79,7 +79,7 @@ public:
 
     void join_all() {
         for (size_t i = 0; i < threads.size(); ++i) {
-            queue.en_queue(Timestamp(0));
+            queue.en_queue(Timestamp());
         }
         for (const auto &th:threads) th->join();
     }
