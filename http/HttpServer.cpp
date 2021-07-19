@@ -25,7 +25,7 @@ void HttpServer::on_connection(const shared_ptr <TcpConnection> &connection) con
 
 void HttpServer::on_message(const shared_ptr <TcpConnection> &connection, Timestamp recv_time) {
     auto context = any_cast<HttpContext>(connection->get_context());
-    auto parse_success = context.parse_request(connection->inbound_buf());
+    auto parse_success = context.parse_request(connection->in());
 
     auto version = context.get_request().get_version();
     context.get_response().set_version(version);
@@ -37,8 +37,8 @@ void HttpServer::on_message(const shared_ptr <TcpConnection> &connection, Timest
     } else {
         http_callback(context.get_request(), context.get_response());
     }
-    context.parse_response(connection->outbound_buf());
-    connection->send_outbound_bytes();
+    context.parse_response(connection->out());
+    connection->send();
 }
 
 void HttpServer::start() {
