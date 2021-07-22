@@ -155,14 +155,12 @@ bool CurrentThread::is_main_thread() {
     return id == ::getpid();
 }
 
-int CurrentThread::sleep(milliseconds ms, nanoseconds ns) {
-    if (ms.count() < 0 or ns.count() < 0 or ns.count() > 999999) {
-        RC_FATAL << "sleep time out of range.";
-    }
+int CurrentThread::sleep(nanoseconds ns) {
+    assert(ns.count() > 0);
 
     timespec time;
-    time.tv_sec = duration_cast<seconds>(ms).count();
-    time.tv_nsec = ms.count() % 1000 * 1000 * 1000 + ns.count();
+    time.tv_sec = duration_cast<seconds>(ns).count();
+    time.tv_nsec = ns.count() % 1000000000;
 
     return ::nanosleep(&time, nullptr);
 }

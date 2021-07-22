@@ -16,7 +16,7 @@ using std::make_unique;
 using std::bind;
 using std::for_each;
 using std::placeholders::_1;
-using std::chrono_literals::operator ""ms;
+using std::chrono_literals::operator ""s;
 using reactor::core::CountDownLatch;
 using reactor::core::Thread;
 using reactor::core::CurrentThread;
@@ -36,7 +36,7 @@ private:
 
         RC_DEBUG << "start...";
 
-        CurrentThread::sleep(2000ms);
+        CurrentThread::sleep(2s);
 
         RC_DEBUG << "stop...";
     }

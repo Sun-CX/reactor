@@ -13,7 +13,7 @@ using std::vector;
 using std::unique_ptr;
 using std::make_unique;
 using std::bind;
-using std::chrono_literals::operator ""ms;
+using std::chrono_literals::operator ""s;
 using std::for_each;
 using std::placeholders::_1;
 using reactor::core::CountDownLatch;
@@ -33,7 +33,7 @@ private:
     void thread_func() {
         RC_DEBUG << "start...";
 
-        CurrentThread::sleep(3000ms);
+        CurrentThread::sleep(3s);
 
         RC_DEBUG << "stop...";
         latch.count_down();
