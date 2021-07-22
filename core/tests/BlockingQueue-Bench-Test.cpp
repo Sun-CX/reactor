@@ -8,17 +8,21 @@
 #include <functional>
 #include <unistd.h>
 #include "Thread.h"
-#include "Timestamp.h"
 #include "BlockingQueue.h"
 #include "CountDownLatch.h"
+#include "ConsoleStream.h"
 
 using std::vector;
 using std::unique_ptr;
 using std::bind;
 using std::map;
+using std::chrono::duration_cast;
+using std::chrono::system_clock;
+using std::chrono::microseconds;
+using std::chrono::nanoseconds;
+using std::chrono_literals::operator ""ms;
 using reactor::core::BlockingQueue;
 using reactor::core::Thread;
-using reactor::core::Timestamp;
 using reactor::core::CountDownLatch;
 using reactor::core::CurrentThread;
 
@@ -29,30 +33,32 @@ using reactor::core::CurrentThread;
 class Bench {
 private:
     vector<unique_ptr<Thread>> threads;
-    BlockingQueue<Timestamp> queue;
+    BlockingQueue<nanoseconds> queue;
     CountDownLatch latch;
 
     void thread_func() {
-        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::id);
+
+        RC_DEBUG << "started..";
+
         latch.count_down();
         map<int, int> delays;
         bool running = true;
         while (running) {
-            Timestamp timestamp = queue.de_queue();
-            Timestamp now = Timestamp::now();
-            if (timestamp.time_since_epoch() > 0) {
+            nanoseconds value = queue.de_queue();
+            nanoseconds now = system_clock::now().time_since_epoch();
+
+            if (value.count() > 0) {
                 // 时间差，以微秒计
-                int delay = (now - timestamp).time_since_epoch();
+                auto delay = duration_cast<microseconds>(now - value).count();
                 ++delays[delay];
             }
-            running = timestamp.time_since_epoch() > 0;
+            running = value.count() > 0;
         }
 
-        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::id);
+        RC_DEBUG << "stopped...";
 
-        for (const auto &delay:delays) {
-            printf("%s[%d] delay: %d, count: %d\n", CurrentThread::name, CurrentThread::id,
-                   delay.first, delay.second);
+        for (const auto &delay : delays) {
+            RC_DEBUG << "delay: " << delay.first << ", count: " << delay.second;
         }
     }
 
@@ -61,25 +67,25 @@ public:
         threads.reserve(n_threads);
         char name[32];
         for (int i = 0; i < n_threads; ++i) {
-            snprintf(name, sizeof(name), "work-thread-%d", i + 1);
+            ::snprintf(name, sizeof(name), "work-thread-%d", i + 1);
             threads.emplace_back(new Thread(bind(&Bench::thread_func, this), name));
         }
-        for (const auto &th:threads) th->start();
+        for (const auto &th : threads) th->start();
     }
 
     void run(int times) {
-        printf("waiting for count_down_latch...\n");
+        RC_DEBUG << "waiting for count_down_latch...";
         latch.wait();
-        printf("all threads have started...\n");
+        RC_DEBUG << "all threads have started...";
         for (int i = 0; i < times; ++i) {
-            queue.en_queue(Timestamp::now());
-            usleep(1000);   // 休眠 1000 微秒（1 毫秒）
+            queue.en_queue(system_clock::now().time_since_epoch());
+            CurrentThread::sleep(1ms);
         }
     }
 
     void join_all() {
         for (size_t i = 0; i < threads.size(); ++i) {
-            queue.en_queue(Timestamp());
+            queue.en_queue(nanoseconds(0));
         }
         for (const auto &th:threads) th->join();
     }

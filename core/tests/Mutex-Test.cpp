@@ -3,16 +3,18 @@
 //
 
 #include "Mutex.h"
-#include "Timestamp.h"
 #include "Thread.h"
 #include <vector>
 #include <memory>
+#include "ConsoleStream.h"
 
 using std::vector;
 using std::unique_ptr;
+using std::chrono::system_clock;
+using std::chrono::microseconds;
+using std::chrono::duration_cast;
 using reactor::core::Mutex;
 using reactor::core::MutexGuard;
-using reactor::core::Timestamp;
 using reactor::core::Thread;
 
 static Mutex mutex;
@@ -51,18 +53,22 @@ int main(int argc, const char *argv[]) {
     const int max_threads = 8;
     vec.reserve(max_threads * COUNT);
 
-    Timestamp start = Timestamp::now();
+    system_clock::time_point start = system_clock::now();
+
     for (int i = 0; i < COUNT; ++i) {
         vec.push_back(i);
     }
-    printf("single thread time used: %ld us.\n", (Timestamp::now() - start).time_since_epoch());
+
+    system_clock::time_point end = system_clock::now();
+
+    RC_DEBUG << "single thread time used: " << duration_cast<microseconds>(end - start).count() << " us.";
 
     for (int n_threads = 1; n_threads <= max_threads; ++n_threads) {
         vector<unique_ptr<Thread>> threads;
         vec.clear();
 
         threads.reserve(n_threads);
-        start = Timestamp::now();
+        start = system_clock::now();
 
         for (int i = 0; i < n_threads; ++i) {
             threads.emplace_back(new Thread(thread_func));
@@ -72,10 +78,12 @@ int main(int argc, const char *argv[]) {
         for (int i = 0; i < n_threads; ++i) {
             threads[i]->join();
         }
-        printf("%d thread(s) with mutex lock time used: %ld us.\n", n_threads,
-               (Timestamp::now() - start).time_since_epoch());
+
+        end = system_clock::now();
+
+        RC_DEBUG << n_threads << " thread(s) with mutex lock time used: "
+                 << duration_cast<microseconds>(end - start).count() << " us.";
     }
 
-    printf("vec size: %zu\n", vec.size());
     return 0;
 }

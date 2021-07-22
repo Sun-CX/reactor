@@ -20,7 +20,7 @@ namespace reactor::core {
         }
 
     public:
-        ThreadLocal() {
+        ThreadLocal() noexcept {
             int status = pthread_key_create(&key, ThreadLocal::destructor);
             if (unlikely(status != 0)) RC_FATAL << "pthread create key error.";
         }

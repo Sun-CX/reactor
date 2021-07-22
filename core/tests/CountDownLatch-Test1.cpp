@@ -3,12 +3,12 @@
 //
 
 #include "CountDownLatch.h"
+#include "ConsoleStream.h"
 #include "Thread.h"
 #include <vector>
 #include <memory>
 #include <functional>
 #include <algorithm>
-#include <unistd.h>
 
 using std::vector;
 using std::unique_ptr;
@@ -16,7 +16,7 @@ using std::make_unique;
 using std::bind;
 using std::for_each;
 using std::placeholders::_1;
-using std::move;
+using std::chrono_literals::operator ""ms;
 using reactor::core::CountDownLatch;
 using reactor::core::Thread;
 using reactor::core::CurrentThread;
@@ -25,19 +25,20 @@ using reactor::core::CurrentThread;
  * 本例演示了：
  * 主线程发起起跑命令，然后各子线程同时启动
  */
-
 class Test {
 private:
     CountDownLatch latch;
     vector<unique_ptr<Thread>> threads;
 
     void thread_func() {
+
         latch.wait();
-        printf("id: %d, %s started...\n", CurrentThread::id, CurrentThread::name);
 
-        CurrentThread::sleep(2000);
+        RC_DEBUG << "start...";
 
-        printf("id: %d, %s stopped...\n", CurrentThread::id, CurrentThread::name);
+        CurrentThread::sleep(2000ms);
+
+        RC_DEBUG << "stop...";
     }
 
 public:
@@ -45,7 +46,7 @@ public:
         threads.reserve(n_threads);
         char name[16];
         for (int i = 0; i < n_threads; ++i) {
-            snprintf(name, sizeof(name), "work thread-%d", i);
+            ::snprintf(name, sizeof(name), "work thread-%d", i + 1);
             threads.push_back(make_unique<Thread>(bind(&Test::thread_func, this), name));
         }
         for_each(threads.cbegin(), threads.cend(), bind(&Thread::start, _1));
@@ -61,12 +62,11 @@ public:
 };
 
 int main(int argc, const char *argv[]) {
-    printf("pid: %d, id: %d\n", getpid(), CurrentThread::id);
 
     Test t(3);
-//    sleep(3);
-    printf("pid: %d, tid: %d, %s running...\n", getpid(), CurrentThread::id, CurrentThread::name);
-    printf("main thread allow rush...\n");
+
+    RC_DEBUG << "main thread allow rush...";
+
     t.run();
     t.join_all();
 

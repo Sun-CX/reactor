@@ -17,7 +17,7 @@ void FixedThreadPool::start() {
     running = true;
     char thread_no[16];
     for (size_t i = 0; i < threads.capacity(); ++i) {
-        snprintf(thread_no, sizeof(thread_no), "-%lu", i + 1);
+        ::snprintf(thread_no, sizeof(thread_no), "-%lu", i + 1);
         threads.emplace_back(new Thread(bind(&FixedThreadPool::thread_routine, this), name + thread_no));
         threads[i]->start();
     }

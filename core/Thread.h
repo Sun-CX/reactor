@@ -9,11 +9,15 @@
 #include <atomic>
 #include <string>
 #include <functional>
+#include <chrono>
 
 namespace reactor::core {
     using std::atomic_uint;
     using std::function;
     using std::string;
+    using std::chrono::milliseconds;
+    using std::chrono::nanoseconds;
+    using std::chrono_literals::operator ""ns;
 
     class Thread final : public NonCopyable {
     private:
@@ -64,7 +68,7 @@ namespace reactor::core {
         static bool is_main_thread();
 
         // sleep current thread for `ms` milliseconds and `ns` nanoseconds.
-        static int sleep(long ms, int ns = 0);
+        static int sleep(milliseconds ms, nanoseconds ns = 0ns);
     };
 }
 

@@ -24,6 +24,8 @@ using std::string;
 using std::move;
 using std::to_string;
 using std::atomic_uint;
+using std::chrono::seconds;
+using std::chrono::duration_cast;
 using reactor::core::Thread;
 using reactor::core::CurrentThread;
 
@@ -153,14 +155,14 @@ bool CurrentThread::is_main_thread() {
     return id == ::getpid();
 }
 
-int CurrentThread::sleep(long ms, int ns) {
-    if (ms < 0 or ns < 0 or ns > 999999) {
+int CurrentThread::sleep(milliseconds ms, nanoseconds ns) {
+    if (ms.count() < 0 or ns.count() < 0 or ns.count() > 999999) {
         RC_FATAL << "sleep time out of range.";
     }
 
     timespec time;
-    time.tv_sec = ms / 1000;
-    time.tv_nsec = ms % 1000 * 1000 * 1000 + ns;
+    time.tv_sec = duration_cast<seconds>(ms).count();
+    time.tv_nsec = ms.count() % 1000 * 1000 * 1000 + ns.count();
 
     return ::nanosleep(&time, nullptr);
 }

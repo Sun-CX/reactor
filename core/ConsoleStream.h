@@ -7,11 +7,14 @@
 
 #include "NonCopyable.h"
 #include <string>
+#include <chrono>
 
 #define BUF_SIZE 2048
 
 namespace reactor::core {
     using std::string;
+    using std::chrono::system_clock;
+    using std::chrono::time_point;
 
     class ConsoleStream final : public NonCopyable {
     private:
@@ -92,6 +95,8 @@ namespace reactor::core {
 
         ConsoleStream &operator<<(const string &s);
     };
+
+    string to_string(system_clock::time_point time);
 }
 
 /* SGR style def */

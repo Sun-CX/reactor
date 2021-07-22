@@ -4,6 +4,7 @@
 
 #include "BoundedBlockingQueue.h"
 #include "CountDownLatch.h"
+#include "ConsoleStream.h"
 #include "Thread.h"
 #include <vector>
 #include <memory>
@@ -24,24 +25,23 @@ using reactor::core::CurrentThread;
  * 因此无论生产者的生产效率有多么高，都不会发生占满内存的问题
  */
 class Test {
-
 private:
     BoundedBlockingQueue<string> queue;
     CountDownLatch latch;
     vector<unique_ptr<Thread>> threads;
 
     void thread_func() {
-        printf("%s[%d] started...\n", CurrentThread::name, CurrentThread::id);
+        RC_DEBUG << "start...";
         latch.count_down();
         bool running = true;
         while (running) {
             string d = queue.pop_front();
-            printf("%s[%d]: consume data: %s, size = %zu\n", CurrentThread::name,
-                   CurrentThread::id, d.c_str(), queue.size());
+
+            RC_DEBUG << "consume data: " << d << ", size: " << queue.size();
 
             running = d != "stop";
         }
-        printf("%s[%d] stopped...\n", CurrentThread::name, CurrentThread::id);
+        RC_DEBUG << "stop...";
     }
 
 public:
@@ -49,30 +49,28 @@ public:
         threads.reserve(n_threads);
         char name[32];
         for (int i = 0; i < n_threads; ++i) {
-            snprintf(name, sizeof(name), "work-thread-%d", i + 1);
+            ::snprintf(name, sizeof(name), "work-thread-%d", i + 1);
             threads.emplace_back(new Thread(bind(&Test::thread_func, this), name));
         }
-        for (const auto &th:threads) th->start();
+        for (const auto &th : threads) th->start();
     }
 
     void run(int times) {
-        printf("waiting for count_down_latch...\n");
+        RC_DEBUG << "waiting for count_down_latch...";
         latch.wait();
-        printf("all threads have started...\n");
+        RC_DEBUG << "all threads have started...";
         char buf[32];
         for (int i = 0; i < times; ++i) {
-            snprintf(buf, sizeof(buf), "hello %d", i + 1);
+            ::snprintf(buf, sizeof(buf), "hello %d", i + 1);
             queue.push_back(buf);
-            printf("%s[%d] push_back: %s, queue size: %zu\n", CurrentThread::name,
-                   CurrentThread::id,
-                   buf, queue.size());
+
+            RC_DEBUG << "en_que: " << buf << ", size: " << queue.size();
         }
     }
 
     void join_all() {
-        for (size_t i = 0; i < threads.size(); ++i) {
+        for (size_t i = 0; i < threads.size(); ++i)
             queue.push_back("stop");
-        }
         for (const auto &th:threads) th->join();
     }
 };

@@ -11,9 +11,6 @@ target_link_libraries(thread-test PRIVATE reactor-core)
 #add_executable(exception-test Exception-Test.cpp)
 #target_link_libraries(exception-test PRIVATE reactor-core)
 
-add_executable(timestamp-test Timestamp-Test.cpp)
-target_link_libraries(timestamp-test PRIVATE reactor-core)
-
 add_executable(mutex-test Mutex-Test.cpp)
 target_link_libraries(mutex-test PRIVATE reactor-core)
 

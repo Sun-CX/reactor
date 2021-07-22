@@ -5,7 +5,7 @@
 #include "Thread.h"
 #include "FixedThreadPool.h"
 #include "CountDownLatch.h"
-#include <functional>
+#include "ConsoleStream.h"
 
 using std::string;
 using std::bind;
@@ -14,11 +14,11 @@ using reactor::core::CountDownLatch;
 using reactor::core::FixedThreadPool;
 
 static void print() {
-    printf("%s[%d] execute print...\n", CurrentThread::name, CurrentThread::id);
+    RC_DEBUG << "execute print...";
 }
 
 static void print_str(const string &str) {
-    printf("%s[%d] execute task: %s\n", CurrentThread::name, CurrentThread::id, str.c_str());
+    RC_DEBUG << "execute task: " << str;
 //    usleep(100 * 1000);
 }
 
@@ -39,10 +39,10 @@ static void test2() {
 
     char task_no[32];
     for (int i = 0; i < 100; ++i) {
-        snprintf(task_no, sizeof(task_no), "task-%d", i + 1);
+        ::snprintf(task_no, sizeof(task_no), "task-%d", i + 1);
         pool.submit(bind(print_str, string(task_no)));
     }
-    printf("Tasks submit done.\n");
+    RC_DEBUG << "Tasks submit done.";
     pool.start();
     pool.shutdown();
 }
@@ -53,10 +53,10 @@ static void test3() {
 
     char task_no[32];
     for (int i = 0; i < 100; ++i) {
-        snprintf(task_no, sizeof(task_no), "task-%d", i + 1);
+        ::snprintf(task_no, sizeof(task_no), "task-%d", i + 1);
         pool.submit(bind(print_str, string(task_no)));
     }
-    printf("Tasks submit done.\n");
+    RC_DEBUG << "Tasks submit done.";
     CountDownLatch latch(1);
     pool.submit(bind(&CountDownLatch::count_down, &latch));
     latch.wait();
