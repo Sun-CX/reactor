@@ -24,7 +24,7 @@
 class epoll_event;
 
 namespace reactor::net {
-    using reactor::core::Timestamp;
+    using std::chrono::system_clock;
 
     class EpollPoller final : public Poller {
     private:
@@ -53,7 +53,7 @@ namespace reactor::net {
 
         ~EpollPoller() override;
 
-        Timestamp poll(Channels &active_channels, int milliseconds) override;
+        system_clock::time_point poll(Channels &active_channels, int milliseconds) override;
 
         // update watched events on channel.
         void update_channel(Channel *channel) override;

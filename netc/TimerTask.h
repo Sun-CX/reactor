@@ -5,33 +5,51 @@
 #ifndef REACTOR_TIMERTASK_H
 #define REACTOR_TIMERTASK_H
 
-#include "Timestamp.h"
+#include "NonCopyable.h"
 #include <functional>
+#include <chrono>
 
 namespace reactor::net {
     using std::function;
-    using reactor::core::Timestamp;
+    using std::chrono::steady_clock;
+    using std::chrono::nanoseconds;
+    using reactor::core::NonCopyable;
 
-    class TimerTask final {
+    class TimerTask final : public NonCopyable {
     private:
+        using TimerCallback = function<void()>;
+
         friend class Timer;
+
+        friend class TimerHeap;
 
         friend class EventLoop;
 
-        using TimerCallback = function<void()>;
-        Timestamp expire_time;  // 定时任务到期的绝对时间
-        const Timestamp interval;
-        const TimerCallback callback; // 定时任务回调
+        // expired time point of timer task.
+        steady_clock::time_point expire;
+        const nanoseconds interval;
+        const TimerCallback callback;
+        // index of current task in Timer's `tasks`.
+        // index = -1 means not in `tasks`.
+        int index;
 
-        void restart(const Timestamp &abs_time);
+        void set_index(int i);
+
+        void restart(const steady_clock::time_point &point);
 
     public:
-        TimerTask(TimerCallback callback, const Timestamp &expire_time, const Timestamp &interval);
+        TimerTask(TimerCallback callback, const steady_clock::time_point &expire, const nanoseconds &interval);
 
         void alarm();
 
         [[nodiscard]]
-        bool repeated() const;
+        bool is_repeated() const;
+
+        [[nodiscard]]
+        steady_clock::time_point get_expire() const;
+
+        [[nodiscard]]
+        int get_index() const;
 
         bool operator<(const TimerTask &rhs) const;
     };

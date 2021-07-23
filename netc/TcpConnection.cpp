@@ -5,7 +5,6 @@
 #include "TcpConnection.h"
 #include "Ext.h"
 #include "EventLoop.h"
-#include "Timestamp.h"
 #include "Socket.h"
 #include "Channel.h"
 #include "ConsoleStream.h"
@@ -52,7 +51,7 @@ void TcpConnection::read_handler() {
     ssize_t n = inbound.read_from_fd(conn_channel->get_fd(), saved_errno);
     if (n > 0) {
         // TODO: fix timestamp.
-        msg_callback(shared_from_this(), Timestamp());
+        msg_callback(shared_from_this(), system_clock::now());
     } else if (n == 0) {
 
         RC_DEBUG << "read(" << conn_channel->get_fd() << ") 0 occurred!";

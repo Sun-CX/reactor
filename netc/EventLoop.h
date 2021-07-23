@@ -10,11 +10,14 @@
 #include <vector>
 #include <memory>
 #include <atomic>
+#include <chrono>
 
 namespace reactor::net {
     using std::vector;
     using std::unique_ptr;
     using std::atomic_bool;
+    using std::chrono::seconds;
+    using std::chrono_literals::operator ""s;
     using reactor::core::NonCopyable;
     using reactor::core::Mutex;
 
@@ -105,7 +108,7 @@ namespace reactor::net {
         // cross-thread calling is allowed.
         void queue_in_loop(const Functor &func);
 
-        void schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval = Timestamp());
+        void schedule(const TimerTask::TimerCallback &callback, const seconds &after, const seconds &interval = 0s);
     };
 }
 

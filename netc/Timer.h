@@ -6,20 +6,22 @@
 #define REACTOR_TIMER_H
 
 #include "TimerTask.h"
-#include "MinHeap.h"
+#include "TimerHeap.h"
 #include "Channel.h"
+#include <chrono>
 
 namespace reactor::net {
     using reactor::core::NonCopyable;
+    using reactor::net::TimerHeap;
+    using Task = uintptr_t;
 
     class EventLoop;
 
     class Timer final : public NonCopyable {
     private:
         EventLoop *const loop;
-        QuadHeap<TimerTask *> tasks;
+        TimerHeap tasks;
         Channel timer_channel;
-        const Timestamp base_time;
 
         [[nodiscard]]
         int create_timer_fd() const;
@@ -30,9 +32,11 @@ namespace reactor::net {
 
         void reset_timer_fd() const;
 
-        void add_timer_task_in_loop(TimerTask *task);
+        void add_task_in_loop(TimerTask *task);
 
         bool insert(TimerTask *task);
+
+        void run_task_in_loop(TimerTask *task);
 
     public:
         explicit Timer(EventLoop *loop);
@@ -40,8 +44,9 @@ namespace reactor::net {
         ~Timer();
 
         // 可跨线程调用
-        void schedule(const TimerTask::TimerCallback &callback, const Timestamp &after,
-                      const Timestamp &interval = Timestamp());
+        Task schedule(const TimerTask::TimerCallback &callback, const nanoseconds &after, const nanoseconds &interval);
+
+        void cancel(Task task);
     };
 }
 

@@ -44,7 +44,8 @@ EventLoop::EventLoop() :
         wakeup_channel->enable_reading();
         RC_DEBUG << "---------------------- +EventLoop ----------------------";
     } else
-        RC_FATAL << CurrentThread::name << " already exists an eventloop object, one thread has one eventloop object at most.";
+        RC_FATAL << CurrentThread::name
+                 << " already exists an eventloop object, one thread has one eventloop object at most.";
 }
 
 EventLoop::~EventLoop() {
@@ -156,7 +157,7 @@ void EventLoop::read_wakeup() const {
     RC_DEBUG << "read from eventfd(" << wakeup_channel->get_fd() << "): value = " << value;
 }
 
-void EventLoop::schedule(const TimerTask::TimerCallback &callback, const Timestamp &after, const Timestamp &interval) {
+void EventLoop::schedule(const TimerTask::TimerCallback &callback, const seconds &after, const seconds &interval) {
     timer->schedule(callback, after, interval);
 }
 

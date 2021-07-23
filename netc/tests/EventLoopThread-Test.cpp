@@ -28,7 +28,7 @@ void test2() {
     EventLoopThread th;
     EventLoop *loop = th.start();
     loop->run_in_loop([=] { return print(loop); });
-    CurrentThread::sleep(1 * 1000);
+    CurrentThread::sleep(std::chrono::nanoseconds());
 }
 
 void test3() {
@@ -36,7 +36,7 @@ void test3() {
     EventLoopThread th;
     EventLoop *loop = th.start();
     loop->run_in_loop([=] { return quit(loop); });
-    CurrentThread::sleep(1 * 1000);
+    CurrentThread::sleep(std::chrono::nanoseconds());
 }
 
 int main(int argc, const char *argv[]) {

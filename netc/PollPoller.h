@@ -18,7 +18,6 @@
 struct pollfd;
 
 namespace reactor::net {
-    using reactor::core::Timestamp;
 
     class PollPoller final : public Poller {
     private:
@@ -35,7 +34,7 @@ namespace reactor::net {
 
         void remove_channel(Channel *channel) override;
 
-        Timestamp poll(Channels &active_channels, int milliseconds) override;
+        system_clock::time_point poll(Channels &active_channels, int milliseconds) override;
     };
 }
 

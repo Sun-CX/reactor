@@ -3,22 +3,23 @@
 //
 
 #include "PollPoller.h"
-#include "Timestamp.h"
 #include "Ext.h"
 #include "Channel.h"
 #include "ConsoleStream.h"
 #include <poll.h>
 #include <cassert>
 
+using std::chrono::system_clock;
 using std::iter_swap;
 using reactor::net::PollPoller;
-using reactor::core::Timestamp;
 
 PollPoller::PollPoller(EventLoop *loop) : Poller(loop) {}
 
-Timestamp PollPoller::poll(Channels &active_channels, int milliseconds) {
+system_clock::time_point PollPoller::poll(Channels &active_channels, int milliseconds) {
     auto num_events = ::poll(fds.data(), fds.size(), milliseconds);
-    auto now = Timestamp::now();
+
+    system_clock::time_point now = system_clock::now();
+
     if (unlikely(num_events < 0)) { // error
         RC_WARN << "poll error, errno = " << errno;
     } else if (num_events == 0) {   // timeout

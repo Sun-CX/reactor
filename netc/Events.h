@@ -7,19 +7,19 @@
 
 #include <functional>
 #include <memory>
-#include "Timestamp.h"
+#include <chrono>
 
 namespace reactor::net {
     using std::function;
     using std::shared_ptr;
-    using reactor::core::Timestamp;
+    using std::chrono::system_clock;
 
     class TcpConnection;
 
     class Buffer;
 
     using ConnectionCallback = function<void(const shared_ptr<TcpConnection> &)>;
-    using MessageCallback = function<void(const shared_ptr<TcpConnection> &, Timestamp)>;
+    using MessageCallback = function<void(const shared_ptr<TcpConnection> &, system_clock::time_point)>;
     using WriteCompleteCallback = function<void(const shared_ptr<TcpConnection> &)>;
     using HighWaterMarkCallback = function<void(const shared_ptr<TcpConnection> &, size_t)>;
     using CloseCallback = function<void(const shared_ptr<TcpConnection> &)>;

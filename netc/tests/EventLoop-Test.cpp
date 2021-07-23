@@ -6,10 +6,12 @@
 #include "Thread.h"
 #include "ConsoleStream.h"
 
+using std::chrono::steady_clock;
+using std::chrono::system_clock;
+using std::chrono_literals::operator ""s;
 using reactor::net::EventLoop;
 using reactor::core::Thread;
 using reactor::core::CurrentThread;
-using reactor::core::operator ""_s;
 
 void one_event_loop_in_main_thread() {
     EventLoop loop;
@@ -62,7 +64,7 @@ void quit_loop() {
     EventLoop loop;
 
     Thread thread([&loop] {
-        CurrentThread::sleep(1000);
+        CurrentThread::sleep(std::chrono::nanoseconds());
         loop.quit();
     }, "quit-loop");
 
@@ -76,7 +78,7 @@ void run_in_loop_test() {
     EventLoop loop;
 
     Thread thread([&loop] {
-        CurrentThread::sleep(1000);
+        CurrentThread::sleep(std::chrono::nanoseconds());
 
         loop.run_in_loop([&loop] {
             RC_DEBUG << "=============== run_in_loop2 ===============";
@@ -99,13 +101,13 @@ void run_in_loop_test() {
 void test1() {
     EventLoop loop;
     loop.schedule([&loop] {
-        printf("wokao\n");
-        loop.quit();
-    }, 6_s);
+        RC_DEBUG << "wo kao";
+        // loop.quit();
+    }, 0s, 2s);
 
-    loop.schedule([] {
-        printf("hello\n");
-    }, 1_s, 1_s);
+    // loop.schedule([] {
+    //     printf("hello\n");
+    // }, 1_s, 1_s);
     loop.loop();
 }
 
@@ -130,7 +132,9 @@ int main(int argc, const char *argv[]) {
 
     // quit_loop();
 
-    run_in_loop_test();
+    // run_in_loop_test();
+
+    test1();
 
     return 0;
 }

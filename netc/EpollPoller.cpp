@@ -4,7 +4,6 @@
 
 #include "EpollPoller.h"
 #include "Channel.h"
-#include "Timestamp.h"
 #include "Ext.h"
 #include "ConsoleStream.h"
 #include <sys/epoll.h>
@@ -12,8 +11,8 @@
 #include <cassert>
 #include <cstring>
 
+using std::chrono::system_clock;
 using reactor::net::EpollPoller;
-using reactor::core::Timestamp;
 
 const int EpollPoller::NEW = -1;
 const int EpollPoller::ADD = 0;
@@ -29,9 +28,9 @@ EpollPoller::~EpollPoller() {
     epoll_close(epoll_fd);
 }
 
-Timestamp EpollPoller::poll(Channels &active_channels, int milliseconds) {
+system_clock::time_point EpollPoller::poll(Channels &active_channels, int milliseconds) {
     int ready_events = ::epoll_wait(epoll_fd, events.data(), events.capacity(), milliseconds);
-    Timestamp now = Timestamp::now();
+    system_clock::time_point now = system_clock::now();
     if (unlikely(ready_events < 0)) {
         if (errno != EINTR)
             RC_FATAL << "epoll(" << epoll_fd << ") wait error: " << ::strerror(errno);
