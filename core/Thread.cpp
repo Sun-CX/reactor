@@ -24,8 +24,7 @@ using std::string;
 using std::move;
 using std::to_string;
 using std::atomic_uint;
-using std::chrono::seconds;
-using std::chrono::duration_cast;
+using std::chrono_literals::operator ""s;
 using reactor::core::Thread;
 using reactor::core::CurrentThread;
 
@@ -159,8 +158,8 @@ int CurrentThread::sleep(nanoseconds ns) {
     assert(ns.count() > 0);
 
     timespec time;
-    time.tv_sec = duration_cast<seconds>(ns).count();
-    time.tv_nsec = ns.count() % 1000000000;
+    time.tv_sec = ns / 1s;
+    time.tv_nsec = (ns % 1s).count();
 
     return ::nanosleep(&time, nullptr);
 }
