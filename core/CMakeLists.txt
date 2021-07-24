@@ -8,7 +8,8 @@ set(LIBRARY_SOURCE
         Condition.cpp
         CountDownLatch.cpp
         FixedThreadPool.cpp
-        ConsoleStream.cpp)
+        ConsoleStream.cpp
+        Timestamp.cpp)
 
 add_library(reactor-core SHARED ${LIBRARY_SOURCE})
 set_target_properties(reactor-core PROPERTIES

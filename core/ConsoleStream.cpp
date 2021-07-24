@@ -4,15 +4,11 @@
 
 #include "ConsoleStream.h"
 #include "Thread.h"
+#include "Timestamp.h"
 #include <cstring>
 #include <algorithm>
 
 using std::reverse;
-using std::string;
-using std::chrono::system_clock;
-using std::chrono::time_point;
-using std::chrono::time_point_cast;
-using std::chrono::seconds;
 using reactor::core::ConsoleStream;
 
 const char ConsoleStream::digits[] = "9876543210123456789";
@@ -76,10 +72,10 @@ size_t ConsoleStream::LogBuffer<N>::avail() const {
 template<size_t N>
 void ConsoleStream::LogBuffer<N>::append(const void *src, size_t len) {
     if (len <= avail()) {
-        memcpy(cur, src, len);
+        ::memcpy(cur, src, len);
         cur += len;
     } else {
-        fprintf(stderr, "LogBuffer has been full, log is incomplete.\n");
+        ::fprintf(stderr, "LogBuffer has been full, log is incomplete.\n");
     }
 }
 
@@ -230,25 +226,4 @@ ConsoleStream &ConsoleStream::operator<<(const char *s) {
 
 ConsoleStream &ConsoleStream::operator<<(const string &s) {
     return *this << s.c_str();
-}
-
-string reactor::core::to_string(system_clock::time_point time) {
-    char buf[32];
-
-    time_point<system_clock, seconds> since = time_point_cast<seconds>(time);
-
-    time_t sec = since.time_since_epoch().count();
-
-    tm tm_time;
-
-    ::gmtime_r(&sec, &tm_time);
-
-    ::snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d",
-               tm_time.tm_year + 1900,
-               tm_time.tm_mon + 1,
-               tm_time.tm_mday,
-               tm_time.tm_hour,
-               tm_time.tm_min,
-               tm_time.tm_sec);
-    return buf;
 }

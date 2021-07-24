@@ -43,3 +43,6 @@ target_link_libraries(threadlocal-test PRIVATE reactor-core pthread)
 
 add_executable(consolestream-test ConsoleStream-Test.cpp)
 target_link_libraries(consolestream-test PRIVATE reactor-core)
+
+add_executable(timestamp-test Timestamp-Test.cpp)
+target_link_libraries(timestamp-test PRIVATE reactor-core)
