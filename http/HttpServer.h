@@ -20,7 +20,7 @@ namespace reactor::net {
 
         void on_connection(const shared_ptr<TcpConnection> &connection) const;
 
-        void on_message(const shared_ptr<TcpConnection> &connection, Timestamp recv_time);
+        void on_message(const shared_ptr<TcpConnection> &connection, system_clock::time_point recv_time);
 
     public:
         HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port = false);

@@ -39,6 +39,7 @@ namespace reactor::proto {
     using google::protobuf::Message;
     using reactor::net::byte;
     using std::string;
+    using std::chrono::system_clock;
 
     class ProtoCodec final : public NonCopyable {
     public:
@@ -50,14 +51,14 @@ namespace reactor::proto {
             UNKNOWN_MESSAGE_TYPE,
             PARSE_ERROR
         };
-        using ProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, Timestamp)>;
-        using ErrorCallback = function<void(const shared_ptr<TcpConnection> &, Timestamp, ErrorCode)>;
+        using ProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, system_clock::time_point)>;
+        using ErrorCallback = function<void(const shared_ptr<TcpConnection> &, system_clock::time_point, ErrorCode)>;
     private:
         static const uint32_t MIN_TYPE_NAME_LEN;
 
         static const uint32_t MIN_DATA_LEN;
 
-        static void default_error_callback(const shared_ptr<TcpConnection> &con, Timestamp s, ErrorCode rc);
+        static void default_error_callback(const shared_ptr<TcpConnection> &con, system_clock::time_point s, ErrorCode rc);
 
         static uint32_t as_uint32_t(const byte *buf);
 
@@ -71,7 +72,7 @@ namespace reactor::proto {
 
         explicit ProtoCodec(ProtobufMessageCallback messageCallback, ErrorCallback errorCallback = default_error_callback);
 
-        void on_message(const shared_ptr<TcpConnection> &con, Timestamp ts);
+        void on_message(const shared_ptr<TcpConnection> &con, system_clock::time_point ts);
 
         void send_message(const shared_ptr<TcpConnection> &con, const Message &message) const;
     };

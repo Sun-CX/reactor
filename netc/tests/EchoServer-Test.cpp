@@ -5,25 +5,24 @@
 #include "EventLoop.h"
 #include "TcpServer.h"
 #include "TcpConnection.h"
-#include "Timestamp.h"
 #include "ConsoleStream.h"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
-using reactor::core::Timestamp;
 using reactor::net::EventLoop;
 using reactor::net::TcpServer;
 using reactor::net::TcpConnection;
 using reactor::net::InetAddress;
 using std::string;
 using std::shared_ptr;
+using std::chrono::system_clock;
 
 class EchoServer {
 private:
     EventLoop *loop;
     TcpServer server;
 
-    void on_message(const shared_ptr<TcpConnection> &conn, Timestamp timestamp) {
+    void on_message(const shared_ptr<TcpConnection> &conn, const system_clock::time_point ts) {
         RC_DEBUG << "on_message called!";
         string msg = conn->in().retrieve_all_string();
         if (msg == "exit\n") {

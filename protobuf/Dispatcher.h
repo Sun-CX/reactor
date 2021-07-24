@@ -7,10 +7,10 @@
 
 #include "ConsoleStream.h"
 #include "google/protobuf/message.h"
-#include "Timestamp.h"
 #include <map>
 #include <memory>
 #include <functional>
+#include <chrono>
 
 namespace reactor::net {
     class TcpConnection;
@@ -25,16 +25,16 @@ namespace reactor::proto {
     using std::make_shared;
     using std::dynamic_pointer_cast;
     using reactor::net::TcpConnection;
-    using reactor::core::Timestamp;
     using std::is_base_of;
     using std::function;
     using std::move;
+    using std::chrono::system_clock;
 
     class MessageCallback : public NonCopyable {
     public:
         virtual ~MessageCallback() = default;
 
-        virtual void on_message(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, Timestamp) const = 0;
+        virtual void on_message(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, system_clock::time_point) const = 0;
     };
 
     template<typename T>
@@ -43,12 +43,12 @@ namespace reactor::proto {
     private:
         friend class Dispatcher;
 
-        using ConcreteProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<T> &, Timestamp)>;
+        using ConcreteProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<T> &, system_clock::time_point)>;
         ConcreteProtobufMessageCallback callback;
     public:
         explicit ConcreteMessageCallback(ConcreteProtobufMessageCallback callback) : callback(move(callback)) {}
 
-        void on_message(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, Timestamp ts) const override {
+        void on_message(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, system_clock::time_point ts) const override {
             assert(msg != nullptr);
             callback(con, dynamic_pointer_cast<T>(msg), ts);
         }
@@ -56,7 +56,7 @@ namespace reactor::proto {
 
     class Dispatcher final : public NonCopyable {
     public:
-        using ProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, Timestamp)>;
+        using ProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, system_clock::time_point)>;
     private:
         using CallbackMaps =  map<const Descriptor *, shared_ptr<MessageCallback>>;
 
@@ -64,14 +64,16 @@ namespace reactor::proto {
         ProtobufMessageCallback default_callback;
 
     public:
-        explicit Dispatcher(ProtobufMessageCallback defaultCallback) : callbacks(), default_callback(move(defaultCallback)) {}
+        explicit Dispatcher(ProtobufMessageCallback defaultCallback) :
+                callbacks(),
+                default_callback(move(defaultCallback)) {}
 
         template<typename T>
         void register_message_callback(const typename ConcreteMessageCallback<T>::ConcreteProtobufMessageCallback &callback) {
             callbacks[T::descriptor()] = make_shared<ConcreteMessageCallback<T>>(callback);
         }
 
-        void on_proto_message(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, Timestamp ts) const {
+        void on_proto_message(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, system_clock::time_point ts) const {
             auto it = callbacks.find(msg->GetDescriptor());
 
             if (it != callbacks.cend()) {

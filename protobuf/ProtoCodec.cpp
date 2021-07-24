@@ -20,9 +20,9 @@ using google::protobuf::MessageFactory;
 const uint32_t ProtoCodec::MIN_TYPE_NAME_LEN = 2u;
 const uint32_t ProtoCodec::MIN_DATA_LEN = sizeof(uint32_t) + sizeof(uint32_t) + MIN_TYPE_NAME_LEN + sizeof(uint32_t);
 
-void ProtoCodec::default_error_callback(const shared_ptr<TcpConnection> &con, Timestamp s, ErrorCode rc) {
+void ProtoCodec::default_error_callback(const shared_ptr<TcpConnection> &con, system_clock::time_point s, ErrorCode rc) {
     RC_ERROR << __PRETTY_FUNCTION__ << " invoked error with errno = " << rc;
-    if (con) con->shutdown();
+    if (con) con->send_and_shutdown();
 }
 
 uint32_t ProtoCodec::as_uint32_t(const byte *buf) {
@@ -35,8 +35,8 @@ ProtoCodec::ProtoCodec(ProtoCodec::ProtobufMessageCallback messageCallback, Prot
         message_callback(move(messageCallback)),
         error_callback(move(errorCallback)) {}
 
-void ProtoCodec::on_message(const shared_ptr<TcpConnection> &con, Timestamp ts) {
-    Buffer &in = con->inbound_buf();
+void ProtoCodec::on_message(const shared_ptr<TcpConnection> &con, system_clock::time_point ts) {
+    Buffer &in = con->in();
     while (in.readable_bytes() >= MIN_DATA_LEN) {
         auto len = in.peek_uint32();
 
@@ -114,7 +114,7 @@ Message *ProtoCodec::create_message(const string &type_name) {
 }
 
 void ProtoCodec::send_message(const shared_ptr<TcpConnection> &con, const Message &message) const {
-    Buffer &out = con->outbound_buf();
+    Buffer &out = con->out();
     assert(out.readable_bytes() == 0);
 
     const string &type_name = message.GetTypeName();
@@ -137,5 +137,5 @@ void ProtoCodec::send_message(const shared_ptr<TcpConnection> &con, const Messag
 
     out.prepend(&len, 4);
 
-    con->send_outbound_bytes();
+    con->send();
 }

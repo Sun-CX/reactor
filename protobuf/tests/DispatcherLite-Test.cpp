@@ -10,25 +10,25 @@
 
 using reactor::proto::DispatcherLite;
 using reactor::net::TcpConnection;
-using reactor::core::Timestamp;
 using std::shared_ptr;
+using std::chrono::system_clock;
 using std::dynamic_pointer_cast;
 using google::protobuf::Message;
 using google::protobuf::ShutdownProtobufLibrary;
 using reactor::proto::examples::Query;
 using reactor::proto::examples::Answer;
 
-void unknown_message_type(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, Timestamp ts) {
+void unknown_message_type(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, system_clock::time_point ts) {
     RC_WARN << "UNKNOWN MESSAGE TYPE: " << msg->GetTypeName();
 }
 
-void on_query(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, Timestamp ts) {
+void on_query(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, system_clock::time_point ts) {
     RC_DEBUG << "on_query: " << msg->GetTypeName();
     shared_ptr<Query> query = dynamic_pointer_cast<Query>(msg);
     assert(query != nullptr);
 }
 
-void on_answer(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, Timestamp ts) {
+void on_answer(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, system_clock::time_point ts) {
     RC_DEBUG << "on_answer: " << msg->GetTypeName();
     shared_ptr<Answer> answer = dynamic_pointer_cast<Answer>(msg);
     assert(answer != nullptr);
@@ -37,14 +37,14 @@ void on_answer(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &
 int main(int argc, const char *argv[]) {
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
-    
+
     DispatcherLite dispatcher(unknown_message_type);
 
     dispatcher.register_message_callback(Query::descriptor(), on_query);
     dispatcher.register_message_callback(Answer::descriptor(), on_answer);
 
     shared_ptr<TcpConnection> conn;
-    Timestamp ts;
+    system_clock::time_point ts = system_clock::now();
 
     shared_ptr<Query> query(new Query);
     shared_ptr<Answer> answer(new Answer);

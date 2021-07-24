@@ -23,25 +23,25 @@ void test_in_heap() {
     const auto f = [] {};
 
     heap.push(make_shared<TimerTask>(f, point + 10ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 3ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 7ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 6ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 24ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 8ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 1ns, 0ns));
-    heap.print_all();
+    
 
     RC_DEBUG << "-----------------------";
 
@@ -62,30 +62,30 @@ void test_remove() {
     const auto f = [] {};
 
     heap.push(make_shared<TimerTask>(f, point + 10ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 3ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 7ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 6ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 24ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 8ns, 0ns));
-    heap.print_all();
+    
 
     heap.push(make_shared<TimerTask>(f, point + 1ns, 0ns));
-    heap.print_all();
+    
 
     RC_DEBUG << "-----------------------";
 
     heap.remove(6);
-    heap.print_all();
+    
 
 }
 

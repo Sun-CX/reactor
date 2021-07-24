@@ -7,7 +7,6 @@
 
 #include "NonCopyable.h"
 #include "google/protobuf/message.h"
-#include "Timestamp.h"
 #include <functional>
 #include <memory>
 #include <map>
@@ -23,13 +22,13 @@ namespace reactor::proto {
     using reactor::net::TcpConnection;
     using google::protobuf::Message;
     using google::protobuf::Descriptor;
-    using reactor::core::Timestamp;
     using std::map;
     using std::move;
+    using std::chrono::system_clock;
 
     class DispatcherLite final : public NonCopyable {
     public:
-        using ProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, Timestamp)>;
+        using ProtobufMessageCallback = function<void(const shared_ptr<TcpConnection> &, const shared_ptr<Message> &, system_clock::time_point)>;
     private:
         using CallbackMaps = map<const Descriptor *, ProtobufMessageCallback>;
 
@@ -38,7 +37,7 @@ namespace reactor::proto {
     public:
         explicit DispatcherLite(ProtobufMessageCallback callback) : callbacks(), callback(move(callback)) {}
 
-        void on_proto_message(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, Timestamp ts) const {
+        void on_proto_message(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, system_clock::time_point ts) const {
             auto it = callbacks.find(msg->GetDescriptor());
             if (it != callbacks.cend()) {
                 it->second(con, msg, ts);

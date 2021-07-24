@@ -24,6 +24,7 @@ using reactor::core::Timestamp;
 using reactor::core::NonCopyable;
 using reactor::proto::examples::Query;
 using reactor::proto::examples::Answer;
+using std::chrono::system_clock;
 
 class QueryServer final : public NonCopyable {
 private:
@@ -36,11 +37,11 @@ private:
                  << " ---> " << con->local_address().to_string();
     }
 
-    void on_unknown_msg_type(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, Timestamp ts) const {
+    void on_unknown_msg_type(const shared_ptr<TcpConnection> &con, const shared_ptr<Message> &msg, system_clock::time_point ts) const {
         RC_WARN << "Unknown message: " << msg->GetTypeName();
     }
 
-    void on_query(const shared_ptr<TcpConnection> &con, const shared_ptr<Query> &query, Timestamp ts) {
+    void on_query(const shared_ptr<TcpConnection> &con, const shared_ptr<Query> &query, system_clock::time_point ts) {
         RC_DEBUG << "On Query(" << query->GetTypeName() << "): " << query->DebugString();
 
         Answer answer;
@@ -50,12 +51,12 @@ private:
         answer.set_solution("OK");
         codec.send_message(con, answer);
 
-        con->shutdown();
+        con->send_and_shutdown();
     }
 
-    void on_answer(const shared_ptr<TcpConnection> &con, const shared_ptr<Answer> &answer, Timestamp ts) const {
+    void on_answer(const shared_ptr<TcpConnection> &con, const shared_ptr<Answer> &answer, system_clock::time_point ts) const {
         RC_DEBUG << "On Answer: " << answer->GetTypeName();
-        con->shutdown();
+        con->send_and_shutdown();
     }
 
 public:

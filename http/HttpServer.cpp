@@ -3,14 +3,16 @@
 //
 
 #include "HttpServer.h"
-#include "Timestamp.h"
 #include "TcpConnection.h"
 #include "HttpContext.h"
+#include "ConsoleStream.h"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
 using std::any_cast;
+using std::chrono::system_clock;
 using reactor::net::HttpServer;
+using reactor::core::to_string;
 
 HttpServer::HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port) :
         server(loop, addr, move(name), threads, reuse_port) {
@@ -23,14 +25,14 @@ void HttpServer::on_connection(const shared_ptr <TcpConnection> &connection) con
     connection->set_context(HttpContext());
 }
 
-void HttpServer::on_message(const shared_ptr <TcpConnection> &connection, Timestamp recv_time) {
+void HttpServer::on_message(const shared_ptr <TcpConnection> &connection, system_clock::time_point recv_time) {
     auto context = any_cast<HttpContext>(connection->get_context());
     auto parse_success = context.parse_request(connection->in());
 
     auto version = context.get_request().get_version();
     context.get_response().set_version(version);
     context.get_response().set_header("Server", "reactor");
-    context.get_response().set_header("Date", Timestamp::now().to_string());
+    context.get_response().set_header("Date", to_string(system_clock::now()));
 
     if (!parse_success) {
         context.get_response().set_response_status(400, "Bad Request");
