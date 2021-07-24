@@ -41,8 +41,6 @@ namespace reactor::net {
 
         [[nodiscard]]
         size_t size() const;
-
-        void print_all() const;
     };
 }
 

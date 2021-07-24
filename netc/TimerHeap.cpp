@@ -100,8 +100,3 @@ void TimerHeap::swap(shared_ptr<TimerTask> &x, shared_ptr<TimerTask> &y) const {
     std::swap(x, y);
     std::swap(x->index, y->index);
 }
-
-void TimerHeap::print_all() const {
-    for (const auto &e : heap)
-        RC_DEBUG << e->index << ',' << e->expire.time_since_epoch().count();
-}
