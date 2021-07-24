@@ -101,10 +101,10 @@ ConsoleStream::ConsoleStream(const char *src_file, int line, const char *style, 
 
 ConsoleStream::~ConsoleStream() {
     *this << STYLE_RESET"\n";
-    fwrite(buffer.data(), 1, buffer.size(), stdout);
+    ::fwrite(buffer.data(), 1, buffer.size(), stdout);
     if (terminate) {
         fflush(stdout);
-        abort();
+        ::abort();
     }
 }
 
@@ -200,7 +200,7 @@ ConsoleStream &ConsoleStream::operator<<(float x) {
 
 ConsoleStream &ConsoleStream::operator<<(double x) {
     char buf[32];
-    int n = snprintf(buf, sizeof(buf), "%.2g", x);
+    int n = ::snprintf(buf, sizeof(buf), "%.2g", x);
     buffer.append(buf, n);
     return *this;
 }
