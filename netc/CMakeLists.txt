@@ -18,8 +18,8 @@ set(LIBRARY_SOURCE
         EventLoopThread.cpp
         EventLoopThreadPool.cpp
         TimerTask.cpp
-        Timer.cpp
         TimerHeap.cpp
+        Timer.cpp
         #        Connector.cpp
         #        TcpClient.cpp
         )
