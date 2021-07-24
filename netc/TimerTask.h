@@ -10,35 +10,44 @@
 #include <chrono>
 
 namespace reactor::net {
+    using reactor::core::NonCopyable;
     using std::function;
     using std::chrono::steady_clock;
     using std::chrono::nanoseconds;
-    using reactor::core::NonCopyable;
 
     class TimerTask final : public NonCopyable {
     private:
         using TimerCallback = function<void()>;
 
+        friend class EventLoop;
+
         friend class Timer;
 
         friend class TimerHeap;
 
-        friend class EventLoop;
-
         // expired time point of timer task.
         steady_clock::time_point expire;
-        const nanoseconds interval;
-        const TimerCallback callback;
+
+        nanoseconds interval;
+        const TimerCallback timer_callback;
+
         // index of current task in Timer's `tasks`.
         // index = -1 means not in `tasks`.
         int index;
 
-        void set_index(int i);
-
         void restart(const steady_clock::time_point &point);
 
     public:
+
+        /**
+         * create a timer task.
+         * @param callback timer callback when timeout.
+         * @param expire time_point of timeout.
+         * @param interval set a periodic task.
+         */
         TimerTask(TimerCallback callback, const steady_clock::time_point &expire, const nanoseconds &interval);
+
+        ~TimerTask();
 
         void alarm();
 
