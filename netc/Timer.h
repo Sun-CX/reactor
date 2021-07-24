@@ -13,7 +13,7 @@
 namespace reactor::net {
     using reactor::core::NonCopyable;
     using reactor::net::TimerHeap;
-    using Task = uintptr_t;
+    using std::shared_ptr;
 
     class EventLoop;
 
@@ -30,23 +30,30 @@ namespace reactor::net {
 
         void read_timeout_event() const;
 
-        void reset_timer_fd() const;
+        void set_timer() const;
 
-        void add_task_in_loop(TimerTask *task);
+        void clear_timer() const;
 
-        bool insert(TimerTask *task);
+        void run_task_in_loop(const shared_ptr<TimerTask> &task);
 
-        void run_task_in_loop(TimerTask *task);
+        void add_task_in_loop(const shared_ptr<TimerTask> &task);
+
+        void cancel_task_in_loop(const shared_ptr<TimerTask> &task);
+
+        // insert a timer task into `tasks`.
+        // return true if the insert one has latest expire time.
+        bool insert(const shared_ptr<TimerTask> &task);
 
     public:
         explicit Timer(EventLoop *loop);
 
         ~Timer();
 
-        // 可跨线程调用
-        Task schedule(const TimerTask::TimerCallback &callback, const nanoseconds &after, const nanoseconds &interval);
+        // cross-thread calling is allowed.
+        shared_ptr<TimerTask> schedule(const TimerTask::TimerCallback &callback, const nanoseconds &delay, const nanoseconds &interval);
 
-        void cancel(Task task);
+        // cross-thread calling is allowed.
+        void cancel(const shared_ptr<TimerTask> &task);
     };
 }
 

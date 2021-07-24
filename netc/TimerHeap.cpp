@@ -7,31 +7,25 @@
 #include "ConsoleStream.h"
 #include <cassert>
 
+using std::shared_ptr;
 using reactor::net::TimerHeap;
 using reactor::net::TimerTask;
 
-TimerHeap::TimerHeap() : heap() {}
-
-TimerHeap::~TimerHeap() {
-    for (auto e : heap)
-        delete e;
-}
-
-void TimerHeap::push(TimerTask *task) {
+void TimerHeap::push(const shared_ptr<TimerTask> &task) {
     heap.push_back(task);
     int index = static_cast<int>(size() - 1);
     task->index = index;
     sift_up(index);
 }
 
-const TimerTask *TimerHeap::peek() const {
+shared_ptr<TimerTask> TimerHeap::peek() const {
     assert(!empty());
     return heap.front();
 }
 
-TimerTask *TimerHeap::pop() {
+shared_ptr<TimerTask> TimerHeap::pop() {
     assert(!empty());
-    TimerTask *ret = heap.front();
+    shared_ptr<TimerTask> ret = heap.front();
     if (size() == 1) {
         heap.pop_back();
     } else {
@@ -39,6 +33,29 @@ TimerTask *TimerHeap::pop() {
         heap.pop_back();
         sift_down(0, static_cast<int>(size() - 1));
     }
+    ret->index = -1;
+    return ret;
+}
+
+shared_ptr<TimerTask> TimerHeap::remove(int i) {
+    assert(0 <= i and i < size());
+
+    shared_ptr<TimerTask> ret;
+
+    if (size() == 1) {
+        ret = heap.front();
+        heap.pop_back();
+
+        assert(size() == 0);
+    } else {
+        ret = heap[i];
+        int last = static_cast<int>(size() - 1);
+        swap(heap[i], heap[last]);
+        heap.pop_back();
+
+        sift_down(i, static_cast<int>(size() - 1));
+    }
+
     ret->index = -1;
     return ret;
 }
@@ -79,12 +96,12 @@ void TimerHeap::sift_down(int begin, int end) {
     }
 }
 
-void TimerHeap::swap(TimerTask *&x, TimerTask *&y) const {
+void TimerHeap::swap(shared_ptr<TimerTask> &x, shared_ptr<TimerTask> &y) const {
     std::swap(x, y);
     std::swap(x->index, y->index);
 }
 
 void TimerHeap::print_all() const {
-    for (const auto e: heap)
+    for (const auto &e : heap)
         RC_DEBUG << e->index << ',' << e->expire.time_since_epoch().count();
 }

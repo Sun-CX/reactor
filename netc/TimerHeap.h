@@ -7,34 +7,34 @@
 
 #include "NonCopyable.h"
 #include <vector>
+#include <memory>
 
 namespace reactor::net {
     using reactor::core::NonCopyable;
     using std::vector;
-    
+    using std::shared_ptr;
+
     class TimerTask;
 
     class TimerHeap final : public NonCopyable {
     private:
-        vector<TimerTask *> heap;
+        vector<shared_ptr<TimerTask>> heap;
 
         void sift_up(int end);
 
         void sift_down(int begin, int end);
 
-        void swap(TimerTask *&x, TimerTask *&y) const;
+        void swap(shared_ptr<TimerTask> &x, shared_ptr<TimerTask> &y) const;
 
     public:
-        TimerHeap();
-
-        ~TimerHeap();
-
-        void push(TimerTask *task);
+        void push(const shared_ptr<TimerTask> &task);
 
         [[nodiscard]]
-        const TimerTask *peek() const;
+        shared_ptr<TimerTask> peek() const;
 
-        TimerTask *pop();
+        shared_ptr<TimerTask> pop();
+
+        shared_ptr<TimerTask> remove(int i);
 
         [[nodiscard]]
         bool empty() const;

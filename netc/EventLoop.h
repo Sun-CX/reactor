@@ -6,7 +6,7 @@
 #define REACTOR_EVENTLOOP_H
 
 #include "Mutex.h"
-#include "TimerTask.h"
+#include "Timer.h"
 #include <vector>
 #include <memory>
 #include <atomic>
@@ -16,12 +16,11 @@ namespace reactor::net {
     using std::vector;
     using std::unique_ptr;
     using std::atomic_bool;
-    using std::chrono::seconds;
-    using std::chrono_literals::operator ""s;
+    using std::chrono::nanoseconds;
+    using std::chrono_literals::operator ""ns;
     using reactor::core::NonCopyable;
     using reactor::core::Mutex;
-
-    class Timer;
+    using Task = shared_ptr<TimerTask>;
 
     class Channel;
 
@@ -108,7 +107,12 @@ namespace reactor::net {
         // cross-thread calling is allowed.
         void queue_in_loop(const Functor &func);
 
-        void schedule(const TimerTask::TimerCallback &callback, const seconds &after, const seconds &interval = 0s);
+        // cross-thread calling is allowed.
+        Task schedule(const TimerTask::TimerCallback &callback, const nanoseconds &delay, const nanoseconds &interval = 0ns);
+
+        // cancel a timer task created by calling `schedule`.
+        // cross-thread calling is allowed.
+        void cancel(const Task &task) const;
     };
 }
 

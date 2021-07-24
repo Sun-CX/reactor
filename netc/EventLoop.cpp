@@ -20,6 +20,7 @@ using std::for_each;
 using reactor::net::EventLoop;
 using reactor::core::CurrentThread;
 using reactor::core::MutexGuard;
+using reactor::net::Task;
 
 thread_local EventLoop *EventLoop::eventloop_in_current_thread = nullptr;
 const int EventLoop::default_timeout_milliseconds = -1;   // 默认永不超时
@@ -157,8 +158,12 @@ void EventLoop::read_wakeup() const {
     RC_DEBUG << "read from eventfd(" << wakeup_channel->get_fd() << "): value = " << value;
 }
 
-void EventLoop::schedule(const TimerTask::TimerCallback &callback, const seconds &after, const seconds &interval) {
-    timer->schedule(callback, after, interval);
+Task EventLoop::schedule(const TimerTask::TimerCallback &callback, const nanoseconds &delay, const nanoseconds &interval) {
+    return timer->schedule(callback, delay, interval);
+}
+
+void EventLoop::cancel(const Task &task) const {
+    timer->cancel(task);
 }
 
 

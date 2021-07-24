@@ -39,7 +39,10 @@ add_executable(socketopt-test SocketOpt-Test.cpp)
 target_link_libraries(socketopt-test PRIVATE reactor-core)
 
 add_executable(timerheap-test TimerHeap-Test.cpp)
-target_link_libraries(timerheap-test PRIVATE netc reactor-core)
+target_link_libraries(timerheap-test PRIVATE asan netc reactor-core)
+
+add_executable(timer-test Timer-Test.cpp)
+target_link_libraries(timer-test PRIVATE asan netc reactor-core)
 
 add_executable(timerfd-test timerfd-Test.cpp)
 target_link_libraries(timerfd-test PRIVATE reactor-core)

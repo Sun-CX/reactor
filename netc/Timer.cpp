@@ -14,10 +14,14 @@
 #include <unistd.h>
 
 using std::bind;
+using std::shared_ptr;
+using std::make_shared;
+using std::chrono::abs;
+using std::chrono::seconds;
 using std::chrono::duration_cast;
-using std::chrono_literals::operator ""ns;
+using std::chrono_literals::operator ""ms;
 using reactor::net::Timer;
-using reactor::net::Task;
+using reactor::net::TimerTask;
 
 Timer::Timer(EventLoop *loop) :
         loop(loop),
@@ -47,30 +51,39 @@ int Timer::create_timer_fd() const {
 
 void Timer::read_handler() {
     assert(loop->is_in_created_thread());
-    assert(not tasks.empty());
+    assert(!tasks.empty());
     read_timeout_event();
 
-    auto expire = tasks.peek()->expire;
-    TimerTask *task;
+    steady_clock::time_point point = tasks.peek()->expire;
+    shared_ptr<TimerTask> task;
+
     do {
         task = tasks.pop();
         task->alarm();
+
         if (task->is_repeated()) {
+
             task->restart(task->expire + task->interval);
+
             tasks.push(task);
-            reset_timer_fd();
-        } else delete task;
-    } while (!tasks.empty() and tasks.peek()->expire == expire);
+        }
+
+    } while (!tasks.empty() and abs(tasks.peek()->expire - point) <= 1ms);
+
+    if (!tasks.empty()) set_timer();
 }
 
 void Timer::read_timeout_event() const {
-    uint64_t exp;
-    ssize_t n = ::read(timer_channel.get_fd(), &exp, sizeof(exp));
-    if (unlikely(n != sizeof(exp)))
+    uint64_t val;
+    ssize_t n = ::read(timer_channel.get_fd(), &val, sizeof(val));
+    if (unlikely(n != sizeof(val)))
         RC_FATAL << "timer(" << timer_channel.get_fd() << ") read error";
 }
 
-void Timer::reset_timer_fd() const {
+void Timer::set_timer() const {
+    assert(loop->is_in_created_thread());
+    assert(!tasks.empty());
+
     itimerspec its;
 
     // disable interval
@@ -87,30 +100,50 @@ void Timer::reset_timer_fd() const {
         RC_FATAL << "timer(" << timer_channel.get_fd() << ") settime error: " << ::strerror(errno);
 }
 
-Task Timer::schedule(const TimerTask::TimerCallback &callback, const nanoseconds &after, const nanoseconds &interval) {
+void Timer::clear_timer() const {
+    itimerspec its;
 
-    TimerTask *task = nullptr;
+    its.it_interval.tv_sec = 0;
+    its.it_interval.tv_nsec = 0;
 
-    if (after == 0ns) { // run instantly.
+    its.it_value.tv_sec = 0;
+    its.it_value.tv_nsec = 0;
+
+    int ret = ::timerfd_settime(timer_channel.get_fd(), TFD_TIMER_ABSTIME, &its, nullptr);
+    if (unlikely(ret < 0))
+        RC_FATAL << "timer(" << timer_channel.get_fd() << ") settime error: " << ::strerror(errno);
+}
+
+shared_ptr<TimerTask> Timer::schedule(const TimerTask::TimerCallback &callback, const nanoseconds &delay, const nanoseconds &interval) {
+
+    shared_ptr<TimerTask> task(nullptr);
+
+    if (delay == 0ns) { // run instantly.
 
         // no need to create a timer task.
         if (interval == 0ns) {
             loop->run_in_loop(callback);
         } else {
+
             // create a new task and run it at first time.
-            task = new TimerTask(callback, steady_clock::now(), interval);
+            task = make_shared<TimerTask>(callback, steady_clock::now(), interval);
             loop->run_in_loop(bind(&Timer::run_task_in_loop, this, task));
         }
     } else {
+
         // create a new task and add it to `tasks`.
-        task = new TimerTask(callback, steady_clock::now() + after, interval);
+        task = make_shared<TimerTask>(callback, steady_clock::now() + delay, interval);
         loop->run_in_loop(bind(&Timer::add_task_in_loop, this, task));
     }
 
-    return reinterpret_cast<Task>(task);
+    return task;
 }
 
-void Timer::run_task_in_loop(TimerTask *task) {
+void Timer::cancel(const shared_ptr<TimerTask> &task) {
+    loop->run_in_loop(bind(&Timer::cancel_task_in_loop, this, task));
+}
+
+void Timer::run_task_in_loop(const shared_ptr<TimerTask> &task) {
     assert(loop->is_in_created_thread());
     assert(task->is_repeated());
 
@@ -118,42 +151,46 @@ void Timer::run_task_in_loop(TimerTask *task) {
 
     task->restart(task->expire + task->interval);
 
-    if (insert(task))
-        reset_timer_fd();
+    if (insert(task)) set_timer();
 }
 
-void Timer::add_task_in_loop(TimerTask *task) {
+void Timer::add_task_in_loop(const shared_ptr<TimerTask> &task) {
+    assert(loop->is_in_created_thread());
+    if (insert(task)) set_timer();
+}
+
+void Timer::cancel_task_in_loop(const shared_ptr<TimerTask> &task) {
     assert(loop->is_in_created_thread());
 
-    if (insert(task))
-        reset_timer_fd();
+    if (task != nullptr) {
+
+        int index = task->get_index();
+        if (index == -1) {
+            task->interval = 0ns;
+        } else {
+            tasks.remove(index);
+
+            if (tasks.empty()) {
+                clear_timer();
+            } else {
+
+                if (*task < *tasks.peek()) {
+                    set_timer();
+                }
+
+            }
+        }
+    }
 }
 
-bool Timer::insert(TimerTask *task) {
+bool Timer::insert(const shared_ptr<TimerTask> &task) {
     assert(task != nullptr);
     if (tasks.empty()) {
         tasks.push(task);
         return true;
     } else {
-        const TimerTask *latest = tasks.peek();
+        auto latest = tasks.peek();
         tasks.push(task);
         return *task < *latest;
     }
-}
-
-void Timer::cancel(Task task) {
-
-    auto ptr = reinterpret_cast<TimerTask *>(task);
-    if (ptr == nullptr) return;
-
-    int index = ptr->get_index();
-    assert(index != -1);
-
-    // if (index == 0) {
-    //
-    //
-    // } else {
-    //     tasks.remove(index);
-    // }
-
 }

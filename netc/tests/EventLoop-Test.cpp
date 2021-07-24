@@ -10,6 +10,7 @@ using std::chrono::steady_clock;
 using std::chrono::system_clock;
 using std::chrono_literals::operator ""s;
 using reactor::net::EventLoop;
+using reactor::net::Task;
 using reactor::core::Thread;
 using reactor::core::CurrentThread;
 
@@ -98,19 +99,6 @@ void run_in_loop_test() {
     thread.join();
 }
 
-void test1() {
-    EventLoop loop;
-    loop.schedule([&loop] {
-        RC_DEBUG << "wo kao";
-        // loop.quit();
-    }, 0s, 2s);
-
-    // loop.schedule([] {
-    //     printf("hello\n");
-    // }, 1_s, 1_s);
-    loop.loop();
-}
-
 void test2() {
     EventLoop loop;
 
@@ -120,6 +108,18 @@ void test2() {
 
     thread.start();
     thread.join();
+}
+
+void test3() {
+    EventLoop loop;
+
+    Task t1 = loop.schedule([] {
+        RC_DEBUG << "hello world!";
+    }, 0s, 0s);
+
+    loop.cancel(t1);
+
+    loop.loop();
 }
 
 int main(int argc, const char *argv[]) {
@@ -133,8 +133,5 @@ int main(int argc, const char *argv[]) {
     // quit_loop();
 
     // run_in_loop_test();
-
-    test1();
-
     return 0;
 }
