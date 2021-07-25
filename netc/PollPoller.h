@@ -25,7 +25,7 @@ namespace reactor::net {
 
         PollFDs fds;
 
-        void fill_active_channels(Channels &active_channels, int num_events) const;
+        void fill_active_channels(Channels &active_channels, int ready_events) const;
 
     public:
         explicit PollPoller(EventLoop *loop);

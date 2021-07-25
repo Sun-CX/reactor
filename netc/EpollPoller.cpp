@@ -13,6 +13,7 @@
 
 using reactor::core::Timestamp;
 using reactor::net::EpollPoller;
+using std::chrono::system_clock;
 
 const int EpollPoller::NEW = -1;
 const int EpollPoller::ADD = 0;
@@ -30,12 +31,14 @@ EpollPoller::~EpollPoller() {
 
 Timestamp EpollPoller::poll(Channels &active_channels, int milliseconds) {
     int ready_events = ::epoll_wait(epoll_fd, events.data(), events.capacity(), milliseconds);
-    system_clock::time_point now = system_clock::now();
+
+    Timestamp ts = system_clock::now();
+
     if (unlikely(ready_events < 0)) {
         if (errno != EINTR)
             RC_FATAL << "epoll(" << epoll_fd << ") wait error: " << ::strerror(errno);
     } else if (ready_events == 0) {
-        RC_WARN << "epoll(" << epoll_fd << ") timeout, nothing happened";
+        RC_WARN << "epoll(" << epoll_fd << ") wait timeout, nothing happened";
     } else {
         fill_active_channels(active_channels, ready_events);
 
@@ -43,7 +46,7 @@ Timestamp EpollPoller::poll(Channels &active_channels, int milliseconds) {
         if (ready_events == events.capacity())
             events.reserve(events.capacity() << 1u);
     }
-    return now;
+    return ts;
 }
 
 void EpollPoller::fill_active_channels(Channels &active_channels, int num_events) const {

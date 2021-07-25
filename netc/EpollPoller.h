@@ -24,7 +24,6 @@
 class epoll_event;
 
 namespace reactor::net {
-    using std::chrono::system_clock;
 
     class EpollPoller final : public Poller {
     private:

@@ -31,5 +31,5 @@ Poller *Poller::default_poller(EventLoop *loop) {
 //    } else {
 //        return new PollPoller(loop);
 //    }
-    return new EpollPoller(loop);
+    return new PollPoller(loop);
 }
