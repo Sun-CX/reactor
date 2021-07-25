@@ -11,10 +11,10 @@
 #define attr_deprecated __attribute__((deprecated))
 #define attr_packed __attribute__((packed))
 
-/* x 很可能为真 */
+/* condition x is very likely true. */
 #define likely(x) __builtin_expect((x), true)
 
-/* x 很可能为假 */
+/* condition x is very likely false. */
 #define unlikely(x) __builtin_expect((x), false)
 
 #endif //REACTOR_EXT_H

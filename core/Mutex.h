@@ -27,7 +27,9 @@ namespace reactor::core {
         friend class Condition;
 
         pthread_mutex_t mutex;
-        pid_t pid;              // 当前持有锁的线程 ID，为 0 表示没有线程持有锁
+        // id of thread which holds the lock.
+        // 0 means no thread holds the lock.
+        pid_t pid;
 
         class ConditionWaitGuard final : public NonCopyable {
         private:

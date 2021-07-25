@@ -154,7 +154,7 @@ bool CurrentThread::is_main_thread() {
     return id == ::getpid();
 }
 
-int CurrentThread::sleep(nanoseconds ns) {
+int CurrentThread::sleep(const nanoseconds ns) {
     assert(ns.count() > 0);
 
     timespec time;

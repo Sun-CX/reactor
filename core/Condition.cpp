@@ -23,6 +23,8 @@
 #endif
 
 using reactor::core::Condition;
+using std::chrono::system_clock;
+using std::chrono_literals::operator ""s;
 
 Condition::Condition(Mutex &mutex) : mutex(mutex) {
     int ret = ::pthread_cond_init(&cond, nullptr);
@@ -44,17 +46,13 @@ void Condition::wait() {
         RC_FATAL << "pthread cond wait error: " << ::strerror(ret);
 }
 
-bool Condition::timed_wait(long seconds, long microseconds) {
-    if (seconds < 0 or microseconds < 0 or microseconds > 999999)
-        RC_FATAL << "pthread cond wait timeout value out of range";
+bool Condition::timed_wait(const nanoseconds ns) {
+    system_clock::time_point when = system_clock::now();
+    when += ns;
 
     timespec ts;
-    int ret = ::clock_gettime(CLOCK_REALTIME, &ts);
-    if (unlikely(ret < 0))
-        RC_FATAL << "clock gettime error: " << ::strerror(errno);
-
-    ts.tv_sec += seconds;
-    ts.tv_nsec += microseconds * 1000;
+    ts.tv_sec = when.time_since_epoch() / 1s;
+    ts.tv_nsec = (when.time_since_epoch() % 1s).count();
 
     Mutex::ConditionWaitGuard guard(mutex);
     return ::pthread_cond_timedwait(&cond, mutex.get_mutex(), &ts) == ETIMEDOUT;

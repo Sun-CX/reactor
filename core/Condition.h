@@ -6,8 +6,11 @@
 #define REACTOR_CONDITION_H
 
 #include "Mutex.h"
+#include <chrono>
 
 namespace reactor::core {
+    using std::chrono::nanoseconds;
+
     class Condition final : public NonCopyable {
     private:
         Mutex &mutex;
@@ -17,30 +20,14 @@ namespace reactor::core {
 
         ~Condition();
 
-        /**
-         * 注意：此函数调用之前必须加锁，以保护条件
-         * 将当前线程加入阻塞队列，等待其它的线程对条件变量发送信号：signal() or broadcast()
-         */
         void wait();
 
-        /**
-         * 注意：此函数调用之前必须加锁，以保护条件
-         *
-         * 线程等待一定的时间，如果超时或有信号触发，则线程唤醒
-         * @param seconds 秒
-         * @param microseconds 微秒
-         * @return 是否超时
-         */
-        bool timed_wait(long seconds, long microseconds = 0);
+        // wait a thread until a signal or timeout.
+        // return true if timeout.
+        bool timed_wait(nanoseconds ns);
 
-        /**
-         * 唤醒阻塞在条件变量上的一个线程，使其处于就绪态
-         */
         void notify();
 
-        /**
-         * 唤醒阻塞在条件变量上的所有线程
-         */
         void notify_all();
     };
 }
