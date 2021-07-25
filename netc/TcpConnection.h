@@ -7,7 +7,7 @@
 
 #include "NonCopyable.h"
 #include "InetAddress.h"
-#include "Events.h"
+#include "Handlers.h"
 #include "Buffer.h"
 #include <any>
 
@@ -45,18 +45,18 @@ namespace reactor::net {
         Buffer outbound;    // 出站缓冲区
         any context;
 
-        ConnectionCallback conn_callback;
-        MessageCallback msg_callback;
-        CloseCallback close_callback;
-        WriteCompleteCallback write_complete_callback;
+        ConnectionHandler con_handler;
+        DataHandler data_handler;
+        CloseHandler close_handler;
+        WriteCompleteHandler write_complete_handler;
 
-        void read_handler();
+        void handle_read();
 
-        void write_handler();
+        void handle_write();
 
-        void close_handler();
+        void handle_close();
 
-        void error_handler();
+        void handle_error();
 
         void shutdown();
 
@@ -100,13 +100,13 @@ namespace reactor::net {
 
         EventLoop *get_loop() const;
 
-        void set_connection_callback(const ConnectionCallback &callback);
+        void on_connection(const ConnectionHandler &handler);
 
-        void set_message_callback(const MessageCallback &callback);
+        void on_data(const DataHandler &handler);
 
-        void set_write_complete_callback(const WriteCompleteCallback &callback);
+        void on_write_complete(const WriteCompleteHandler &handler);
 
-        void set_close_callback(const CloseCallback &callback);
+        void on_close(const CloseHandler &handler);
     };
 }
 

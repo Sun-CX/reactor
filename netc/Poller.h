@@ -6,16 +6,15 @@
 #define REACTOR_POLLER_H
 
 #include "NonCopyable.h"
+#include "Timestamp.h"
 #include <vector>
 #include <map>
-#include <chrono>
 
 namespace reactor::net {
+    using reactor::core::NonCopyable;
+    using reactor::core::Timestamp;
     using std::map;
     using std::vector;
-    using std::chrono::system_clock;
-    using std::chrono::time_point;
-    using reactor::core::NonCopyable;
 
     class EventLoop;
 
@@ -37,7 +36,7 @@ namespace reactor::net {
 
         virtual ~Poller() = default;
 
-        virtual system_clock::time_point poll(Channels &active_channels, int milliseconds) = 0;
+        virtual Timestamp poll(Channels &active_channels, int milliseconds) = 0;
 
         virtual void update_channel(Channel *channel) = 0;
 

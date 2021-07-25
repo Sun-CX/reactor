@@ -15,16 +15,16 @@ namespace reactor::net {
 
     class Acceptor final : public NonCopyable {
     private:
-        using NewConnectionCallback = function<void(int, const InetAddress &)>;
+        using NewConnectionHandler = function<void(int, const InetAddress &)>;
 
         EventLoop *const loop;
         ServerSocket server_socket;
         Channel accept_channel;
-        NewConnectionCallback callback;
+        NewConnectionHandler handler;
         bool listening;
         int idle_fd;
 
-        void read_handler();
+        void handle_read();
 
         [[nodiscard]]
         int open_idle_fd() const;
@@ -36,7 +36,7 @@ namespace reactor::net {
 
         ~Acceptor();
 
-        void set_new_connection_callback(const NewConnectionCallback &handler);
+        void on_new_connection(const NewConnectionHandler &hdr);
 
         void listen();
 

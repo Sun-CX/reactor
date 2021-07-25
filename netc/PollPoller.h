@@ -34,7 +34,7 @@ namespace reactor::net {
 
         void remove_channel(Channel *channel) override;
 
-        system_clock::time_point poll(Channels &active_channels, int milliseconds) override;
+        Timestamp poll(Channels &active_channels, int milliseconds) override;
     };
 }
 

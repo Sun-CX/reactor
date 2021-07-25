@@ -11,10 +11,6 @@
 #include <chrono>
 
 namespace reactor::net {
-    using reactor::core::NonCopyable;
-    using reactor::net::TimerHeap;
-    using std::shared_ptr;
-
     class EventLoop;
 
     class Timer final : public NonCopyable {
@@ -26,7 +22,7 @@ namespace reactor::net {
         [[nodiscard]]
         int create_timer_fd() const;
 
-        void read_handler();
+        void handle_read();
 
         void read_timeout_event() const;
 

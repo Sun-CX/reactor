@@ -9,16 +9,17 @@
 #include <poll.h>
 #include <cassert>
 
-using std::chrono::system_clock;
 using std::iter_swap;
+using reactor::core::Timestamp;
 using reactor::net::PollPoller;
+using std::chrono::system_clock;
 
 PollPoller::PollPoller(EventLoop *loop) : Poller(loop) {}
 
-system_clock::time_point PollPoller::poll(Channels &active_channels, int milliseconds) {
+Timestamp PollPoller::poll(Channels &active_channels, int milliseconds) {
     auto num_events = ::poll(fds.data(), fds.size(), milliseconds);
 
-    system_clock::time_point now = system_clock::now();
+    Timestamp now = system_clock::now();
 
     if (unlikely(num_events < 0)) { // error
         RC_WARN << "poll error, errno = " << errno;

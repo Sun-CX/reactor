@@ -20,7 +20,7 @@ using google::protobuf::MessageFactory;
 const uint32_t ProtoCodec::MIN_TYPE_NAME_LEN = 2u;
 const uint32_t ProtoCodec::MIN_DATA_LEN = sizeof(uint32_t) + sizeof(uint32_t) + MIN_TYPE_NAME_LEN + sizeof(uint32_t);
 
-void ProtoCodec::default_error_callback(const shared_ptr<TcpConnection> &con, system_clock::time_point s, ErrorCode rc) {
+void ProtoCodec::default_error_callback(const shared_ptr<TcpConnection> &con, Timestamp s, ErrorCode rc) {
     RC_ERROR << __PRETTY_FUNCTION__ << " invoked error with errno = " << rc;
     if (con) con->send_and_shutdown();
 }
@@ -35,7 +35,7 @@ ProtoCodec::ProtoCodec(ProtoCodec::ProtobufMessageCallback messageCallback, Prot
         message_callback(move(messageCallback)),
         error_callback(move(errorCallback)) {}
 
-void ProtoCodec::on_message(const shared_ptr<TcpConnection> &con, system_clock::time_point ts) {
+void ProtoCodec::on_message(const shared_ptr<TcpConnection> &con, Timestamp ts) {
     Buffer &in = con->in();
     while (in.readable_bytes() >= MIN_DATA_LEN) {
         auto len = in.peek_uint32();

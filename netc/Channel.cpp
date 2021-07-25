@@ -19,8 +19,6 @@ static_assert(POLLPRI == EPOLLPRI);
 static_assert(POLLERR == EPOLLERR);
 static_assert(POLLHUP == EPOLLHUP);
 
-// static_assert(POLLNVAL == EPOLLNVAR);
-
 Channel::Channel(EventLoop *loop, int fd) :
         loop(loop),
         fd(fd),
@@ -51,30 +49,30 @@ void Channel::handle_events() {
     RC_DEBUG << "====================== begin ======================";
 
     if (revents & (POLLIN | POLLPRI)) {
-        assert(read_callback);
+        assert(read_handler);
         RC_DEBUG << "Read triggered.";
-        read_callback();
+        read_handler();
     }
 
     if (revents & POLLOUT) {
-        assert(write_callback);
+        assert(write_handler);
         RC_DEBUG << "Write triggered.";
-        write_callback();
+        write_handler();
     }
 
     // POLLRDHUP: will be set when the other end has called shutdown(SHUT_WR)
     //            or when this end has called shutdown(SHUT_RD), but the connection may still be alive in the other direction.
     // POLLHUP: will signal that the connection was closed in both directions.
     if (revents & (POLLRDHUP | POLLHUP)) {
-        assert(close_callback);
+        assert(close_handler);
         RC_DEBUG << "Close triggered.";
-        close_callback();
+        close_handler();
     }
 
     if (revents & POLLERR) {
-        assert(error_callback);
+        assert(error_handler);
         RC_DEBUG << "Error triggered.";
-        error_callback();
+        error_handler();
     }
 
     RC_DEBUG << "====================== end ======================";
@@ -143,18 +141,18 @@ bool Channel::writing_enabled() const {
     return events & POLLOUT;
 }
 
-void Channel::set_read_callback(const EventCallback &callback) {
-    read_callback = callback;
+void Channel::on_read(const EventHandler &handler) {
+    read_handler = handler;
 }
 
-void Channel::set_write_callback(const EventCallback &callback) {
-    write_callback = callback;
+void Channel::on_write(const EventHandler &handler) {
+    write_handler = handler;
 }
 
-void Channel::set_close_callback(const EventCallback &callback) {
-    close_callback = callback;
+void Channel::on_close(const EventHandler &handler) {
+    close_handler = handler;
 }
 
-void Channel::set_error_callback(const EventCallback &callback) {
-    error_callback = callback;
+void Channel::on_error(const EventHandler &handler) {
+    error_handler = handler;
 }

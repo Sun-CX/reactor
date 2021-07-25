@@ -68,8 +68,8 @@ public:
         dispatcher.register_message_callback<Query>(bind(&QueryServer::on_query, this, _1, _2, _3));
         dispatcher.register_message_callback<Answer>(bind(&QueryServer::on_answer, this, _1, _2, _3));
 
-        server.set_new_connection_callback(bind(&QueryServer::on_connection, this, _1));
-        server.set_message_callback(bind(&ProtoCodec::on_message, &codec, _1, _2));
+        server.on_connection(bind(&QueryServer::on_connection, this, _1));
+        server.on_data(bind(&ProtoCodec::on_message, &codec, _1, _2));
     }
 
     void start() {

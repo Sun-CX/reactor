@@ -22,7 +22,7 @@ private:
     EventLoop *loop;
     TcpServer server;
 
-    void on_message(const shared_ptr<TcpConnection> &conn, const system_clock::time_point ts) {
+    void on_data_arrived(const shared_ptr<TcpConnection> &conn, const system_clock::time_point ts) {
         RC_DEBUG << "on_message called!";
         string msg = conn->in().retrieve_all_string();
         if (msg == "exit\n") {
@@ -33,14 +33,14 @@ private:
         if (msg == "quit\n") {
             conn->out().append("server is closing...\n");
             conn->send();
-            conn->set_write_complete_callback([this](const shared_ptr<TcpConnection> &con) {
+            conn->on_write_complete([this](const shared_ptr<TcpConnection> &con) {
                 loop->quit();
             });
             return;
         }
         conn->out().append(msg);
         conn->send();
-        conn->set_write_complete_callback([](const shared_ptr<TcpConnection> &con) {
+        conn->on_write_complete([](const shared_ptr<TcpConnection> &con) {
             RC_DEBUG << "has written completed!";
         });
     }
@@ -50,7 +50,7 @@ public:
             loop(loop),
             server(loop, listen_addr, "echo-svr", threads, true) {
 
-        server.set_message_callback(bind(&EchoServer::on_message, this, _1, _2));
+        server.on_data(bind(&EchoServer::on_data_arrived, this, _1, _2));
     }
 
     void start() { server.start(); }

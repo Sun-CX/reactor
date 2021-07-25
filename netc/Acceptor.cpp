@@ -24,7 +24,7 @@ Acceptor::Acceptor(EventLoop *loop, const InetAddress &addr, bool reuse_port) :
     server_socket.reuse_addr(true);
     server_socket.reuse_port(reuse_port);
     server_socket.bind(addr);
-    accept_channel.set_read_callback(bind(&Acceptor::read_handler, this));
+    accept_channel.on_read(bind(&Acceptor::handle_read, this));
 }
 
 Acceptor::~Acceptor() {
@@ -45,14 +45,14 @@ void Acceptor::close_idle_fd() const {
         RC_FATAL << "close idle fd(" << idle_fd << ") error: " << ::strerror(errno);
 }
 
-void Acceptor::read_handler() {
+void Acceptor::handle_read() {
     assert(loop->is_in_created_thread());
     InetAddress peer_addr;
     int con_fd = server_socket.accept(peer_addr);
 
     if (con_fd >= 0) {
 
-        callback(con_fd, peer_addr);
+        handler(con_fd, peer_addr);
 
     } else {
 
@@ -80,8 +80,8 @@ void Acceptor::listen() {
     accept_channel.enable_reading();
 }
 
-void Acceptor::set_new_connection_callback(const NewConnectionCallback &handler) {
-    callback = handler;
+void Acceptor::on_new_connection(const NewConnectionHandler &hdr) {
+    handler = hdr;
 }
 
 bool Acceptor::is_listening() const {

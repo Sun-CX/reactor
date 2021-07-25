@@ -18,6 +18,7 @@ using reactor::net::EventLoop;
 using reactor::net::InetAddress;
 using reactor::net::Buffer;
 using std::any;
+using std::chrono::system_clock;
 
 const char *TcpConnection::STATUS_STRING[4] = {"CONNECTING", "CONNECTED", "DISCONNECTING", "DISCONNECTED"};
 
@@ -34,10 +35,10 @@ TcpConnection::TcpConnection(EventLoop *loop, int con_fd, const InetAddress &loc
         context() {
     RC_DEBUG << "---------------------- +TcpConnection(" << conn_channel->get_fd() << ") ----------------------";
     socket->keep_alive(true);
-    conn_channel->set_read_callback(bind(&TcpConnection::read_handler, this));
-    conn_channel->set_write_callback(bind(&TcpConnection::write_handler, this));
-    conn_channel->set_close_callback(bind(&TcpConnection::close_handler, this));
-    conn_channel->set_error_callback(bind(&TcpConnection::error_handler, this));
+    conn_channel->on_read(bind(&TcpConnection::handle_read, this));
+    conn_channel->on_write(bind(&TcpConnection::handle_write, this));
+    conn_channel->on_close(bind(&TcpConnection::handle_close, this));
+    conn_channel->on_error(bind(&TcpConnection::handle_error, this));
 }
 
 TcpConnection::~TcpConnection() {
@@ -45,13 +46,13 @@ TcpConnection::~TcpConnection() {
     RC_DEBUG << "---------------------- -TcpConnection(" << conn_channel->get_fd() << ") ----------------------";
 }
 
-void TcpConnection::read_handler() {
+void TcpConnection::handle_read() {
     assert(loop->is_in_created_thread());
     int saved_errno;
     ssize_t n = inbound.read_from_fd(conn_channel->get_fd(), saved_errno);
     if (n > 0) {
         // TODO: fix timestamp.
-        msg_callback(shared_from_this(), system_clock::now());
+        data_handler(shared_from_this(), system_clock::now());
     } else if (n == 0) {
 
         RC_DEBUG << "read(" << conn_channel->get_fd() << ") 0 occurred!";
@@ -65,7 +66,7 @@ void TcpConnection::read_handler() {
     }
 }
 
-void TcpConnection::write_handler() {
+void TcpConnection::handle_write() {
     assert(loop->is_in_created_thread());
     assert(outbound.readable_bytes() > 0);
     ssize_t n = ::write(conn_channel->get_fd(), outbound.peek(), outbound.readable_bytes());
@@ -78,14 +79,14 @@ void TcpConnection::write_handler() {
                 assert(conn_channel->is_disabled());
             }
 
-            if (write_complete_callback)
-                loop->queue_in_loop(bind(write_complete_callback, shared_from_this()));
+            if (write_complete_handler)
+                loop->queue_in_loop(bind(write_complete_handler, shared_from_this()));
         }
     } else
         RC_ERROR << "write fd(" << conn_channel->get_fd() << ") error: " << ::strerror(errno);
 }
 
-void TcpConnection::close_handler() {
+void TcpConnection::handle_close() {
     assert(loop->is_in_created_thread());
     // 当 peer 主动断开连接时，状态为 CONNECTED
     // 当 host 主动断开连接时，状态为 DISCONNECTING
@@ -102,11 +103,11 @@ void TcpConnection::close_handler() {
     } else {
         // no remaining data to be sent, going to close connection.
         conn_channel->remove();
-        close_callback(shared_from_this());
+        close_handler(shared_from_this());
     }
 }
 
-void TcpConnection::error_handler() {
+void TcpConnection::handle_error() {
     assert(loop->is_in_created_thread());
     int opt;
     socklen_t len = sizeof(opt);
@@ -123,7 +124,7 @@ void TcpConnection::connection_established() {
     assert(loop->is_in_created_thread());
     assert(status == CONNECTING);
 
-    conn_callback(shared_from_this());
+    con_handler(shared_from_this());
     status = CONNECTED;
     conn_channel->enable_reading();
 }
@@ -145,7 +146,7 @@ void TcpConnection::send() {
 void TcpConnection::send_and_shutdown() {
     send();
     if (conn_channel->writing_enabled()) {
-        set_write_complete_callback([](const shared_ptr <TcpConnection> &con) {
+        on_write_complete([](const shared_ptr <TcpConnection> &con) {
             con->shutdown();
         });
     } else
@@ -202,18 +203,18 @@ void TcpConnection::set_context(const any &ctx) {
     context = ctx;
 }
 
-void TcpConnection::set_connection_callback(const ConnectionCallback &callback) {
-    conn_callback = callback;
+void TcpConnection::on_connection(const ConnectionHandler &handler) {
+    con_handler = handler;
 }
 
-void TcpConnection::set_message_callback(const MessageCallback &callback) {
-    msg_callback = callback;
+void TcpConnection::on_data(const DataHandler &handler) {
+    data_handler = handler;
 }
 
-void TcpConnection::set_write_complete_callback(const WriteCompleteCallback &callback) {
-    write_complete_callback = callback;
+void TcpConnection::on_write_complete(const WriteCompleteHandler &handler) {
+    write_complete_handler = handler;
 }
 
-void TcpConnection::set_close_callback(const CloseCallback &callback) {
-    close_callback = callback;
+void TcpConnection::on_close(const CloseHandler &handler) {
+    close_handler = handler;
 }

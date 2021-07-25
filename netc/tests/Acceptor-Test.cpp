@@ -23,7 +23,7 @@ int main(int argc, const char *argv[]) {
 
     InetAddress addr("192.168.2.2", 8080);
     Acceptor acceptor(&loop, addr, true);
-    acceptor.set_new_connection_callback(on_new_connection);
+    acceptor.on_new_connection(on_new_connection);
     acceptor.listen();
 
     loop.loop();

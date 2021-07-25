@@ -39,7 +39,7 @@ int main(int argc, const char *argv[]) {
     auto timer_fd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 
     Channel channel(g_loop, timer_fd);
-    channel.set_read_callback([=] { return timeout(timer_fd); });
+    channel.on_read([=] { return timeout(timer_fd); });
     channel.enable_reading();
 
     itimerspec spec;

@@ -11,7 +11,7 @@
 #include <cassert>
 #include <cstring>
 
-using std::chrono::system_clock;
+using reactor::core::Timestamp;
 using reactor::net::EpollPoller;
 
 const int EpollPoller::NEW = -1;
@@ -28,7 +28,7 @@ EpollPoller::~EpollPoller() {
     epoll_close(epoll_fd);
 }
 
-system_clock::time_point EpollPoller::poll(Channels &active_channels, int milliseconds) {
+Timestamp EpollPoller::poll(Channels &active_channels, int milliseconds) {
     int ready_events = ::epoll_wait(epoll_fd, events.data(), events.capacity(), milliseconds);
     system_clock::time_point now = system_clock::now();
     if (unlikely(ready_events < 0)) {

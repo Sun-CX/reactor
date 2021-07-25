@@ -7,10 +7,7 @@
 
 #include "Mutex.h"
 #include "Timer.h"
-#include <vector>
-#include <memory>
 #include <atomic>
-#include <chrono>
 
 namespace reactor::net {
     using std::vector;
@@ -52,7 +49,7 @@ namespace reactor::net {
         Channels active_channels;
 
         // whether `pending_functors` are running.
-        atomic_bool calling_pending_func;
+        bool calling_pending_func;
         // mutex lock for ensure `pending_functors` thread safe.
         Mutex mutex;
         // pending tasks waiting to be run after poll return.

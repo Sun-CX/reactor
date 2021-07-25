@@ -9,14 +9,14 @@
 #include <functional>
 
 namespace reactor::net {
-    using std::function;
     using reactor::core::NonCopyable;
+    using std::function;
 
     class EventLoop;
 
     class Channel final : public NonCopyable {
     private:
-        using EventCallback  = function<void()>;
+        using EventHandler = function<void()>;
 
         EventLoop *const loop;
 
@@ -36,10 +36,10 @@ namespace reactor::net {
 
         bool events_handling;
 
-        EventCallback read_callback;
-        EventCallback write_callback;
-        EventCallback close_callback;
-        EventCallback error_callback;
+        EventHandler read_handler;
+        EventHandler write_handler;
+        EventHandler close_handler;
+        EventHandler error_handler;
 
         void update();
 
@@ -89,13 +89,13 @@ namespace reactor::net {
         [[nodiscard]]
         bool writing_enabled() const;
 
-        void set_read_callback(const EventCallback &callback);
+        void on_read(const EventHandler &handler);
 
-        void set_write_callback(const EventCallback &callback);
+        void on_write(const EventHandler &handler);
 
-        void set_close_callback(const EventCallback &callback);
+        void on_close(const EventHandler &handler);
 
-        void set_error_callback(const EventCallback &callback);
+        void on_error(const EventHandler &handler);
     };
 }
 

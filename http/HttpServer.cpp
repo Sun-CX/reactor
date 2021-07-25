@@ -5,7 +5,6 @@
 #include "HttpServer.h"
 #include "TcpConnection.h"
 #include "HttpContext.h"
-#include "ConsoleStream.h"
 
 using std::placeholders::_1;
 using std::placeholders::_2;
@@ -17,15 +16,15 @@ using reactor::core::to_string;
 HttpServer::HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port) :
         server(loop, addr, move(name), threads, reuse_port) {
 
-    server.set_new_connection_callback(bind(&HttpServer::on_connection, this, _1));
-    server.set_message_callback(bind(&HttpServer::on_message, this, _1, _2));
+    server.on_connection(bind(&HttpServer::on_connection, this, _1));
+    server.on_data(bind(&HttpServer::on_message, this, _1, _2));
 }
 
 void HttpServer::on_connection(const shared_ptr <TcpConnection> &connection) const {
     connection->set_context(HttpContext());
 }
 
-void HttpServer::on_message(const shared_ptr <TcpConnection> &connection, system_clock::time_point recv_time) {
+void HttpServer::on_message(const shared_ptr <TcpConnection> &connection, Timestamp recv_time) {
     auto context = any_cast<HttpContext>(connection->get_context());
     auto parse_success = context.parse_request(connection->in());
 

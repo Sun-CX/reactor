@@ -53,7 +53,7 @@ namespace reactor::net {
 
         ~EpollPoller() override;
 
-        system_clock::time_point poll(Channels &active_channels, int milliseconds) override;
+        Timestamp poll(Channels &active_channels, int milliseconds) override;
 
         // update watched events on channel.
         void update_channel(Channel *channel) override;

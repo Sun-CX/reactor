@@ -17,8 +17,7 @@ using std::bind;
 using std::shared_ptr;
 using std::make_shared;
 using std::chrono::abs;
-using std::chrono::seconds;
-using std::chrono::duration_cast;
+using std::chrono_literals::operator ""s;
 using std::chrono_literals::operator ""ms;
 using reactor::net::Timer;
 using reactor::net::TimerTask;
@@ -28,7 +27,7 @@ Timer::Timer(EventLoop *loop) :
         tasks(),
         timer_channel(this->loop, create_timer_fd()) {
 
-    timer_channel.set_read_callback(bind(&Timer::read_handler, this));
+    timer_channel.on_read(bind(&Timer::handle_read, this));
     timer_channel.enable_reading();
 }
 
@@ -49,7 +48,7 @@ int Timer::create_timer_fd() const {
     return fd;
 }
 
-void Timer::read_handler() {
+void Timer::handle_read() {
     assert(loop->is_in_created_thread());
     assert(!tasks.empty());
     read_timeout_event();
@@ -92,8 +91,8 @@ void Timer::set_timer() const {
 
     auto latest = tasks.peek();
 
-    its.it_value.tv_sec = duration_cast<seconds>(latest->expire.time_since_epoch()).count();
-    its.it_value.tv_nsec = latest->expire.time_since_epoch().count() % 1000000000;
+    its.it_value.tv_sec = latest->expire.time_since_epoch() / 1s;
+    its.it_value.tv_nsec = (latest->expire.time_since_epoch() % 1s).count();
 
     int ret = ::timerfd_settime(timer_channel.get_fd(), TFD_TIMER_ABSTIME, &its, nullptr);
     if (unlikely(ret < 0))
@@ -101,13 +100,9 @@ void Timer::set_timer() const {
 }
 
 void Timer::clear_timer() const {
+
     itimerspec its;
-
-    its.it_interval.tv_sec = 0;
-    its.it_interval.tv_nsec = 0;
-
-    its.it_value.tv_sec = 0;
-    its.it_value.tv_nsec = 0;
+    ::memset(&its, 0, sizeof(its));
 
     int ret = ::timerfd_settime(timer_channel.get_fd(), TFD_TIMER_ABSTIME, &its, nullptr);
     if (unlikely(ret < 0))

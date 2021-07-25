@@ -6,7 +6,6 @@
 #include "Thread.h"
 #include "Ext.h"
 #include "Poller.h"
-#include "Timer.h"
 #include "ConsoleStream.h"
 #include <sys/eventfd.h>
 #include <cassert>
@@ -41,7 +40,7 @@ EventLoop::EventLoop() :
     if (likely(eventloop_in_current_thread == nullptr)) {
         eventloop_in_current_thread = this;
 
-        wakeup_channel->set_read_callback(bind(&EventLoop::read_wakeup, this));
+        wakeup_channel->on_read(bind(&EventLoop::read_wakeup, this));
         wakeup_channel->enable_reading();
         RC_DEBUG << "---------------------- +EventLoop ----------------------";
     } else

@@ -5,9 +5,8 @@
 #ifndef REACTOR_TCPSERVER_H
 #define REACTOR_TCPSERVER_H
 
-#include "Events.h"
+#include "Handlers.h"
 #include "EventLoopThread.h"
-#include <string>
 #include <map>
 
 namespace reactor::net {
@@ -35,9 +34,9 @@ namespace reactor::net {
         shared_ptr<EventLoopThreadPool> thread_pool;
         ConnectionMap connections;
 
-        ConnectionCallback new_connection_callback;
-        MessageCallback message_callback;
-        WriteCompleteCallback write_complete_callback;
+        ConnectionHandler connection_handler;
+        DataHandler data_handler;
+        WriteCompleteHandler write_complete_handler;
         EventLoopThread::ThreadInitializer thread_initial_callback;
 
         void on_new_connection(int con_fd, const InetAddress &peer);
@@ -53,11 +52,11 @@ namespace reactor::net {
 
         void start();
 
-        void set_new_connection_callback(const ConnectionCallback &callback);
+        void on_connection(const ConnectionHandler &handler);
 
-        void set_message_callback(const MessageCallback &callback);
+        void on_data(const DataHandler &handler);
 
-        void set_write_complete_callback(const WriteCompleteCallback &callback);
+        void on_write_complete(const WriteCompleteHandler &handler);
 
         void set_thread_initial_callback(const decltype(thread_initial_callback) &callback);
     };
