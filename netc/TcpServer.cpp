@@ -22,15 +22,14 @@ using std::placeholders::_2;
 using std::chrono::system_clock;
 using reactor::net::TcpConnection;
 using reactor::net::TcpServer;
+using reactor::core::Timestamp;
 
-// 如果客户端代码没有设置连接回调，则调用此默认连接回调
-static void default_connection_callback(const shared_ptr<TcpConnection> &conn) {
-    RC_DEBUG << "client connected: " << conn->peer_address().to_string()
-             << " ----------> " << conn->local_address().to_string();
+static void default_connection_handler(const shared_ptr<TcpConnection> &conn) {
+    RC_INFO << "New Connection: " << conn->peer_address().to_string()
+            << " ----------> " << conn->local_address().to_string();
 }
 
-// 如果客户端代码没有设置消息到来回调，则调用此默认消息回调
-static void default_message_callback(const shared_ptr<TcpConnection> &conn, system_clock::time_point s) {
+static void default_data_handler(const shared_ptr<TcpConnection> &conn, Timestamp ts) {
     conn->in().retrieve_all();
 }
 
@@ -40,8 +39,8 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
           acceptor(new Acceptor(loop, bind_addr, reuse_port)),
           thread_pool(new EventLoopThreadPool(loop, this->name, threads)),
           connections(),
-          connection_handler(default_connection_callback),
-          data_handler(default_message_callback) {
+          connection_handler(default_connection_handler),
+          data_handler(default_data_handler) {
     acceptor->on_new_connection(bind(&TcpServer::on_new_connection, this, _1, _2));
 
     rlimit lim;

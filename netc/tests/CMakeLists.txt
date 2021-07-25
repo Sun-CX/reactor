@@ -18,7 +18,7 @@ add_executable(inetaddress-test InetAddress-Test.cpp)
 target_link_libraries(inetaddress-test PRIVATE asan netc reactor-core)
 
 add_executable(echoserver-test EchoServer-Test.cpp)
-target_link_libraries(echoserver-test netc reactor-core)
+target_link_libraries(echoserver-test asan netc reactor-core)
 
 add_executable(echoserver-benchmark EchoServer-Benchmark.cpp)
 target_link_libraries(echoserver-benchmark reactor-core)
