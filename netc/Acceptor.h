@@ -24,7 +24,7 @@ namespace reactor::net {
         bool listening;
         int idle_fd;
 
-        void handle_read();
+        void handle_read(Timestamp ts);
 
         [[nodiscard]]
         int open_idle_fd() const;

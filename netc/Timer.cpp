@@ -16,6 +16,7 @@
 using std::bind;
 using std::shared_ptr;
 using std::make_shared;
+using std::placeholders::_1;
 using std::chrono::abs;
 using std::chrono_literals::operator ""s;
 using std::chrono_literals::operator ""ms;
@@ -27,7 +28,7 @@ Timer::Timer(EventLoop *loop) :
         tasks(),
         timer_channel(this->loop, create_timer_fd()) {
 
-    timer_channel.on_read(bind(&Timer::handle_read, this));
+    timer_channel.on_read(bind(&Timer::handle_read, this, _1));
     timer_channel.enable_reading();
 }
 
@@ -48,7 +49,7 @@ int Timer::create_timer_fd() const {
     return fd;
 }
 
-void Timer::handle_read() {
+void Timer::handle_read(const Timestamp ts) {
     assert(loop->is_in_created_thread());
     assert(!tasks.empty());
     read_timeout_event();

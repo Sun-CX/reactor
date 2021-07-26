@@ -42,7 +42,7 @@ void Channel::remove() {
     loop->remove_channel(this);
 }
 
-void Channel::handle_events() {
+void Channel::handle_events(const Timestamp ts) {
 
     events_handling = true;
 
@@ -51,7 +51,7 @@ void Channel::handle_events() {
     if (revents & (POLLIN | POLLPRI)) {
         assert(read_handler);
         RC_DEBUG << "Read triggered.";
-        read_handler();
+        read_handler(ts);
     }
 
     if (revents & POLLOUT) {
@@ -141,7 +141,7 @@ bool Channel::writing_enabled() const {
     return events & POLLOUT;
 }
 
-void Channel::on_read(const EventHandler &handler) {
+void Channel::on_read(const ReadHandler &handler) {
     read_handler = handler;
 }
 

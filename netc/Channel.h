@@ -6,10 +6,12 @@
 #define REACTOR_CHANNEL_H
 
 #include "NonCopyable.h"
+#include "Timestamp.h"
 #include <functional>
 
 namespace reactor::net {
     using reactor::core::NonCopyable;
+    using reactor::core::Timestamp;
     using std::function;
 
     class EventLoop;
@@ -17,6 +19,7 @@ namespace reactor::net {
     class Channel final : public NonCopyable {
     private:
         using EventHandler = function<void()>;
+        using ReadHandler = function<void(Timestamp)>;
 
         EventLoop *const loop;
 
@@ -36,7 +39,7 @@ namespace reactor::net {
 
         bool events_handling;
 
-        EventHandler read_handler;
+        ReadHandler read_handler;
         EventHandler write_handler;
         EventHandler close_handler;
         EventHandler error_handler;
@@ -48,7 +51,7 @@ namespace reactor::net {
 
         ~Channel();
 
-        void handle_events();
+        void handle_events(Timestamp ts);
 
         [[nodiscard]]
         int get_fd() const;
@@ -89,7 +92,7 @@ namespace reactor::net {
         [[nodiscard]]
         bool writing_enabled() const;
 
-        void on_read(const EventHandler &handler);
+        void on_read(const ReadHandler &handler);
 
         void on_write(const EventHandler &handler);
 

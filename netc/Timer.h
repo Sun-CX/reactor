@@ -22,7 +22,7 @@ namespace reactor::net {
         [[nodiscard]]
         int create_timer_fd() const;
 
-        void handle_read();
+        void handle_read(Timestamp ts);
 
         void read_timeout_event() const;
 

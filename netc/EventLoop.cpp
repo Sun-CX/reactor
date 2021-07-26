@@ -62,9 +62,9 @@ void EventLoop::loop() {
     RC_DEBUG << "start loop...";
     while (!exited) {
         active_channels.clear();
-        poller->poll(active_channels, default_timeout_milliseconds);
+        Timestamp ts = poller->poll(active_channels, default_timeout_milliseconds);
         // RC_DEBUG << "active_channels' size: " << active_channels.size();
-        for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_events, _1));
+        for_each(active_channels.cbegin(), active_channels.cend(), bind(&Channel::handle_events, _1, ts));
 
         execute_pending_functors();
     }

@@ -11,6 +11,7 @@
 #include <cassert>
 
 using std::bind;
+using reactor::core::Timestamp;
 using reactor::net::EventLoop;
 using reactor::net::Channel;
 
@@ -39,7 +40,9 @@ int main(int argc, const char *argv[]) {
     auto timer_fd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 
     Channel channel(g_loop, timer_fd);
-    channel.on_read([=] { return timeout(timer_fd); });
+    channel.on_read([timer_fd](Timestamp ts) {
+        timeout(timer_fd);
+    });
     channel.enable_reading();
 
     itimerspec spec;

@@ -13,6 +13,7 @@
 #include <cstring>
 
 using std::bind;
+using std::placeholders::_1;
 using reactor::net::TcpConnection;
 using reactor::net::EventLoop;
 using reactor::net::InetAddress;
@@ -35,7 +36,7 @@ TcpConnection::TcpConnection(EventLoop *loop, int con_fd, const InetAddress &loc
         context() {
     RC_DEBUG << "---------------------- +TcpConnection(" << conn_channel->get_fd() << ") ----------------------";
     socket->keep_alive(true);
-    conn_channel->on_read(bind(&TcpConnection::handle_read, this));
+    conn_channel->on_read(bind(&TcpConnection::handle_read, this, _1));
     conn_channel->on_write(bind(&TcpConnection::handle_write, this));
     conn_channel->on_close(bind(&TcpConnection::handle_close, this));
     conn_channel->on_error(bind(&TcpConnection::handle_error, this));
@@ -46,22 +47,20 @@ TcpConnection::~TcpConnection() {
     RC_DEBUG << "---------------------- -TcpConnection(" << conn_channel->get_fd() << ") ----------------------";
 }
 
-void TcpConnection::handle_read() {
+void TcpConnection::handle_read(const Timestamp ts) {
     assert(loop->is_in_created_thread());
     int saved_errno;
     ssize_t n = inbound.read_from_fd(conn_channel->get_fd(), saved_errno);
     if (n > 0) {
-        // TODO: fix timestamp.
-        data_handler(shared_from_this(), system_clock::now());
+        data_handler(shared_from_this(), ts);
     } else if (n == 0) {
 
         RC_DEBUG << "read(" << conn_channel->get_fd() << ") 0 occurred!";
 
-        // peer close will trigger close_handler(), so not call it here.
-
+        // peer close will trigger handle_close(), so not call it here.
     } else {
 
-        // peer error will triggered error_handler(), so not call it here.
+        // peer error will triggered handle_error(), so not call it here.
         RC_ERROR << "read(" << conn_channel->get_fd() << ") error: " << ::strerror(saved_errno);
     }
 }
@@ -143,7 +142,7 @@ void TcpConnection::send() {
         conn_channel->enable_writing();
 }
 
-void TcpConnection::send_and_shutdown() {
+void TcpConnection::close_safely() {
     send();
     if (conn_channel->writing_enabled()) {
         on_write_complete([](const shared_ptr <TcpConnection> &con) {

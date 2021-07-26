@@ -15,21 +15,22 @@ using reactor::net::TcpConnection;
 using reactor::net::InetAddress;
 using std::string;
 using std::shared_ptr;
-using std::chrono::system_clock;
+using reactor::core::Timestamp;
 
 class EchoServer {
 private:
     EventLoop *loop;
     TcpServer server;
 
-    void on_data_arrived(const shared_ptr<TcpConnection> &conn, const system_clock::time_point ts) {
-        RC_DEBUG << "on_message called!";
+    void on_data_arrived(const shared_ptr<TcpConnection> &conn, const Timestamp ts) {
         string msg = conn->in().retrieve_all_string();
+
         if (msg == "exit\n") {
             conn->out().append(msg);
-            conn->send_and_shutdown();
+            conn->close_safely();
             return;
         }
+
         if (msg == "quit\n") {
             conn->out().append("server is closing...\n");
             conn->send();
@@ -38,6 +39,7 @@ private:
             });
             return;
         }
+
         conn->out().append(msg);
         conn->send();
         conn->on_write_complete([](const shared_ptr<TcpConnection> &con) {
