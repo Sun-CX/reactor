@@ -35,7 +35,7 @@ namespace reactor::net {
         // index = -1 means not in `tasks`.
         int index;
 
-        void restart(const steady_clock::time_point &point);
+        void restart(steady_clock::time_point point);
 
     public:
 
@@ -45,7 +45,7 @@ namespace reactor::net {
          * @param expire time_point of timeout.
          * @param interval set a periodic task.
          */
-        TimerTask(TimerCallback callback, const steady_clock::time_point &expire, const nanoseconds &interval);
+        TimerTask(TimerCallback callback, steady_clock::time_point expire, nanoseconds interval);
 
         ~TimerTask();
 

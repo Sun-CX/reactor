@@ -157,7 +157,7 @@ void EventLoop::read_wakeup() const {
     RC_DEBUG << "read from eventfd(" << wakeup_channel->get_fd() << "): value = " << value;
 }
 
-Task EventLoop::schedule(const TimerTask::TimerCallback &callback, const nanoseconds &delay, const nanoseconds &interval) {
+Task EventLoop::schedule(const TimerTask::TimerCallback &callback, const nanoseconds delay, const nanoseconds interval) {
     return timer->schedule(callback, delay, interval);
 }
 

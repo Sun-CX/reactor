@@ -45,8 +45,6 @@ shared_ptr<TimerTask> TimerHeap::remove(int i) {
     if (size() == 1) {
         ret = heap.front();
         heap.pop_back();
-
-        assert(size() == 0);
     } else {
         ret = heap[i];
         int last = static_cast<int>(size() - 1);

@@ -109,7 +109,7 @@ void Timer::clear_timer() const {
         RC_FATAL << "timer(" << timer_channel.get_fd() << ") settime error: " << ::strerror(errno);
 }
 
-shared_ptr<TimerTask> Timer::schedule(const TimerTask::TimerCallback &callback, const nanoseconds &delay, const nanoseconds &interval) {
+shared_ptr<TimerTask> Timer::schedule(const TimerTask::TimerCallback &callback, const nanoseconds delay, const nanoseconds interval) {
 
     shared_ptr<TimerTask> task(nullptr);
 

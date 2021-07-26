@@ -46,7 +46,7 @@ namespace reactor::net {
         ~Timer();
 
         // cross-thread calling is allowed.
-        shared_ptr<TimerTask> schedule(const TimerTask::TimerCallback &callback, const nanoseconds &delay, const nanoseconds &interval);
+        shared_ptr<TimerTask> schedule(const TimerTask::TimerCallback &callback, nanoseconds delay, nanoseconds interval);
 
         // cross-thread calling is allowed.
         void cancel(const shared_ptr<TimerTask> &task);

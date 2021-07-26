@@ -9,7 +9,7 @@ using std::chrono::steady_clock;
 using std::chrono_literals::operator ""ns;
 using reactor::net::TimerTask;
 
-TimerTask::TimerTask(TimerCallback callback, const steady_clock::time_point &expire, const nanoseconds &interval) :
+TimerTask::TimerTask(TimerCallback callback, const steady_clock::time_point expire, const nanoseconds interval) :
         expire(expire),
         interval(interval),
         timer_callback(move(callback)),
@@ -21,7 +21,7 @@ TimerTask::~TimerTask() {
     RC_DEBUG << "---------------------- -TimerTask ----------------------";
 }
 
-void TimerTask::restart(const steady_clock::time_point &point) {
+void TimerTask::restart(const steady_clock::time_point point) {
     expire = point;
 }
 

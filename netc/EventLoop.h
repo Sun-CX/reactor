@@ -105,7 +105,7 @@ namespace reactor::net {
         void queue_in_loop(const Functor &func);
 
         // cross-thread calling is allowed.
-        Task schedule(const TimerTask::TimerCallback &callback, const nanoseconds &delay, const nanoseconds &interval = 0ns);
+        Task schedule(const TimerTask::TimerCallback &callback, nanoseconds delay, nanoseconds interval = 0ns);
 
         // cancel a timer task created by calling `schedule`.
         // cross-thread calling is allowed.
