@@ -5,16 +5,12 @@
 #ifndef REACTOR_CONNECTOR_H
 #define REACTOR_CONNECTOR_H
 
-#include "NonCopyable.h"
 #include "InetAddress.h"
-#include <memory>
-#include <functional>
+#include "EventLoop.h"
 
 namespace reactor::net {
-    using reactor::core::NonCopyable;
+    using reactor::net::Task;
     using std::enable_shared_from_this;
-    using std::function;
-    using std::unique_ptr;
 
     class EventLoop;
 
@@ -22,18 +18,20 @@ namespace reactor::net {
 
     class Connector final : public NonCopyable, public enable_shared_from_this<Connector> {
     private:
-        using NewConnectionCallback = function<void(int)>;
+        using NewConnectionHandler = function<void(int)>;
 
         enum STATUS {
             DISCONNECTED, CONNECTING, CONNECTED
         };
 
-        EventLoop *loop;
+        EventLoop *const loop;
         InetAddress server_addr;
         STATUS status;
         unique_ptr<Channel> channel;
-        NewConnectionCallback connection_callback;
-        int retry_delay_ms;
+        NewConnectionHandler con_handler;
+        Task cur_task;
+        // whether connector needs retry if connecting error.
+        bool enable_retry;
 
         void start_in_loop();
 
@@ -41,36 +39,38 @@ namespace reactor::net {
 
         void connect();
 
-        void connecting(int sock_fd);
+        void connecting(int fd);
 
         void handle_write();
 
+        void handle_close();
+
         void handle_error();
 
-        int remove_and_reset_channel();
+        void remove_and_reset_channel();
 
         void reset_channel();
 
         bool is_self_connect(int fd) const;
 
-        int get_sock_err(int sock_fd) const;
+        int get_sock_err(int sock) const;
 
-        void retry(int sock_fd);
+        void retry(int fd);
+
+        void close(int fd) const;
 
     public:
         Connector(EventLoop *loop, const InetAddress &addr);
 
         ~Connector();
 
-        void set_new_conn_callback(const NewConnectionCallback &callback);
+        void on_connection(const NewConnectionHandler &handler);
 
+        // cross-thread calling is allowed.
         void start();
 
-//        void restart();
-
+        // cross-thread calling is allowed.
         void stop();
-
-        const InetAddress &get_server_addr() const;
     };
 }
 

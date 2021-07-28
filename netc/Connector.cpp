@@ -4,36 +4,34 @@
 
 #include "Connector.h"
 #include "ConsoleStream.h"
-#include "EventLoop.h"
 #include "Channel.h"
+#include "Ext.h"
 #include <cassert>
-#include <memory>
+#include <cstring>
 #include <unistd.h>
 
 using std::make_unique;
+using std::chrono_literals::operator ""s;
 using reactor::net::Connector;
 using reactor::net::InetAddress;
 using reactor::net::EventLoop;
-using reactor::core::operator ""_s;
 
 Connector::Connector(EventLoop *loop, const InetAddress &addr) :
         loop(loop),
         server_addr(addr),
         status(DISCONNECTED),
         channel(),
-        connection_callback(),
-        retry_delay_ms(30 * 1000) {}
+        con_handler(),
+        cur_task(),
+        enable_retry(true) {}
 
 Connector::~Connector() {
+    assert(channel == nullptr);
     RC_DEBUG << "-------------- -Connector --------------";
 }
 
-void Connector::set_new_conn_callback(const NewConnectionCallback &callback) {
-    connection_callback = callback;
-}
-
-const InetAddress &Connector::get_server_addr() const {
-    return server_addr;
+void Connector::on_connection(const NewConnectionHandler &handler) {
+    con_handler = handler;
 }
 
 void Connector::start() {
@@ -41,24 +39,24 @@ void Connector::start() {
 }
 
 void Connector::start_in_loop() {
-    assert(loop->is_in_loop_thread());
+    assert(loop->is_in_created_thread());
     assert(status == DISCONNECTED);
     connect();
 }
 
 void Connector::connect() {
-    int sock_fd = ::socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
-    if (sock_fd < 0) RC_FATAL << "socket create error";
+    int fd = ::socket(PF_INET, SOCK_STREAM | SOCK_NONBLOCK | SOCK_CLOEXEC, IPPROTO_TCP);
+    if (fd < 0) RC_FATAL << "socket create error: " << ::strerror(errno);
 
-    int rc = ::connect(sock_fd, server_addr.get_sockaddr(), sizeof(server_addr));
-    int err = rc == 0 ? 0 : errno;
+    int ret = ::connect(fd, server_addr.get_sockaddr(), sizeof(server_addr));
+    int err = ret == 0 ? 0 : errno;
 
     switch (err) {
         case 0:
         case EINPROGRESS:
         case EINTR:
         case EISCONN:
-            connecting(sock_fd);
+            connecting(fd);
             break;
 
         case EAGAIN:
@@ -66,7 +64,7 @@ void Connector::connect() {
         case EADDRNOTAVAIL:
         case ECONNREFUSED:
         case ENETUNREACH:
-            retry(sock_fd);
+            retry(fd);
             break;
 
         case EACCES:
@@ -76,51 +74,69 @@ void Connector::connect() {
         case EBADF:
         case EFAULT:
         case ENOTSOCK:
-            RC_ERROR << "Connect error: " << err;
-            ::close(sock_fd);
+            close(fd);
             break;
 
         default:
-            RC_FATAL << "Unexpected error: " << err;
-            ::close(sock_fd);
+            close(fd);
             break;
     }
 }
 
-void Connector::handle_write() {
-    assert(status == CONNECTING);
+void Connector::connecting(int fd) {
+    assert(status == DISCONNECTED);
 
-    int sock_fd = remove_and_reset_channel();
+    status = CONNECTING;
+    assert(channel == nullptr);
 
-    int err = get_sock_err(sock_fd);
-
-    if (err != 0) {
-        RC_ERROR << "Connector SO_ERROR: " << err;
-        retry(sock_fd);
-    } else if (is_self_connect(sock_fd)) {
-        RC_ERROR << "Connector self connecting";
-        retry(sock_fd);
-    } else {
-        status = CONNECTED;
-        connection_callback(sock_fd);
-    }
+    channel = make_unique<Channel>(loop, fd);
+    channel->on_write(bind(&Connector::handle_write, this));
+    channel->on_close(bind(&Connector::handle_close, this));
+    channel->on_error(bind(&Connector::handle_error, this));
+    channel->enable_writing();
 }
 
-int Connector::remove_and_reset_channel() {
-    channel->disable_all();
-    channel->remove();
+void Connector::handle_write() {
+    assert(loop->is_in_created_thread());
+    assert(status == CONNECTING);
 
-    int sock_fd = channel->get_fd();
-    loop->queue_in_loop(bind(&Connector::reset_channel, this));
-    return sock_fd;
+    int fd = channel->get_fd();
+    int err = get_sock_err(fd);
+
+    if (err == 0) {
+
+        remove_and_reset_channel();
+
+        status = CONNECTED;
+        con_handler(fd);
+
+    } else
+        RC_ERROR << "Connector(" << fd << ") error: " << ::strerror(err);
+}
+
+void Connector::handle_close() {
+    assert(loop->is_in_created_thread());
+    assert(status == CONNECTING);
+
+    remove_and_reset_channel();
+
+    loop->queue_in_loop(bind(&Connector::retry, this, channel->get_fd()));
 }
 
 void Connector::handle_error() {
+    assert(loop->is_in_created_thread());
     assert(status == CONNECTING);
-    int sock = remove_and_reset_channel();
-    int err = get_sock_err(sock);
-    RC_ERROR << "Connector SOL_ERROR: " << err;
-    retry(sock);
+}
+
+void Connector::remove_and_reset_channel() {
+    channel->remove();
+    loop->queue_in_loop(bind(&Connector::reset_channel, this));
+}
+
+void Connector::reset_channel() {
+    assert(channel != nullptr);
+    channel.reset();
+    assert(channel == nullptr);
 }
 
 void Connector::stop() {
@@ -128,31 +144,18 @@ void Connector::stop() {
 }
 
 void Connector::stop_in_loop() {
-    assert(loop->is_in_loop_thread());
+    assert(loop->is_in_created_thread());
 
-    if (status == CONNECTING) {
-        status = DISCONNECTED;
-        int fd = remove_and_reset_channel();
-        retry(fd);
+    if (status == DISCONNECTED) {
+        if (cur_task) {
+            loop->cancel(cur_task);
+            cur_task.reset();
+
+            assert(cur_task == nullptr);
+        }
+    } else if (status == CONNECTING) {
+        enable_retry = false;
     }
-}
-
-void Connector::connecting(int sock_fd) {
-    assert(status == DISCONNECTED);
-
-    status = CONNECTING;
-    assert(channel == nullptr);
-
-    channel = make_unique<Channel>(loop, sock_fd);
-    channel->set_write_callback(bind(&Connector::handle_write, this));
-    channel->set_error_callback(bind(&Connector::handle_error, this));
-
-    channel->enable_writing();
-}
-
-void Connector::reset_channel() {
-    assert(channel != nullptr);
-    channel.reset();
 }
 
 bool Connector::is_self_connect(int fd) const {
@@ -160,21 +163,33 @@ bool Connector::is_self_connect(int fd) const {
     return false;
 }
 
-int Connector::get_sock_err(int sock_fd) const {
+int Connector::get_sock_err(const int sock) const {
     int opt;
-    socklen_t socklen = sizeof(opt);
-    if (::getsockopt(sock_fd, SOL_SOCKET, SO_ERROR, &opt, &socklen) < 0) {
+    socklen_t len = sizeof(opt);
+    if (unlikely(::getsockopt(sock, SOL_SOCKET, SO_ERROR, &opt, &len) < 0)) {
+        RC_FATAL << "getsockopt(" << sock << ") error: " << ::strerror(errno);
         return errno;
     } else return opt;
 }
 
-void Connector::retry(int sock_fd) {
-    int rc = ::close(sock_fd);
-    if (rc < 0) RC_ERROR << "Socket " << sock_fd << " close error";
+void Connector::retry(int fd) {
+    assert(status == CONNECTING);
+
+    close(fd);
 
     status = DISCONNECTED;
 
-    RC_TRACE << "Connector retry...";
+    cur_task.reset();
 
-    loop->schedule(bind(&Connector::start_in_loop, shared_from_this()), 0_s, 2_s);
+    if (enable_retry) {
+        assert(cur_task == nullptr);
+
+        RC_TRACE << "Connector retry...";
+        cur_task = loop->schedule(bind(&Connector::start_in_loop, this), 2s);
+    }
+}
+
+void Connector::close(int fd) const {
+    if (unlikely(::close(fd) < 0))
+        RC_FATAL << "Socket(" << fd << ") close error: " << ::strerror(errno);
 }

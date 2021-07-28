@@ -46,3 +46,9 @@ target_link_libraries(timer-test PRIVATE asan netc reactor-core)
 
 add_executable(timerfd-test timerfd-Test.cpp)
 target_link_libraries(timerfd-test PRIVATE reactor-core)
+
+add_executable(connector-test Connector-Test.cpp)
+target_link_libraries(connector-test PRIVATE asan reactor-core netc)
+
+add_executable(echoclient-test EchoClient-Test.cpp)
+target_link_libraries(echoclient-test PRIVATE asan reactor-core netc)

@@ -123,8 +123,8 @@ void TcpConnection::connection_established() {
     assert(loop->is_in_created_thread());
     assert(status == CONNECTING);
 
-    con_handler(shared_from_this());
     status = CONNECTED;
+    con_handler(shared_from_this());
     conn_channel->enable_reading();
 }
 
