@@ -64,7 +64,7 @@ namespace reactor::net {
 
         ~Connector();
 
-        void on_connection(const NewConnectionHandler &handler);
+        void on_connect(const NewConnectionHandler &handler);
 
         // cross-thread calling is allowed.
         void start();

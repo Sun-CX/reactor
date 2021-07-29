@@ -29,6 +29,8 @@ namespace reactor::net {
     private:
         friend class TcpServer;
 
+        friend class TcpClient;
+
         // DISCONNECTING: tcp connection is on half-close state.
         enum STATUS {
             CONNECTING, CONNECTED, DISCONNECTING, DISCONNECTED
@@ -64,11 +66,11 @@ namespace reactor::net {
 
         void force_close();
 
-//    void send_in_loop();
-
-//    void send_in_loop(const StringPiece &piece);
-
-//    void send_in_loop(const void *data, size_t len);
+        // void send_in_loop();
+        //
+        // void send_in_loop(const StringPiece &piece);
+        //
+        // void send_in_loop(const void *data, size_t len);
 
     public:
         TcpConnection(EventLoop *loop, int con_fd, const InetAddress &local, const InetAddress &peer);

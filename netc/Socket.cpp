@@ -37,3 +37,12 @@ void Socket::shutdown_write() const {
     if (unlikely(::shutdown(fd, SHUT_WR) < 0))
         RC_FATAL << "shutdown socket(" << fd << ") error: " << ::strerror(errno);
 }
+
+int Socket::get_error() const {
+    int opt;
+    socklen_t len = sizeof(opt);
+    if (unlikely(::getsockopt(fd, SOL_SOCKET, SO_ERROR, &opt, &len) < 0)) {
+        RC_FATAL << "getsockopt(" << fd << ") error: " << ::strerror(errno);
+        return errno;
+    } else return opt;
+}

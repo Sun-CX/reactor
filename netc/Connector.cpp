@@ -30,7 +30,7 @@ Connector::~Connector() {
     RC_DEBUG << "-------------- -Connector --------------";
 }
 
-void Connector::on_connection(const NewConnectionHandler &handler) {
+void Connector::on_connect(const NewConnectionHandler &handler) {
     con_handler = handler;
 }
 
@@ -111,7 +111,7 @@ void Connector::handle_write() {
         con_handler(fd);
 
     } else
-        RC_ERROR << "Connector(" << fd << ") error: " << ::strerror(err);
+        RC_ERROR << "socket(" << fd << ") error: " << ::strerror(err);
 }
 
 void Connector::handle_close() {
@@ -184,12 +184,12 @@ void Connector::retry(int fd) {
     if (enable_retry) {
         assert(cur_task == nullptr);
 
-        RC_TRACE << "Connector retry...";
+        RC_DEBUG << "retry...";
         cur_task = loop->schedule(bind(&Connector::start_in_loop, this), 2s);
     }
 }
 
 void Connector::close(int fd) const {
     if (unlikely(::close(fd) < 0))
-        RC_FATAL << "Socket(" << fd << ") close error: " << ::strerror(errno);
+        RC_FATAL << "socket(" << fd << ") close error: " << ::strerror(errno);
 }

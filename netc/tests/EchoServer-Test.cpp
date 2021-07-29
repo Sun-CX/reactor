@@ -27,7 +27,7 @@ private:
 
         if (msg == "exit\n") {
             conn->out().append(msg);
-            conn->close_safely();
+            conn->close();
             return;
         }
 
@@ -47,17 +47,12 @@ private:
         });
     }
 
-    void on_connection(const shared_ptr<TcpConnection> &con) const {
-        con->close_safely();
-    }
-
 public:
     EchoServer(EventLoop *loop, const InetAddress listen_addr, int threads) :
             loop(loop),
             server(loop, listen_addr, "echo-svr", threads, true) {
 
         server.on_data(bind(&EchoServer::on_data_arrived, this, _1, _2));
-        server.on_connection(bind(&EchoServer::on_connection, this, _1));
     }
 
     void start() { server.start(); }

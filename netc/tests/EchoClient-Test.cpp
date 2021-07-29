@@ -31,7 +31,8 @@ private:
     void on_message(const shared_ptr<TcpConnection> &con, Timestamp ts) const {
         string s = con->in().retrieve_all_string();
         RC_DEBUG << s;
-        con->close_safely();
+        con->close();
+        // loop->quit();
     }
 
 public:
@@ -39,7 +40,7 @@ public:
             loop(loop),
             client(loop, addr, "cli") {
 
-        client.on_connection(bind(&EchoClient::on_connect, this, _1));
+        client.on_connect(bind(&EchoClient::on_connect, this, _1));
         client.on_data(bind(&EchoClient::on_message, this, _1, _2));
     }
 

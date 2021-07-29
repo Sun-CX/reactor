@@ -27,6 +27,9 @@ namespace reactor::net {
         void shutdown_write() const;
 
         void keep_alive(bool on) const;
+
+        [[nodiscard]]
+        int get_error() const;
     };
 }
 

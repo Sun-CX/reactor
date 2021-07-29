@@ -109,15 +109,12 @@ void TcpConnection::handle_close() {
 
 void TcpConnection::handle_error() {
     assert(loop->is_in_created_thread());
-    int opt;
-    socklen_t len = sizeof(opt);
-    int ret = ::getsockopt(conn_channel->get_fd(), SOL_SOCKET, SO_ERROR, &opt, &len);
-    if (unlikely(ret < 0))
-        RC_FATAL << "getsockopt(" << conn_channel->get_fd() << ") error: " << ::strerror(errno);
+    
+    int err = socket->get_error();
 
     // error occurs.
-    if (likely(opt))
-        RC_ERROR << "connection(" << conn_channel->get_fd() << ") error: " << ::strerror(opt);
+    if (likely(err))
+        RC_ERROR << "socket(" << conn_channel->get_fd() << ") error: " << ::strerror(err);
 }
 
 void TcpConnection::connection_established() {

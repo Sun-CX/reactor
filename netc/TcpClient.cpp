@@ -17,31 +17,29 @@ TcpClient::TcpClient(EventLoop *loop, const InetAddress &addr, string name) :
         loop(loop),
         connector(new Connector(this->loop, addr)),
         name(move(name)),
-        connection_callback(),
-        message_callback(),
-        write_complete_callback(),
+        con_handler(),
+        data_handler(),
+        write_complete_handler(),
         retry(false),
         next_con_id(1),
         mutex(),
-        connection() {
-    connector->set_new_conn_callback(bind(&TcpClient::new_connection, this, _1));
+        con_holder() {
+    connector->on_connect(bind(&TcpClient::new_connection, this, _1));
 }
 
 TcpClient::~TcpClient() {
     shared_ptr <TcpConnection> con;
-    bool unique;
+    bool unique = false;
     {
         MutexGuard guard(mutex);
-        unique = connection.unique();
-        con = connection;
+        unique = con_holder.unique();
+        con = con_holder;
     }
 
     if (con) {
         assert(loop == con->get_loop());
-
-
+        con->force_close();
     }
-
 }
 
 void TcpClient::connect() {
@@ -54,22 +52,55 @@ void TcpClient::stop() {
 
 void TcpClient::disconnect() {
     MutexGuard guard(mutex);
-    if (connection) {
-        connection->shutdown();
+    if (con_holder) {
+        con_holder->close();
     }
 }
 
-void TcpClient::new_connection(int sock_fd) {
-    assert(loop->is_in_loop_thread());
+void TcpClient::new_connection(const int fd) {
+    assert(loop->is_in_created_thread());
 
-    InetAddress peer = InetAddress::get_peer_address(sock_fd);
-    InetAddress local = InetAddress::get_local_address(sock_fd);
-    shared_ptr <TcpConnection> conn = make_shared<TcpConnection>(loop, sock_fd, local, peer);
+    InetAddress peer = InetAddress::get_peer_address(fd);
+    InetAddress local = InetAddress::get_local_address(fd);
+    auto con = make_shared<TcpConnection>(loop, fd, local, peer);
 
-    conn->set_connection_callback();
-    conn->set_message_callback();
-    conn->set_write_complete_callback();
-    conn->set_close_callback();
+    con->on_connect(con_handler);
+    con->on_data(data_handler);
+    con->on_write_complete(write_complete_handler);
+    con->on_close(bind(&TcpClient::remove_connection, this, _1));
 
-    conn->connection_established();
+    // hold this connection, otherwise is will be freed.
+    {
+        MutexGuard guard(mutex);
+        con_holder = con;
+    }
+
+    con->connection_established();
+}
+
+void TcpClient::remove_connection(const shared_ptr <TcpConnection> &con) {
+    assert(loop->is_in_created_thread());
+
+    {
+        MutexGuard guard(mutex);
+        assert(con_holder == con);
+        con_holder.reset();
+        assert(con_holder == nullptr);
+    }
+
+    loop->queue_in_loop(bind(&TcpConnection::connection_destroyed, con));
+
+    // TODO: 断线重连
+}
+
+void TcpClient::on_connect(const ConnectionHandler &handler) {
+    con_handler = handler;
+}
+
+void TcpClient::on_data(const DataHandler &handler) {
+    data_handler = handler;
+}
+
+void TcpClient::on_write_complete(const WriteCompleteHandler &handler) {
+    write_complete_handler = handler;
 }

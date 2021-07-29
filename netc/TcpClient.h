@@ -5,9 +5,8 @@
 #ifndef REACTOR_TCPCLIENT_H
 #define REACTOR_TCPCLIENT_H
 
-#include <memory>
-#include "Handlers.h"
 #include "Mutex.h"
+#include "Handlers.h"
 
 namespace reactor::net {
     using reactor::core::NonCopyable;
@@ -25,18 +24,18 @@ namespace reactor::net {
 
     class TcpClient final : public NonCopyable {
     private:
-        EventLoop *loop;
+        EventLoop *const loop;
         shared_ptr<Connector> connector;
         string name;
-        ConnectionCallback connection_callback;
-        MessageCallback message_callback;
-        WriteCompleteCallback write_complete_callback;
+        ConnectionHandler con_handler;
+        DataHandler data_handler;
+        WriteCompleteHandler write_complete_handler;
         bool retry;
         int next_con_id;
         mutable Mutex mutex;
-        shared_ptr<TcpConnection> connection;
+        shared_ptr<TcpConnection> con_holder;
 
-        void new_connection(int sock_fd);
+        void new_connection(int fd);
 
         void remove_connection(const shared_ptr<TcpConnection> &con);
 
@@ -50,6 +49,12 @@ namespace reactor::net {
         void disconnect();
 
         void stop();
+
+        void on_connect(const ConnectionHandler &handler);
+
+        void on_data(const DataHandler &handler);
+
+        void on_write_complete(const WriteCompleteHandler &handler);
     };
 }
 

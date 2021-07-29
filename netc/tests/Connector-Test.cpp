@@ -22,7 +22,7 @@ int main(int argc, const char *argv[]) {
 
     InetAddress address("192.168.2.2", 8080);
     Connector connector(&loop, address);
-    connector.on_connection(new_connection);
+    connector.on_connect(new_connection);
 
     Thread t([&connector] {
         EventLoop loop1;
