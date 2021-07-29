@@ -16,7 +16,7 @@ using reactor::core::to_string;
 HttpServer::HttpServer(EventLoop *loop, const InetAddress &addr, string name, int threads, bool reuse_port) :
         server(loop, addr, move(name), threads, reuse_port) {
 
-    server.on_connection(bind(&HttpServer::on_connection, this, _1));
+    server.on_connect(bind(&HttpServer::on_connection, this, _1));
     server.on_data(bind(&HttpServer::on_message, this, _1, _2));
 }
 

@@ -39,7 +39,7 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
           acceptor(new Acceptor(loop, bind_addr, reuse_port)),
           thread_pool(new EventLoopThreadPool(loop, this->name, threads)),
           connections(),
-          connection_handler(default_connection_handler),
+          con_handler(default_connection_handler),
           data_handler(default_data_handler) {
     acceptor->on_new_connection(bind(&TcpServer::on_new_connection, this, _1, _2));
 
@@ -57,10 +57,8 @@ TcpServer::~TcpServer() {
     assert(loop->is_in_created_thread());
     RC_INFO << "---------------------- ~TcpServer ----------------------";
     for (auto &e : connections) {
-        shared_ptr<TcpConnection> conn(e.second);
-//        INFO << "conn use count: " << conn.use_count();
+        shared_ptr<TcpConnection> conn = e.second;
         e.second.reset();
-//        INFO << "conn use count: " << conn.use_count();
         assert(e.second == nullptr);
         conn->get_loop()->queue_in_loop(bind(&TcpConnection::force_close, conn));
     }
@@ -74,7 +72,7 @@ void TcpServer::on_new_connection(int con_fd, const InetAddress &peer) {
     InetAddress local = InetAddress::get_local_address(con_fd);
 
     auto conn = make_shared<TcpConnection>(io_loop, con_fd, local, peer);
-    conn->on_connection(connection_handler);
+    conn->on_connect(con_handler);
     conn->on_data(data_handler);
     conn->on_write_complete(write_complete_handler);
     conn->on_close(bind(&TcpServer::remove_connection, this, _1));
@@ -101,8 +99,8 @@ void TcpServer::start() {
     acceptor->listen();
 }
 
-void TcpServer::on_connection(const ConnectionHandler &handler) {
-    connection_handler = handler;
+void TcpServer::on_connect(const ConnectionHandler &handler) {
+    con_handler = handler;
 }
 
 void TcpServer::on_data(const DataHandler &handler) {

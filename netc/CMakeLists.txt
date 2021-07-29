@@ -20,9 +20,8 @@ set(LIBRARY_SOURCE
         TimerTask.cpp
         TimerHeap.cpp
         Timer.cpp
-        #        Connector.cpp
-        #        TcpClient.cpp
-        )
+        Connector.cpp
+        TcpClient.cpp)
 
 if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     message(FATAL_ERROR "${PROJECT_NAME} only supports Linux OS for now.")

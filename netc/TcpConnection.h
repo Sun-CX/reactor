@@ -84,7 +84,7 @@ namespace reactor::net {
         void send();
 
         // ensure all data in outbound buffer has been sent and then close connection.
-        void close_safely();
+        void close();
 
         const any &get_context() const;
 
@@ -102,7 +102,7 @@ namespace reactor::net {
 
         EventLoop *get_loop() const;
 
-        void on_connection(const ConnectionHandler &handler);
+        void on_connect(const ConnectionHandler &handler);
 
         void on_data(const DataHandler &handler);
 

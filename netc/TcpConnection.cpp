@@ -142,7 +142,7 @@ void TcpConnection::send() {
         conn_channel->enable_writing();
 }
 
-void TcpConnection::close_safely() {
+void TcpConnection::close() {
     send();
     if (conn_channel->writing_enabled()) {
         on_write_complete([](const shared_ptr <TcpConnection> &con) {
@@ -202,7 +202,7 @@ void TcpConnection::set_context(const any &ctx) {
     context = ctx;
 }
 
-void TcpConnection::on_connection(const ConnectionHandler &handler) {
+void TcpConnection::on_connect(const ConnectionHandler &handler) {
     con_handler = handler;
 }
 

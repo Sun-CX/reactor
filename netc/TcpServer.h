@@ -34,7 +34,7 @@ namespace reactor::net {
         shared_ptr<EventLoopThreadPool> thread_pool;
         ConnectionMap connections;
 
-        ConnectionHandler connection_handler;
+        ConnectionHandler con_handler;
         DataHandler data_handler;
         WriteCompleteHandler write_complete_handler;
         EventLoopThread::ThreadInitializer thread_initial_callback;
@@ -52,10 +52,13 @@ namespace reactor::net {
 
         void start();
 
-        void on_connection(const ConnectionHandler &handler);
+        // `handler` will be called when a new client connection is established.
+        void on_connect(const ConnectionHandler &handler);
 
+        // `handler` will be called when data from client is received.
         void on_data(const DataHandler &handler);
 
+        // `handler` will be called when data from server is completely sent.
         void on_write_complete(const WriteCompleteHandler &handler);
 
         void set_thread_initial_callback(const decltype(thread_initial_callback) &callback);
