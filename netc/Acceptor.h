@@ -36,7 +36,7 @@ namespace reactor::net {
 
         ~Acceptor();
 
-        void on_new_connection(const NewConnectionHandler &hdr);
+        void on_connect(const NewConnectionHandler &hdr);
 
         void listen();
 

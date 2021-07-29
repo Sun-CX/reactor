@@ -80,7 +80,7 @@ void Acceptor::listen() {
     accept_channel.enable_reading();
 }
 
-void Acceptor::on_new_connection(const NewConnectionHandler &hdr) {
+void Acceptor::on_connect(const NewConnectionHandler &hdr) {
     handler = hdr;
 }
 
