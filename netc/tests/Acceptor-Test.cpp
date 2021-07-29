@@ -5,8 +5,8 @@
 #include "EventLoop.h"
 #include "InetAddress.h"
 #include "Acceptor.h"
-#include <unistd.h>
 #include "ConsoleStream.h"
+#include <unistd.h>
 
 using reactor::net::EventLoop;
 using reactor::net::InetAddress;
@@ -23,7 +23,7 @@ int main(int argc, const char *argv[]) {
 
     InetAddress addr("192.168.2.2", 8080);
     Acceptor acceptor(&loop, addr, true);
-    acceptor.on_new_connection(on_new_connection);
+    acceptor.on_connect(on_new_connection);
     acceptor.listen();
 
     loop.loop();
