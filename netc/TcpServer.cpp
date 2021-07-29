@@ -41,7 +41,7 @@ TcpServer::TcpServer(EventLoop *loop, const InetAddress &bind_addr, string name,
           connections(),
           con_handler(default_connection_handler),
           data_handler(default_data_handler) {
-    acceptor->on_new_connection(bind(&TcpServer::on_new_connection, this, _1, _2));
+    acceptor->on_connect(bind(&TcpServer::on_new_connection, this, _1, _2));
 
     rlimit lim;
     if (::getrlimit(RLIMIT_NOFILE, &lim) < 0)

@@ -78,8 +78,9 @@ void TcpConnection::handle_write() {
                 assert(conn_channel->is_disabled());
             }
 
+            // loop->queue_in_loop(bind(write_complete_handler, shared_from_this()));
             if (write_complete_handler)
-                loop->queue_in_loop(bind(write_complete_handler, shared_from_this()));
+                write_complete_handler(shared_from_this());
         }
     } else
         RC_ERROR << "write fd(" << conn_channel->get_fd() << ") error: " << ::strerror(errno);
@@ -148,8 +149,7 @@ void TcpConnection::close() {
         on_write_complete([](const shared_ptr <TcpConnection> &con) {
             con->shutdown();
         });
-    } else
-        shutdown();
+    } else shutdown();
 }
 
 void TcpConnection::shutdown() {
@@ -164,7 +164,7 @@ void TcpConnection::shutdown() {
 void TcpConnection::force_close() {
     assert(loop->is_in_created_thread());
     assert(status == CONNECTED);
-    RC_INFO << "-------------- quit --------------";
+    RC_INFO << "-------------- force close --------------";
     status = DISCONNECTING;
     conn_channel->remove();
     connection_destroyed();
