@@ -13,7 +13,7 @@ static void v1() {
     RC_INFO << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye ";
     RC_WARN << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye ";
     RC_ERROR << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye ";
-//    FATAL << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye";
+    // FATAL << "hello" << 1 << 6.9 << 'x' << "world" << 34 << " bye";
 }
 
 int main(int argc, const char *argv[]) {
